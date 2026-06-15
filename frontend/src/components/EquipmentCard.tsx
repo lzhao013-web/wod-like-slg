@@ -21,6 +21,9 @@ export function EquipmentCard(props: {
   const m = rarityMeta(props.item.rarity)
   const stats = props.item.stats ?? {}
   const resists = props.item.resistances ?? {}
+  const affixes = props.item.affixes ?? []
+  const kind = props.item.item_kind_label ?? (props.item.item_kind === 'special' ? '特殊装备' : props.item.item_kind === 'special_base' ? '特别装备' : '基础装备')
+  const level = props.item.item_level ? ` · Lv.${props.item.item_level}` : ''
   return (
     <div
       className={cx('eqCard', `eqCard--${m.key}`, props.selected && 'is-selected', props.compact && 'is-compact')}
@@ -32,7 +35,7 @@ export function EquipmentCard(props: {
         <span className="eqCard__slot" title={SLOT_LABEL[props.item.slot]}>{SLOT_ICON[props.item.slot] ?? '✦'}</span>
         <div className="eqCard__title">
           <b>{props.item.name}</b>
-          <span className="eqCard__sub"><RarityTag rarity={props.item.rarity} /> {SLOT_LABEL[props.item.slot] ?? props.item.slot}</span>
+          <span className="eqCard__sub"><RarityTag rarity={props.item.rarity} /> {kind} · {SLOT_LABEL[props.item.slot] ?? props.item.slot}{level}</span>
         </div>
         {props.showCost && props.cost !== undefined && (
           <span className={cx('eqCard__cost', props.affordable === false && 'is-poor')}>🪙 {num(props.cost)}</span>
@@ -59,6 +62,11 @@ export function EquipmentCard(props: {
           {(props.item.special_effects ?? []).length > 0 && (
             <div className="eqCard__effects">
               {props.item.special_effects.map(e => <span key={e} className="eqEffect">✦ {specialEffectLabel(e)}</span>)}
+            </div>
+          )}
+          {affixes.length > 0 && (
+            <div className="eqCard__effects">
+              {affixes.map(a => <span key={a.id} className="eqEffect">◆ {a.name}</span>)}
             </div>
           )}
           {props.item.durability !== undefined && (

@@ -219,13 +219,26 @@ export interface PartySummary {
 export interface EquipmentItem {
   instance_id: string
   template_id: string
+  base_name?: string
   name: string
   slot: string
   rarity: string
+  rarity_label?: string
+  item_kind?: string
+  item_kind_label?: string
+  item_level?: number
   cost: number
   stats: Record<string, number>
   resistances: Record<string, number>
   special_effects: string[]
+  affixes?: Array<{
+    id: string
+    name: string
+    stats?: Record<string, number>
+    resistances?: Record<string, number>
+    special_effects?: string[]
+    durability_bonus?: number
+  }>
   durability: number
   max_durability: number
   class_restriction: string[]
@@ -392,6 +405,16 @@ export interface CombatRoundDetail {
 }
 
 export interface ShopView {
-  items: Array<{ shop_id: string; kind: string; template_id: string; name: string; slot?: string; cost: number; summary: string }>
+  items: Array<{
+    shop_id: string
+    kind: string
+    template_id: string
+    name: string
+    slot?: string
+    rarity?: string
+    cost: number
+    summary: string
+    equipment?: EquipmentItem
+  }>
   recruits: Array<{ candidate_id: string; class_id: string; class_name: string; class_meta?: CharacterView['class_meta']; name: string; level: number; cost: number; role: string }>
 }

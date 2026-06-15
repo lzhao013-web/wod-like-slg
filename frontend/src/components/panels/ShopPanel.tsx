@@ -99,16 +99,18 @@ function translateSummary(text: string): string {
 
 // Shop items use a lighter schema than inventory items; adapt to EquipmentCard props.
 function toEquipment(i: ShopView['items'][number]) {
+  if (i.equipment) return { ...i.equipment, cost: i.cost }
   return {
     instance_id: i.shop_id,
     template_id: i.template_id,
     name: i.name,
-    slot: i.slot ?? 'trinket',
-    rarity: 'uncommon',
+    slot: i.slot ?? 'backpack',
+    rarity: i.rarity ?? 'common',
     cost: i.cost,
     stats: {},
     resistances: {},
     special_effects: [],
+    affixes: [],
     durability: 0,
     max_durability: 0,
     class_restriction: [],

@@ -20,16 +20,17 @@ export function elementMeta(key: string): ElementMeta {
   return (ELEMENTS as Record<string, ElementMeta>)[key] ?? { key, label: key, icon: '•', color: '#9fb1ca' }
 }
 
-export type RarityKey = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+export type RarityKey = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'artifact'
 
 export interface RarityMeta { key: RarityKey; label: string; color: string; glow: string }
 
 export const RARITY: Record<string, RarityMeta> = {
   common: { key: 'common', label: '普通', color: '#9fb1ca', glow: 'rgba(159,177,202,0.25)' },
-  uncommon: { key: 'uncommon', label: '优质', color: '#66bb6a', glow: 'rgba(102,187,106,0.30)' },
-  rare: { key: 'rare', label: '稀有', color: '#42a5f5', glow: 'rgba(66,165,245,0.40)' },
+  uncommon: { key: 'uncommon', label: '优秀', color: '#66bb6a', glow: 'rgba(102,187,106,0.30)' },
+  rare: { key: 'rare', label: '精良', color: '#42a5f5', glow: 'rgba(66,165,245,0.40)' },
   epic: { key: 'epic', label: '史诗', color: '#ab47bc', glow: 'rgba(171,71,188,0.45)' },
   legendary: { key: 'legendary', label: '传说', color: '#ffb300', glow: 'rgba(255,179,0,0.55)' },
+  artifact: { key: 'artifact', label: '神器', color: '#ff7043', glow: 'rgba(255,112,67,0.58)' },
 }
 
 export function rarityMeta(key?: string): RarityMeta {
@@ -356,8 +357,93 @@ export function enemyIcon(tags: string[] = [], name = ''): string {
 }
 
 export const AFFIX_ICON = '🌀'
-export const SLOT_ICON: Record<string, string> = { weapon: '⚔️', armor: '🥋', trinket: '💍' }
-export const SLOT_LABEL: Record<string, string> = { weapon: '武器', armor: '护甲', trinket: '饰品' }
+export const EQUIPMENT_SLOT_ORDER = [
+  'head',
+  'body',
+  'hands',
+  'feet',
+  'waist',
+  'ring_1',
+  'ring_2',
+  'necklace',
+  'backpack_1',
+  'backpack_2',
+  'backpack_3',
+  'backpack_4',
+  'main_hand',
+  'off_hand',
+] as const
+
+export const SLOT_ICON: Record<string, string> = {
+  head: '⛑️',
+  body: '🥋',
+  hands: '🧤',
+  feet: '🥾',
+  waist: '🧵',
+  ring: '💍',
+  ring_1: '💍',
+  ring_2: '💍',
+  necklace: '📿',
+  backpack: '🎒',
+  backpack_1: '🎒',
+  backpack_2: '🎒',
+  backpack_3: '🎒',
+  backpack_4: '🎒',
+  main_hand: '⚔️',
+  off_hand: '🛡️',
+  two_hand: '🏹',
+  weapon: '⚔️',
+  armor: '🥋',
+  trinket: '💍',
+}
+
+export const SLOT_LABEL: Record<string, string> = {
+  head: '头盔',
+  body: '身体',
+  hands: '手套',
+  feet: '鞋子',
+  waist: '腰带',
+  ring: '戒指',
+  ring_1: '戒指 1',
+  ring_2: '戒指 2',
+  necklace: '项链',
+  backpack: '背包',
+  backpack_1: '背包 1',
+  backpack_2: '背包 2',
+  backpack_3: '背包 3',
+  backpack_4: '背包 4',
+  main_hand: '主手',
+  off_hand: '副手',
+  two_hand: '双手',
+  weapon: '武器',
+  armor: '护甲',
+  trinket: '饰品',
+}
+
+const COMPATIBLE_EQUIPMENT_SLOTS: Record<string, string[]> = {
+  head: ['head'],
+  body: ['body'],
+  hands: ['hands'],
+  feet: ['feet'],
+  waist: ['waist'],
+  ring: ['ring_1', 'ring_2'],
+  necklace: ['necklace'],
+  backpack: ['backpack_1', 'backpack_2', 'backpack_3', 'backpack_4'],
+  main_hand: ['main_hand'],
+  off_hand: ['off_hand'],
+  two_hand: ['main_hand'],
+  weapon: ['main_hand'],
+  armor: ['body'],
+  trinket: ['ring_1', 'ring_2'],
+}
+
+export function compatibleEquipmentSlots(itemSlot: string): string[] {
+  return COMPATIBLE_EQUIPMENT_SLOTS[itemSlot] ?? [itemSlot]
+}
+
+export function itemFitsEquipmentSlot(itemSlot: string, targetSlot: string): boolean {
+  return compatibleEquipmentSlots(itemSlot).includes(targetSlot)
+}
 
 export const MATERIAL_ICON: Record<string, string> = {
   技能精华: '✦', 皮革: '🟫', 毒囊: '🟢', 布料: '🧵', 矿石: '🪨', 盾牌材料: '🛡️',

@@ -5,7 +5,7 @@ import { CharacterAvatar } from '../CharacterAvatar'
 import { Bar } from '../Bar'
 import { Chip, StatusChip } from '../Chips'
 import { EquipmentCard } from '../EquipmentCard'
-import { ATTRIBUTES, classMeta, STATS, SLOT_ICON, SLOT_LABEL } from '../../theme'
+import { ATTRIBUTES, classMeta, compatibleEquipmentSlots, EQUIPMENT_SLOT_ORDER, itemFitsEquipmentSlot, STATS, SLOT_ICON, SLOT_LABEL } from '../../theme'
 import { CELL_LABEL, FRONT_CELLS, MID_CELLS, BACK_CELLS } from '../../state/useGame'
 import { cx } from '../../lib/format'
 
@@ -340,14 +340,16 @@ function EquipEditor(props: { member: CharacterView; party: PartyView; onEquip: 
         <CharacterAvatar ch={m} size={40} />
         <div><b>{m.name}</b><span className="muted">{m.class_name}</span></div>
       </div>
-      {(['weapon', 'armor', 'trinket'] as const).map(slot => {
+      {EQUIPMENT_SLOT_ORDER.map(slot => {
         const equippedId = m.equipment?.[slot] ?? null
-        const options = props.party.inventory.filter(i => i.slot === slot && (!i.equipped_by || i.equipped_by === m.id))
+        const options = props.party.inventory.filter(i => itemFitsEquipmentSlot(i.slot, slot) && (!i.equipped_by || i.equipped_by === m.id))
+        const occupiedByTwoHand = slot === 'off_hand' && equippedId && props.party.inventory.find(i => i.instance_id === equippedId)?.slot === 'two_hand'
         return (
           <div className="equipSlot" key={slot}>
             <div className="equipSlot__label">
               <span className="equipSlot__icon">{SLOT_ICON[slot]}</span>
               <b>{SLOT_LABEL[slot]}</b>
+              {occupiedByTwoHand && <span className="muted">双手占用</span>}
             </div>
             {equippedId ? (
               <EquipmentCard item={props.party.inventory.find(i => i.instance_id === equippedId)!} compact
@@ -362,7 +364,7 @@ function EquipEditor(props: { member: CharacterView; party: PartyView; onEquip: 
                   {options.filter(i => i.instance_id !== equippedId).map(i => (
                     <EquipmentCard key={i.instance_id} item={i} compact selected={equippedId === i.instance_id}
                       actionLabel="装备" actionIcon="⬆"
-                      onClick={() => props.onEquip(m.id, i.instance_id, slot)} />
+                      onClick={() => props.onEquip(m.id, i.instance_id, compatibleEquipmentSlots(i.slot).includes(slot) ? slot : undefined)} />
                   ))}
                 </div>
               </div>

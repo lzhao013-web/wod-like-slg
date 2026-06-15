@@ -4,7 +4,7 @@ import type { CharacterView, PartyView, PromotionOption, SkillSummary, StatBreak
 import { Bar } from './Bar'
 import { CharacterAvatar } from './CharacterAvatar'
 import { Chip, ResistChip, StatusChip, RarityTag } from './Chips'
-import { classMeta, STATS, ATTRIBUTES, ELEMENTS, FOCUS_META, SLOT_ICON, SLOT_LABEL, elementMeta, skillsForClass, SKILL_ICON, statusMeta, focusLabel, focusCompositionLabel, focusScoreKey, targetRuleLabel, rangeLabel, statLabel, specialEffectLabel, attackTypeLabel, attackTypeDescription } from '../theme'
+import { classMeta, STATS, ATTRIBUTES, ELEMENTS, EQUIPMENT_SLOT_ORDER, FOCUS_META, SLOT_ICON, SLOT_LABEL, elementMeta, skillsForClass, SKILL_ICON, statusMeta, focusLabel, focusCompositionLabel, focusScoreKey, targetRuleLabel, rangeLabel, statLabel, specialEffectLabel, attackTypeLabel, attackTypeDescription } from '../theme'
 import { cx } from '../lib/format'
 
 export function CharacterSheet(props: {
@@ -133,7 +133,7 @@ export function CharacterSheet(props: {
           <div className="sheet__col">
             <h3 className="sub">⚔️ 装备</h3>
             <div className="sheetEquip">
-              {(['weapon', 'armor', 'trinket'] as const).map(slot => {
+              {EQUIPMENT_SLOT_ORDER.map(slot => {
                 const item = itemById(ch.equipment?.[slot] ?? null)
                 return (
                   <div className="sheetEquip__slot" key={slot}>
@@ -147,6 +147,7 @@ export function CharacterSheet(props: {
                             <span key={k} style={{ color: (ELEMENTS as any)[k]?.color }}>{(ELEMENTS as any)[k]?.icon} +{v}</span>
                           ))}
                           {(item.special_effects ?? []).map(e => <span key={e}>✦ {specialEffectLabel(e)}</span>)}
+                          {(item.affixes ?? []).map(a => <span key={a.id}>◆ {a.name}</span>)}
                         </div>
                         <span className="muted">耐久 {item.durability}/{item.max_durability}</span>
                       </div>
