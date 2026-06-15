@@ -38,11 +38,15 @@ export function TopBar(props: {
             <span className="res__icon">🪙</span>
             <b>{num(state.gold)}</b>
           </div>
+          <div className="res res--mat" title="技能精华">
+            <span className="res__icon">{materialIcon('技能精华')}</span>
+            <b>{num(state.skill_essence ?? state.materials?.skill_essence ?? 0)}</b>
+          </div>
           <div className="res res--points" title="远征次数">
             <span className="res__icon">⚔️</span>
             <PointPips left={state.expedition_points_left} total={2} />
           </div>
-          {Object.entries(state.materials_display).slice(0, 4).map(([k, v]) => (
+          {Object.entries(state.materials_display).filter(([k]) => k !== '技能精华').slice(0, 4).map(([k, v]) => (
             <div className="res res--mat" key={k} title={k}>
               <span className="res__icon">{materialIcon(k)}</span>
               <b>{v}</b>

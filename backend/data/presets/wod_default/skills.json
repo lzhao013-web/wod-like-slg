@@ -255,7 +255,7 @@
         "type": "marked",
         "duration": 3,
         "potency": 12,
-        "chance": 1.0
+        "chance": 1
       }
     ],
     "attack_type": "ranged"
@@ -387,7 +387,7 @@
     "uses_per_dungeon": 3,
     "level_required": 2,
     "attribute_focus": "faith",
-    "attribute_scale": 0.0,
+    "attribute_scale": 0,
     "status_effects": [
       {
         "type": "ward",
@@ -492,7 +492,7 @@
     "uses_per_dungeon": 2,
     "level_required": 7,
     "attribute_focus": "faith",
-    "attribute_scale": 0.0,
+    "attribute_scale": 0,
     "status_effects": [
       {
         "type": "barrier",
@@ -744,7 +744,7 @@
     "uses_per_dungeon": 3,
     "level_required": 2,
     "attribute_focus": "magic",
-    "attribute_scale": 0.0,
+    "attribute_scale": 0,
     "status_effects": [
       {
         "type": "barrier",
@@ -924,7 +924,7 @@
     "uses_per_dungeon": 2,
     "level_required": 5,
     "attribute_focus": "guard",
-    "attribute_scale": 0.0,
+    "attribute_scale": 0,
     "status_effects": [
       {
         "type": "ward",
@@ -957,7 +957,7 @@
     "uses_per_dungeon": 2,
     "level_required": 6,
     "attribute_focus": "guard",
-    "attribute_scale": 0.0,
+    "attribute_scale": 0,
     "status_effects": [
       {
         "type": "barrier",
@@ -1146,5 +1146,790 @@
       "max": 45
     },
     "status_effects": []
+  },
+  {
+    "id": "blood_frenzy",
+    "name": "血怒",
+    "type": "buff",
+    "category": "姿态",
+    "description": "进入血怒姿态，提高攻击与命中，适合压低敌人后接斩杀。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "self",
+    "range": "self",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "melee",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "might",
+        "duration": 3,
+        "potency": 5
+      },
+      {
+        "type": "focus",
+        "duration": 3,
+        "potency": 8
+      }
+    ]
+  },
+  {
+    "id": "whirlwind_execution",
+    "name": "旋风处决",
+    "type": "damage",
+    "category": "攻击",
+    "description": "横扫前中排，目标带流血或低血时收益更高。",
+    "damage_types": [
+      "physical",
+      "bleed"
+    ],
+    "power": 14,
+    "accuracy_modifier": -6,
+    "target_rule": "all_front",
+    "range": "melee",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "melee",
+    "attribute_scale": 0.12,
+    "status_effects": [
+      {
+        "type": "bleed",
+        "duration": 2,
+        "potency": 6,
+        "chance": 0.7
+      }
+    ],
+    "attack_type": "melee",
+    "target_count": 3,
+    "execute_bonus": 0.25,
+    "bonus_vs_status": [
+      "bleed"
+    ],
+    "status_bonus": 0.16,
+    "crit_chance": 0.05
+  },
+  {
+    "id": "commanding_strike",
+    "name": "号令斩",
+    "type": "damage",
+    "category": "攻击",
+    "description": "对精英或高威胁目标施加标记，为全队集火创造窗口。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 9,
+    "accuracy_modifier": 5,
+    "target_rule": "elite",
+    "range": "melee",
+    "uses_per_dungeon": 3,
+    "level_required": 6,
+    "attribute_focus": "tactics",
+    "attribute_scale": 0.1,
+    "status_effects": [
+      {
+        "type": "marked",
+        "duration": 3,
+        "potency": 10,
+        "chance": 1
+      }
+    ],
+    "attack_type": "melee"
+  },
+  {
+    "id": "rallying_banner",
+    "name": "集结战旗",
+    "type": "support",
+    "category": "支援",
+    "description": "鼓舞全队，提高专注与攻击，适合 Boss 战开场。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "tactics",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "focus",
+        "duration": 2,
+        "potency": 8
+      },
+      {
+        "type": "might",
+        "duration": 2,
+        "potency": 3
+      }
+    ],
+    "target_count": 4
+  },
+  {
+    "id": "sanctified_guard",
+    "name": "圣化守护",
+    "type": "support",
+    "category": "支援",
+    "description": "展开圣盾，为全队提供屏障与圣佑抗性。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "guard",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "ward",
+        "duration": 2,
+        "potency": 10
+      },
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 10
+      }
+    ],
+    "target_count": 4,
+    "defense_types": [
+      "magic",
+      "mental",
+      "special"
+    ]
+  },
+  {
+    "id": "last_bastion",
+    "name": "最后堡垒",
+    "type": "support",
+    "category": "支援",
+    "description": "关键回合为全队提供强屏障、圣佑与再生。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 1,
+    "level_required": 6,
+    "attribute_focus": "guard",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 16
+      },
+      {
+        "type": "ward",
+        "duration": 2,
+        "potency": 10
+      },
+      {
+        "type": "regeneration",
+        "duration": 2,
+        "potency": 4
+      }
+    ],
+    "target_count": 4,
+    "defense_types": [
+      "melee",
+      "ranged",
+      "magic",
+      "mental",
+      "special"
+    ]
+  },
+  {
+    "id": "fortress_order",
+    "name": "堡垒号令",
+    "type": "support",
+    "category": "支援",
+    "description": "令全队收拢阵线，获得短暂盾墙与屏障。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "tactics",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "shield_wall",
+        "duration": 1,
+        "potency": 16
+      },
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 8
+      }
+    ],
+    "target_count": 4,
+    "defense_types": [
+      "melee",
+      "ranged",
+      "special"
+    ]
+  },
+  {
+    "id": "counter_charge",
+    "name": "反冲锋",
+    "type": "damage",
+    "category": "攻击",
+    "description": "打断最高攻击目标，附带稳定眩晕概率。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 10,
+    "accuracy_modifier": 4,
+    "target_rule": "highest_attack",
+    "range": "melee",
+    "uses_per_dungeon": 3,
+    "level_required": 6,
+    "attribute_focus": "guard",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "stun",
+        "duration": 1,
+        "potency": 1,
+        "chance": 0.45
+      }
+    ],
+    "attack_type": "melee",
+    "crit_chance": 0.03
+  },
+  {
+    "id": "deadeye_focus",
+    "name": "鹰眼专注",
+    "type": "buff",
+    "category": "姿态",
+    "description": "短时间提高命中、爆发与行动节奏。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "self",
+    "range": "self",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "focus",
+        "duration": 3,
+        "potency": 14
+      },
+      {
+        "type": "might",
+        "duration": 2,
+        "potency": 3
+      },
+      {
+        "type": "haste",
+        "duration": 2,
+        "potency": 2
+      }
+    ]
+  },
+  {
+    "id": "sniper_killshot",
+    "name": "狙杀",
+    "type": "damage",
+    "category": "攻击",
+    "description": "高命中穿防射击，对低血目标有显著斩杀收益。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 17,
+    "accuracy_modifier": 12,
+    "target_rule": "rear",
+    "range": "ranged",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0.12,
+    "status_effects": [],
+    "attack_type": "ranged",
+    "ignore_defense": 0.35,
+    "crit_chance": 0.12,
+    "execute_bonus": 0.3
+  },
+  {
+    "id": "barbed_trap",
+    "name": "倒刺陷阱",
+    "type": "debuff",
+    "category": "削弱",
+    "description": "压制前中排，使敌人减速并流血。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "all_front",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 6,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "slow",
+        "duration": 2,
+        "potency": 4,
+        "chance": 0.9
+      },
+      {
+        "type": "bleed",
+        "duration": 3,
+        "potency": 5,
+        "chance": 0.8
+      }
+    ],
+    "attack_type": "special",
+    "target_count": 3
+  },
+  {
+    "id": "pack_hunt",
+    "name": "群猎",
+    "type": "damage",
+    "category": "攻击",
+    "description": "追猎带有标记、减速、流血或中毒的敌群。",
+    "damage_types": [
+      "physical",
+      "poison"
+    ],
+    "power": 9,
+    "accuracy_modifier": 4,
+    "target_rule": "all",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 6,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "marked",
+        "duration": 2,
+        "potency": 6,
+        "chance": 0.6
+      }
+    ],
+    "attack_type": "ranged",
+    "target_count": 3,
+    "bonus_vs_status": [
+      "marked",
+      "slow",
+      "bleed",
+      "poison"
+    ],
+    "status_bonus": 0.22
+  },
+  {
+    "id": "phantom_step",
+    "name": "幻影步",
+    "type": "buff",
+    "category": "姿态",
+    "description": "大幅提高闪避与速度，为后续爆发创造空间。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "self",
+    "range": "self",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "evasion_up",
+        "duration": 2,
+        "potency": 18
+      },
+      {
+        "type": "haste",
+        "duration": 2,
+        "potency": 3
+      },
+      {
+        "type": "focus",
+        "duration": 2,
+        "potency": 8
+      }
+    ]
+  },
+  {
+    "id": "death_blossom",
+    "name": "死亡绽放",
+    "type": "damage",
+    "category": "攻击",
+    "description": "高速连斩多个敌人，对已破甲或脆弱目标更致命。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 13,
+    "accuracy_modifier": 4,
+    "target_rule": "all",
+    "range": "melee",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0.12,
+    "status_effects": [],
+    "attack_type": "melee",
+    "target_count": 3,
+    "ignore_defense": 0.25,
+    "crit_chance": 0.1,
+    "bonus_vs_status": [
+      "marked",
+      "armor_break",
+      "vulnerable"
+    ],
+    "status_bonus": 0.2
+  },
+  {
+    "id": "venom_cascade",
+    "name": "毒潮",
+    "type": "damage",
+    "category": "攻击",
+    "description": "毒刃扩散到多个目标，并附加脆弱。",
+    "damage_types": [
+      "poison"
+    ],
+    "power": 8,
+    "accuracy_modifier": 3,
+    "target_rule": "all",
+    "range": "melee",
+    "uses_per_dungeon": 3,
+    "level_required": 6,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0.1,
+    "status_effects": [
+      {
+        "type": "poison",
+        "duration": 3,
+        "potency": 7,
+        "chance": 0.9
+      },
+      {
+        "type": "vulnerable",
+        "duration": 2,
+        "potency": 8,
+        "chance": 0.7
+      }
+    ],
+    "attack_type": "melee",
+    "target_count": 3,
+    "defense_factor": 0.55
+  },
+  {
+    "id": "toxin_execution",
+    "name": "毒素处决",
+    "type": "damage",
+    "category": "攻击",
+    "description": "收割中毒目标，目标越虚弱越容易被处决。",
+    "damage_types": [
+      "poison",
+      "physical"
+    ],
+    "power": 12,
+    "accuracy_modifier": 6,
+    "target_rule": "lowest_hp",
+    "range": "melee",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0.12,
+    "status_effects": [
+      {
+        "type": "poison",
+        "duration": 2,
+        "potency": 8,
+        "chance": 0.8
+      }
+    ],
+    "attack_type": "melee",
+    "execute_bonus": 0.45,
+    "bonus_vs_status": [
+      "poison"
+    ],
+    "status_bonus": 0.25,
+    "crit_chance": 0.08
+  },
+  {
+    "id": "sanctuary",
+    "name": "圣域",
+    "type": "support",
+    "category": "支援",
+    "description": "展开圣域，为全队提供屏障、圣佑与再生。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "healing",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 12
+      },
+      {
+        "type": "ward",
+        "duration": 2,
+        "potency": 10
+      },
+      {
+        "type": "regeneration",
+        "duration": 2,
+        "potency": 5
+      }
+    ],
+    "target_count": 4,
+    "mana_cost": 16,
+    "defense_types": [
+      "magic",
+      "mental",
+      "special"
+    ]
+  },
+  {
+    "id": "miracle",
+    "name": "奇迹",
+    "type": "heal",
+    "category": "治疗",
+    "description": "强力单体救场治疗，并附带屏障与再生。",
+    "power": 42,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_low_hp",
+    "range": "ally",
+    "uses_per_dungeon": 1,
+    "level_required": 6,
+    "attribute_focus": "healing",
+    "attribute_scale": 0.24,
+    "status_effects": [
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 12
+      },
+      {
+        "type": "regeneration",
+        "duration": 2,
+        "potency": 6
+      }
+    ],
+    "mana_cost": 22
+  },
+  {
+    "id": "judgement_mark",
+    "name": "审判印记",
+    "type": "debuff",
+    "category": "削弱",
+    "description": "标记精英目标并附加脆弱与虚弱。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "elite",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 6,
+    "attribute_focus": "faith",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "marked",
+        "duration": 3,
+        "potency": 12,
+        "chance": 1
+      },
+      {
+        "type": "vulnerable",
+        "duration": 3,
+        "potency": 12,
+        "chance": 0.9
+      },
+      {
+        "type": "enfeeble",
+        "duration": 2,
+        "potency": 4,
+        "chance": 0.8
+      }
+    ],
+    "attack_type": "mental"
+  },
+  {
+    "id": "purifying_flame",
+    "name": "净化之焰",
+    "type": "damage",
+    "category": "攻击",
+    "description": "以圣焰打击精英目标，对被审判的敌人伤害更高。",
+    "damage_types": [
+      "fire",
+      "magic"
+    ],
+    "power": 13,
+    "accuracy_modifier": 4,
+    "target_rule": "elite",
+    "range": "ranged",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "faith",
+    "attribute_scale": 0.12,
+    "status_effects": [
+      {
+        "type": "burn",
+        "duration": 2,
+        "potency": 7,
+        "chance": 0.8
+      }
+    ],
+    "attack_type": "magic",
+    "bonus_vs_status": [
+      "marked",
+      "vulnerable",
+      "curse"
+    ],
+    "status_bonus": 0.22,
+    "defense_factor": 0.45,
+    "mana_cost": 14
+  },
+  {
+    "id": "elemental_overload",
+    "name": "元素超载",
+    "type": "buff",
+    "category": "姿态",
+    "description": "短时间提高法术命中、威力与行动节奏。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "self",
+    "range": "self",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "magic",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "focus",
+        "duration": 3,
+        "potency": 12
+      },
+      {
+        "type": "might",
+        "duration": 2,
+        "potency": 4
+      },
+      {
+        "type": "haste",
+        "duration": 2,
+        "potency": 2
+      }
+    ],
+    "mana_cost": 10
+  },
+  {
+    "id": "stormfall",
+    "name": "风暴坠落",
+    "type": "damage",
+    "category": "攻击",
+    "description": "大范围元素轰击，附带燃烧与减速。",
+    "damage_types": [
+      "magic",
+      "fire"
+    ],
+    "power": 15,
+    "accuracy_modifier": -5,
+    "target_rule": "all",
+    "range": "ranged",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "magic",
+    "attribute_scale": 0.12,
+    "status_effects": [
+      {
+        "type": "burn",
+        "duration": 2,
+        "potency": 8,
+        "chance": 0.7
+      },
+      {
+        "type": "slow",
+        "duration": 2,
+        "potency": 3,
+        "chance": 0.55
+      }
+    ],
+    "attack_type": "magic",
+    "target_count": 4,
+    "defense_factor": 0.45,
+    "crit_chance": 0.06,
+    "mana_cost": 24
+  },
+  {
+    "id": "hex_bind",
+    "name": "缚魂咒",
+    "type": "debuff",
+    "category": "削弱",
+    "description": "束缚最高攻击目标，附加诅咒、减速与脆弱。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "highest_attack",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 6,
+    "attribute_focus": "magic",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "curse",
+        "duration": 3,
+        "potency": 10,
+        "chance": 0.9
+      },
+      {
+        "type": "slow",
+        "duration": 2,
+        "potency": 4,
+        "chance": 0.9
+      },
+      {
+        "type": "vulnerable",
+        "duration": 2,
+        "potency": 10,
+        "chance": 0.75
+      }
+    ],
+    "attack_type": "mental"
+  },
+  {
+    "id": "doom_ritual",
+    "name": "厄运仪式",
+    "type": "damage",
+    "category": "攻击",
+    "description": "对多名敌人施加诅咒并造成魔法伤害，善于放大后续爆发。",
+    "damage_types": [
+      "curse",
+      "magic"
+    ],
+    "power": 10,
+    "accuracy_modifier": 2,
+    "target_rule": "all",
+    "range": "ranged",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "magic",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "curse",
+        "duration": 3,
+        "potency": 10,
+        "chance": 0.65
+      }
+    ],
+    "attack_type": "mental",
+    "target_count": 3,
+    "bonus_vs_status": [
+      "curse",
+      "vulnerable"
+    ],
+    "status_bonus": 0.24,
+    "defense_factor": 0.48,
+    "mana_cost": 18
   }
 ]

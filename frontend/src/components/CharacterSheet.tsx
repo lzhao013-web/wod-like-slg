@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { CharacterView, PartyView, SkillSummary, StatBreakdown } from '../types/game'
+import type { CharacterView, PartyView, PromotionOption, SkillSummary, StatBreakdown } from '../types/game'
 import { Bar } from './Bar'
 import { CharacterAvatar } from './CharacterAvatar'
 import { Chip, ResistChip, StatusChip, RarityTag } from './Chips'
@@ -10,8 +10,11 @@ import { cx } from '../lib/format'
 export function CharacterSheet(props: {
   ch: CharacterView
   party: PartyView
+  skillEssence?: number
   busy?: boolean
   onLearnSkill?: (characterId: string, skillId: string) => void
+  onUpgradeSkill?: (characterId: string, skillId: string, choiceId?: string) => void
+  onPromote?: (characterId: string, targetClassId: string) => void
   onClose: () => void
 }) {
   const ch = props.ch
@@ -155,12 +158,23 @@ export function CharacterSheet(props: {
               })}
             </div>
 
+            {(ch.promotion?.promoted || (ch.promotion?.options?.length ?? 0) > 0) && (
+              <>
+                <h3 className="sub">🧭 职业路径</h3>
+                <PromotionPanel ch={ch} busy={props.busy} onPromote={props.onPromote} />
+              </>
+            )}
+
             <h3 className="sub">🌳 技能树</h3>
             <p className="hintText">升级只获得技能点；技能学习、前置关系与消耗在独立技能树里处理。</p>
             <div className="skillTreeSummary">
               <div className="skillPointBar">
                 <span>可用技能点</span>
                 <b>{ch.skill_points ?? 0}</b>
+              </div>
+              <div className="skillEssenceBar" title="技能精华用于提升已学技能等级；特定等级会解锁额外效果选择。">
+                <span>技能精华</span>
+                <b>{props.skillEssence ?? 0}</b>
               </div>
               <div className="skillTreeSummary__stats">
                 <span><b>{learnedSkills.length}</b> 已学</span>
@@ -183,12 +197,84 @@ export function CharacterSheet(props: {
           derived={derived}
           mana={mana}
           maxMana={maxMana}
+          skillEssence={props.skillEssence ?? 0}
           busy={props.busy}
           onLearnSkill={props.onLearnSkill}
+          onUpgradeSkill={props.onUpgradeSkill}
           onClose={() => setSkillTreeOpen(false)}
         />
       )}
     </div>
+  )
+}
+
+function PromotionPanel(props: {
+  ch: CharacterView
+  busy?: boolean
+  onPromote?: (characterId: string, targetClassId: string) => void
+}) {
+  const promotion = props.ch.promotion
+  if (!promotion) return null
+  if (promotion.promoted) {
+    const path = (promotion.path ?? []).map(p => p.name).join(' → ') || `${promotion.base_class_name} → ${promotion.current_class_name}`
+    return (
+      <div className="promotionPath is-promoted">
+        <span>当前路径</span>
+        <b>{path}</b>
+        {promotion.promotion_level && <em>Lv.{promotion.promotion_level} 转职</em>}
+      </div>
+    )
+  }
+  return (
+    <div className="promotionGrid">
+      {(promotion.options ?? []).map(option => (
+        <PromotionOptionCard
+          key={option.class_id}
+          option={option}
+          busy={props.busy}
+          canAct={!!props.onPromote}
+          onPromote={() => props.onPromote?.(props.ch.id, option.class_id)}
+        />
+      ))}
+    </div>
+  )
+}
+
+function PromotionOptionCard(props: {
+  option: PromotionOption
+  busy?: boolean
+  canAct?: boolean
+  onPromote: () => void
+}) {
+  const option = props.option
+  const meta = option.class_meta ?? classMeta(option.class_id)
+  const skillNames = option.skill_names ?? []
+  const disabled = props.busy || !props.canAct || !option.can_promote
+  const title = [option.description, option.reason].filter(Boolean).join('\n')
+  return (
+    <button
+      className={cx('promotionCard', option.can_promote && 'is-ready')}
+      style={{ '--promotion-accent': meta.accent ?? classMeta(option.class_id).accent } as CSSProperties}
+      disabled={disabled}
+      title={title}
+      onClick={props.onPromote}
+    >
+      <div className="promotionCard__head">
+        <span>{meta.icon ?? classMeta(option.class_id).icon}</span>
+        <b>{option.name}</b>
+      </div>
+      <small>{option.role}</small>
+      <div className="promotionCard__costs">
+        <span>Lv.{option.level_required}</span>
+        {(option.cost_rows ?? []).map(row => <span key={row.key}>{row.name} ×{row.amount}</span>)}
+      </div>
+      {skillNames.length > 0 && (
+        <div className="promotionCard__skills">
+          {skillNames.slice(0, 2).map(name => <span key={name}>{name}</span>)}
+        </div>
+      )}
+      <em>{option.can_promote ? '转职' : option.reason}</em>
+    </button>
   )
 }
 
@@ -198,8 +284,10 @@ function SkillTreeModal(props: {
   derived: Record<string, number>
   mana: number
   maxMana: number
+  skillEssence: number
   busy?: boolean
   onLearnSkill?: (characterId: string, skillId: string) => void
+  onUpgradeSkill?: (characterId: string, skillId: string, choiceId?: string) => void
   onClose: () => void
 }) {
   const rows = useMemo(() => skillTreeRows(props.skills), [props.skills])
@@ -222,6 +310,7 @@ function SkillTreeModal(props: {
   const skillsRef = useRef(props.skills)
   skillsRef.current = props.skills
   const [lines, setLines] = useState<SkillTreeLine[]>([])
+  const [linkBounds, setLinkBounds] = useState({ width: 0, height: 0 })
 
   // Connector geometry depends only on node layout (tier/x), fixed per class —
   // not on learned/hover state. Computed once on mount + resize; line color is
@@ -238,6 +327,10 @@ function SkillTreeModal(props: {
     const ORB_RADIUS = 31 // = talentNode__orb 宽 62px 的一半
     const update = () => {
       const boardRect = board.getBoundingClientRect()
+      const scrollX = board.scrollLeft
+      const scrollY = board.scrollTop
+      const width = Math.max(board.scrollWidth, board.clientWidth)
+      const height = Math.max(board.scrollHeight, board.clientHeight)
       const next: SkillTreeLine[] = []
       for (const skill of skillsRef.current) {
         for (const prereq of skill.prerequisites ?? []) {
@@ -249,13 +342,14 @@ function SkillTreeModal(props: {
           next.push({
             from: prereq,
             to: skill.id,
-            x1: fr.left + fr.width / 2 - boardRect.left,
-            y1: fr.top + ORB_RADIUS - boardRect.top,
-            x2: tr.left + tr.width / 2 - boardRect.left,
-            y2: tr.top + ORB_RADIUS - boardRect.top,
+            x1: fr.left + fr.width / 2 - boardRect.left + scrollX,
+            y1: fr.top + ORB_RADIUS - boardRect.top + scrollY,
+            x2: tr.left + tr.width / 2 - boardRect.left + scrollX,
+            y2: tr.top + ORB_RADIUS - boardRect.top + scrollY,
           })
         }
       }
+      setLinkBounds(prev => (prev.width === width && prev.height === height ? prev : { width, height }))
       setLines(next)
     }
     update()
@@ -287,6 +381,10 @@ function SkillTreeModal(props: {
             <span>技能点</span>
             <b>{props.ch.skill_points ?? 0}</b>
           </div>
+          <div className="talentModal__points talentModal__points--essence">
+            <span>技能精华</span>
+            <b>{props.skillEssence}</b>
+          </div>
           <button className="iconBtn iconBtn--lg" onClick={props.onClose}>✕</button>
         </div>
 
@@ -304,7 +402,11 @@ function SkillTreeModal(props: {
         </div>
 
         <div className="talentBoard" ref={boardRef}>
-          <svg className="talentLinks" aria-hidden="true">
+          <svg
+            className="talentLinks"
+            aria-hidden="true"
+            style={linkBounds.width && linkBounds.height ? { width: linkBounds.width, height: linkBounds.height } : undefined}
+          >
             <defs>
               {/* 按状态各定义一个箭头 marker：marker 渲染在独立上下文，
                   无法通过 CSS 从引用 path 继承颜色，故每态一个 marker。 */}
@@ -377,12 +479,14 @@ function SkillTreeModal(props: {
           derived={props.derived}
           mana={props.mana}
           maxMana={props.maxMana}
+          skillEssence={props.skillEssence}
           characterId={props.ch.id}
           level={props.ch.level}
           skillPoints={props.ch.skill_points ?? 0}
           skillsById={byId}
           busy={props.busy}
           onLearnSkill={props.onLearnSkill}
+          onUpgradeSkill={props.onUpgradeSkill}
         />
       </div>
     </div>
@@ -435,6 +539,7 @@ const SkillTreeNode = memo(function SkillTreeNode(props: {
       <div className="talentNode__orb">
         <span className="talentNode__icon">{locked ? '🔒' : (SKILL_ICON[s.type] ?? '✨')}</span>
         {learned && <i className="talentNode__check" title="已掌握">✓</i>}
+        {learned && (s.skill_level ?? 1) > 1 && <i className="talentNode__level" title={`技能等级 ${s.skill_level}/${s.skill_max_level ?? 5}`}>Lv.{s.skill_level}</i>}
         {(s.skill_point_cost ?? 0) > 0 && <em className="talentNode__cost" title={`消耗 ${s.skill_point_cost} 技能点`}>{s.skill_point_cost}</em>}
       </div>
       <span className="talentNode__label">{s.name}</span>
@@ -447,12 +552,14 @@ function TalentDetail(props: {
   derived: Record<string, number>
   mana: number
   maxMana: number
+  skillEssence: number
   characterId: string
   level: number
   skillPoints: number
   skillsById: Map<string, SkillSummary>
   busy?: boolean
   onLearnSkill?: (characterId: string, skillId: string) => void
+  onUpgradeSkill?: (characterId: string, skillId: string, choiceId?: string) => void
 }) {
   const s = props.skill
   const tags = useMemo(
@@ -491,6 +598,13 @@ function TalentDetail(props: {
       : !pointsMet ? `技能点不足：需要 ${cost} 点（当前 ${props.skillPoints} 点）`
       : (s.unlock_reason ?? '未满足学习条件'))
     : ''
+  const skillLevel = s.skill_level ?? 1
+  const skillMaxLevel = s.skill_max_level ?? 5
+  const upgradeCost = s.skill_upgrade_cost ?? 0
+  const upgradeChoices = s.skill_upgrade_choices ?? []
+  const canUpgrade = learned && skillLevel < skillMaxLevel && !!s.skill_upgradeable
+  const upgradeBlocked = learned && skillLevel < skillMaxLevel && !canUpgrade
+  const selectedChoices = selectedUpgradeChoiceLabels(s)
   return (
     <div className="talentDetail">
       <div className="talentDetail__head">
@@ -498,6 +612,7 @@ function TalentDetail(props: {
         <div className="talentDetail__title">
           <div className="talentDetail__nameRow">
             <b>{s.name}</b>
+            {learned && <em className="talentDetail__lvlReq">Lv.{skillLevel}/{skillMaxLevel}</em>}
             {(s.skill_point_cost ?? 0) > 0 && <em className="talentDetail__cost">−{s.skill_point_cost} 点</em>}
             {!learned && <em className="talentDetail__lvlReq">Lv.{levelReq}</em>}
           </div>
@@ -507,7 +622,7 @@ function TalentDetail(props: {
         </div>
         <div className="talentDetail__action">
           {learned ? (
-            <span className="talentDetail__state is-learned">✓ 已掌握</span>
+            <span className="talentDetail__state is-learned">{skillLevel >= skillMaxLevel ? '已满级' : '已掌握'}</span>
           ) : unlockable ? (
             <button className="btn btn--primary btn--sm" disabled={props.busy || !props.onLearnSkill} onClick={() => props.onLearnSkill?.(props.characterId, s.id)}>学习</button>
           ) : (
@@ -520,6 +635,45 @@ function TalentDetail(props: {
         {tags.map(tag => <span key={tag.text} title={tag.title}>{tag.text}</span>)}
         {s.damage_types?.map(t => <span key={t} className="is-dmg" style={{ color: elementMeta(t).color }} title={damageTypeTitle(t)}>{elementMeta(t).icon} {elementMeta(t).label}</span>)}
       </div>
+      {selectedChoices.length > 0 && (
+        <div className="talentUpgrade__selected" title="已选择的技能里程碑效果">
+          {selectedChoices.map(row => <span key={row}>{row}</span>)}
+        </div>
+      )}
+      {learned && skillLevel < skillMaxLevel && (
+        <div className="talentUpgrade">
+          <div className="talentUpgrade__meta">
+            <span>精进至 Lv.{skillLevel + 1}</span>
+            <b>消耗 {upgradeCost} 技能精华</b>
+            <em>当前 {props.skillEssence}</em>
+          </div>
+          {upgradeChoices.length > 0 ? (
+            <div className="talentUpgrade__choices">
+              {upgradeChoices.map(choice => (
+                <button
+                  key={choice.id}
+                  className="talentUpgradeChoice"
+                  disabled={props.busy || !canUpgrade || !props.onUpgradeSkill}
+                  title={choice.description || choice.name}
+                  onClick={() => props.onUpgradeSkill?.(props.characterId, s.id, choice.id)}
+                >
+                  <b>{choice.name}</b>
+                  {choice.description && <span>{choice.description}</span>}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <button
+              className="btn btn--primary btn--sm"
+              disabled={props.busy || !canUpgrade || !props.onUpgradeSkill}
+              onClick={() => props.onUpgradeSkill?.(props.characterId, s.id)}
+            >
+              精进
+            </button>
+          )}
+          {upgradeBlocked && <span className="talentUpgrade__blocked">{s.skill_upgrade_reason || '暂时无法升级'}</span>}
+        </div>
+      )}
       {!learned && prereqStatus.length > 0 && (
         <div className="talentDetail__prereqChain" title="学习前需先掌握这些前置技能">
           <span className="talentDetail__prereqHead">⛓ 前置</span>
@@ -614,6 +768,14 @@ function skillTreeProgress(skills: SkillSummary[]): { learned: number; total: nu
     else if (s.unlockable) unlockable++
   }
   return { learned, total, unlockable }
+}
+
+function selectedUpgradeChoiceLabels(s: SkillSummary): string[] {
+  const names = s.skill_selected_upgrade_choice_names ?? {}
+  const ids = s.skill_selected_upgrade_choices ?? {}
+  return Object.entries(ids)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([level, id]) => `Lv.${level}：${names[level] ?? id}`)
 }
 
 function fallbackBreakdown(value: number): StatBreakdown {

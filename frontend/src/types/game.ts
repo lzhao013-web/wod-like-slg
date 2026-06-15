@@ -4,6 +4,8 @@ export interface GameStateView {
   day: number
   max_day: number
   gold: number
+  skill_essence?: number
+  promotion_badges?: number
   materials: Record<string, number>
   materials_display: Record<string, number>
   consumables: Record<string, number>
@@ -48,6 +50,8 @@ export interface CharacterView {
   name: string
   class_id: string
   class_name: string
+  base_class_id?: string
+  class_path?: string[]
   class_meta?: {
     icon?: string
     accent?: string
@@ -62,6 +66,7 @@ export interface CharacterView {
   mana?: number
   max_mana?: number
   skill_points?: number
+  skill_upgrades?: Record<string, { level: number; choices?: Record<string, string> }>
   learned_skills?: string[]
   injury_state: string
   available: boolean
@@ -85,6 +90,7 @@ export interface CharacterView {
   attribute_icons?: Record<string, string>
   derived_stats?: Record<string, number>
   skill_summary?: SkillSummary[]
+  promotion?: CharacterPromotion
   in_formation: boolean
   team_id?: string | null
   team_name?: string | null
@@ -150,6 +156,52 @@ export interface SkillSummary {
   mana_cost?: number
   speed_formula?: Record<string, any> | null
   is_initiative_skill?: boolean
+  skill_level?: number
+  skill_max_level?: number
+  skill_upgrade_cost?: number
+  skill_upgrade_currency?: string
+  skill_upgrade_currency_name?: string
+  skill_upgradeable?: boolean
+  skill_upgrade_reason?: string
+  skill_upgrade_choices?: SkillUpgradeChoice[]
+  skill_selected_upgrade_choices?: Record<string, string>
+  skill_selected_upgrade_choice_names?: Record<string, string>
+}
+
+export interface CharacterPromotion {
+  promoted: boolean
+  base_class_id: string
+  base_class_name: string
+  current_class_id: string
+  current_class_name: string
+  promotion_level?: number | null
+  path: Array<{ class_id: string; name: string }>
+  options: PromotionOption[]
+}
+
+export interface PromotionOption {
+  class_id: string
+  name: string
+  role: string
+  base_class_id: string
+  description?: string
+  level_required: number
+  cost: Record<string, number>
+  cost_rows: Array<{ key: string; name: string; amount: number }>
+  can_promote: boolean
+  reason: string
+  skill_ids: string[]
+  skill_names: string[]
+  class_meta?: CharacterView['class_meta']
+  stat_growth?: Record<string, number>
+  attribute_growth?: Record<string, number>
+}
+
+export interface SkillUpgradeChoice {
+  id: string
+  name: string
+  description?: string
+  modifiers?: Record<string, any>
 }
 
 export interface PartySummary {

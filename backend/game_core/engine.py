@@ -45,8 +45,17 @@ MAX_TEAM_SIZE = 4
 MAX_TACTIC_SCHEMES = 20
 MAX_TACTIC_LAYERS = 12
 SKILL_POINTS_PER_LEVEL = 1
+SKILL_ESSENCE_KEY = "skill_essence"
+PROMOTION_BADGE_KEY = "promotion_badge"
+STARTING_SKILL_ESSENCE = 10
+STARTING_PROMOTION_BADGES = 1
+DEFAULT_SKILL_MAX_LEVEL = 5
+DEFAULT_SKILL_UPGRADE_COSTS = [4, 8, 14, 22]
+DEFAULT_PROMOTION_LEVEL = 6
 
 MATERIAL_NAMES = {
+    SKILL_ESSENCE_KEY: "技能精华",
+    PROMOTION_BADGE_KEY: "晋升徽记",
     "leather": "皮革",
     "venom_sac": "毒囊",
     "cloth": "布料",
@@ -215,9 +224,55 @@ def stat_block_for_class(class_row: dict[str, Any], level: int = 1) -> dict[str,
     return stats
 
 
+def direct_class_skill_ids(class_row: dict[str, Any]) -> list[str]:
+    return [str(sid) for sid in class_row.get("skills", [])]
+
+
+def base_class_id_for_class(class_id: str | None, data: dict[str, Any] | None = None) -> str:
+    if not class_id:
+        return ""
+    data = data or load_data()
+    class_row = data.get("class_by_id", {}).get(class_id or "", {})
+    return str(class_row.get("base_class_id") or class_id or "")
+
+
+def is_advanced_class(class_id: str | None, data: dict[str, Any] | None = None) -> bool:
+    if not class_id:
+        return False
+    data = data or load_data()
+    row = data.get("class_by_id", {}).get(class_id or "", {})
+    return bool(row.get("base_class_id"))
+
+
+def class_matches_restriction(class_id: str | None, restriction: list[str] | tuple[str, ...] | set[str]) -> bool:
+    if not restriction:
+        return True
+    allowed = {str(x) for x in restriction}
+    if class_id in allowed:
+        return True
+    base_id = base_class_id_for_class(class_id)
+    return bool(base_id and base_id in allowed)
+
+
 def class_skill_ids(class_row: dict[str, Any]) -> list[str]:
-    ids = list(class_row.get("skills", []))
+    data = load_data()
+    ids: list[str] = []
+    base_id = str(class_row.get("base_class_id") or "")
+    if base_id:
+        base_row = data.get("class_by_id", {}).get(base_id, {})
+        ids.extend(class_skill_ids(base_row))
+    ids.extend(direct_class_skill_ids(class_row))
+    ids = list(dict.fromkeys(ids))
     return ids or ["basic_attack"]
+
+
+def preset_skill_tree_rows(skill_tree: dict[str, Any], class_id: str | None) -> list[dict[str, Any]]:
+    raw_nodes = skill_tree.get(class_id or "", []) if isinstance(skill_tree, dict) else []
+    if isinstance(raw_nodes, dict):
+        return [{"skill_id": sid, **(row if isinstance(row, dict) else {})} for sid, row in raw_nodes.items()]
+    if isinstance(raw_nodes, list):
+        return [row for row in raw_nodes if isinstance(row, dict)]
+    return []
 
 
 def class_skill_tree_nodes(class_id: str | None) -> list[dict[str, Any]]:
@@ -233,9 +288,11 @@ def class_skill_tree_nodes(class_id: str | None) -> list[dict[str, Any]]:
 
     class_skills = class_skill_ids(class_row)
     skill_tree = data.get("preset", {}).get("skill_tree", {})
-    raw_nodes = skill_tree.get(class_id or "", []) if isinstance(skill_tree, dict) else []
-    if isinstance(raw_nodes, dict):
-        raw_nodes = [{"skill_id": sid, **(row if isinstance(row, dict) else {})} for sid, row in raw_nodes.items()]
+    raw_nodes: list[dict[str, Any]] = []
+    base_id = str(class_row.get("base_class_id") or "")
+    if base_id:
+        raw_nodes.extend(preset_skill_tree_rows(skill_tree, base_id))
+    raw_nodes.extend(preset_skill_tree_rows(skill_tree, class_id))
     if not isinstance(raw_nodes, list) or not raw_nodes:
         raw_nodes = generated_skill_tree_nodes(class_skills, data)
 
@@ -343,6 +400,325 @@ def clean_learned_skill_ids(class_id: str | None, values: Any) -> list[str]:
     return out or ["basic_attack"]
 
 
+def default_skill_upgrade_scaling(skill: dict[str, Any]) -> dict[str, float]:
+    stype = str(skill.get("type", "damage"))
+    if is_initiative_skill(skill):
+        return {"speed_formula_flat": 1, "speed_formula_max": 2}
+    if stype == "damage":
+        return {"power": 2, "attribute_scale": 0.012}
+    if stype == "heal":
+        return {"power": 3, "attribute_scale": 0.015}
+    if stype == "debuff":
+        return {"status_potency": 2, "status_chance": 0.03}
+    if stype in {"guard", "buff", "support"}:
+        return {"status_potency": 2}
+    if stype == "cleanse":
+        return {"uses_per_dungeon": 0.25, "mana_cost": -0.25}
+    return {}
+
+
+def default_skill_milestones(skill: dict[str, Any]) -> list[dict[str, Any]]:
+    stype = str(skill.get("type", "damage"))
+    if is_initiative_skill(skill):
+        return [{
+            "level": 3,
+            "choices": [
+                {"id": "quickened", "name": "抢占先机", "description": "速度公式获得更高基础值。", "modifiers": {"speed_formula_flat": 2}},
+                {"id": "steady_rhythm", "name": "稳定节奏", "description": "速度公式上限与等级收益提高。", "modifiers": {"speed_formula_max": 4, "speed_formula_level_weight": 0.04}},
+            ],
+        }]
+    if stype == "damage":
+        return [
+            {
+                "level": 3,
+                "choices": [
+                    {"id": "force", "name": "威力强化", "description": "基础威力提高。", "modifiers": {"power": 4}},
+                    {"id": "precision", "name": "精准强化", "description": "命中修正提高。", "modifiers": {"accuracy_modifier": 8}},
+                ],
+            },
+            {
+                "level": 5,
+                "choices": [
+                    {"id": "lethal", "name": "致命手法", "description": "暴击率与属性收益提高。", "modifiers": {"crit_chance": 0.04, "attribute_scale": 0.02}},
+                    {"id": "efficient", "name": "熟练运用", "description": "次数型技能多一次使用，法力消耗小幅下降。", "modifiers": {"uses_per_dungeon": 1, "mana_cost": -1}},
+                ],
+            },
+        ]
+    if stype == "heal":
+        return [
+            {
+                "level": 3,
+                "choices": [
+                    {"id": "stronger_heal", "name": "强效治疗", "description": "治疗威力提高。", "modifiers": {"power": 8}},
+                    {"id": "efficient_cast", "name": "节制施法", "description": "法力消耗下降，次数型治疗多一次使用。", "modifiers": {"mana_cost": -2, "uses_per_dungeon": 1}},
+                ],
+            },
+            {
+                "level": 5,
+                "choices": [
+                    {"id": "protective_care", "name": "守护余韵", "description": "治疗目标获得短暂护盾。", "modifiers": {"add_status": {"type": "barrier", "duration": 1, "potency": 6}}},
+                    {"id": "deep_channel", "name": "深度引导", "description": "属性收益进一步提高。", "modifiers": {"attribute_scale": 0.04}},
+                ],
+            },
+        ]
+    if stype == "cleanse":
+        return [
+            {
+                "level": 3,
+                "choices": [
+                    {"id": "wide_cleanse", "name": "扩散净化", "description": "可额外影响一个目标。", "modifiers": {"target_count": 1}},
+                    {"id": "light_ritual", "name": "轻灵仪式", "description": "法力消耗下降，次数型净化多一次使用。", "modifiers": {"mana_cost": -2, "uses_per_dungeon": 1}},
+                ],
+            },
+            {
+                "level": 5,
+                "choices": [
+                    {"id": "renewal", "name": "复苏余辉", "description": "净化后附加短暂再生。", "modifiers": {"add_status": {"type": "regeneration", "duration": 2, "potency": 4}}},
+                    {"id": "ritual_mastery", "name": "仪式精通", "description": "使用次数提高。", "modifiers": {"uses_per_dungeon": 2}},
+                ],
+            },
+        ]
+    if stype == "debuff":
+        return [
+            {
+                "level": 3,
+                "choices": [
+                    {"id": "reliable_hex", "name": "稳定压制", "description": "命中与状态成功率提高。", "modifiers": {"accuracy_modifier": 6, "status_chance": 0.15}},
+                    {"id": "deep_hex", "name": "深层削弱", "description": "负面状态强度提高。", "modifiers": {"status_potency": 6}},
+                ],
+            },
+            {
+                "level": 5,
+                "choices": [
+                    {"id": "lingering_hex", "name": "延时压制", "description": "状态持续时间提高。", "modifiers": {"status_duration": 1}},
+                    {"id": "expose_weakness", "name": "暴露弱点", "description": "额外附加脆弱。", "modifiers": {"add_status": {"type": "vulnerable", "duration": 2, "potency": 10, "chance": 0.7}}},
+                ],
+            },
+        ]
+    if stype in {"guard", "buff", "support"}:
+        return [
+            {
+                "level": 3,
+                "choices": [
+                    {"id": "reinforced", "name": "强化效果", "description": "状态强度提高。", "modifiers": {"status_potency": 6}},
+                    {"id": "lasting", "name": "持续效果", "description": "状态持续时间提高。", "modifiers": {"status_duration": 1}},
+                ],
+            },
+            {
+                "level": 5,
+                "choices": [
+                    {"id": "practiced", "name": "熟练应对", "description": "次数型技能多一次使用。", "modifiers": {"uses_per_dungeon": 1}},
+                    {"id": "warded", "name": "护佑余波", "description": "额外附加少量护盾。", "modifiers": {"add_status": {"type": "barrier", "duration": 1, "potency": 5}}},
+                ],
+            },
+        ]
+    return []
+
+
+def skill_upgrade_spec(skill: dict[str, Any]) -> dict[str, Any]:
+    raw = skill.get("upgrade", {})
+    raw = raw if isinstance(raw, dict) else {}
+    cost_curve = raw.get("cost_curve", DEFAULT_SKILL_UPGRADE_COSTS)
+    if not isinstance(cost_curve, list) or not cost_curve:
+        cost_curve = DEFAULT_SKILL_UPGRADE_COSTS
+    scaling = raw.get("scaling")
+    if not isinstance(scaling, dict):
+        scaling = default_skill_upgrade_scaling(skill)
+    milestones = raw.get("milestones")
+    if not isinstance(milestones, list):
+        milestones = default_skill_milestones(skill)
+    max_level = max(1, int(raw.get("max_level", DEFAULT_SKILL_MAX_LEVEL)))
+    if skill.get("id") == "basic_attack":
+        max_level = min(max_level, 3)
+    return {
+        "max_level": max_level,
+        "cost_curve": [max(0, int(x)) for x in cost_curve],
+        "scaling": copy.deepcopy(scaling),
+        "milestones": copy.deepcopy(milestones),
+    }
+
+
+def skill_upgrade_row(ch: dict[str, Any], skill_id: str) -> dict[str, Any]:
+    raw_map = ch.get("skill_upgrades", {})
+    raw = raw_map.get(skill_id) if isinstance(raw_map, dict) else None
+    if isinstance(raw, dict):
+        level = int(raw.get("level", 1))
+        choices = raw.get("choices", {})
+        if not isinstance(choices, dict):
+            choices = {}
+    elif isinstance(raw, (int, float)):
+        level = int(raw)
+        choices = {}
+    else:
+        level = 1
+        choices = {}
+    skill = load_data()["skill_by_id"].get(skill_id, {})
+    max_level = int(skill_upgrade_spec(skill).get("max_level", DEFAULT_SKILL_MAX_LEVEL))
+    clean_choices = {str(k): str(v) for k, v in choices.items() if str(v)}
+    return {"level": max(1, min(max_level, level)), "choices": clean_choices}
+
+
+def normalize_skill_upgrades(ch: dict[str, Any]) -> None:
+    learned = set(ch.get("learned_skills", []))
+    raw = ch.get("skill_upgrades", {})
+    if not isinstance(raw, dict):
+        raw = {}
+    clean: dict[str, dict[str, Any]] = {}
+    for sid in learned:
+        row = skill_upgrade_row({**ch, "skill_upgrades": raw}, sid)
+        if row["level"] > 1 or row["choices"]:
+            clean[sid] = row
+    ch["skill_upgrades"] = clean
+
+
+def skill_level_for_character(ch: dict[str, Any], skill_id: str) -> int:
+    return int(skill_upgrade_row(ch, skill_id).get("level", 1))
+
+
+def skill_upgrade_cost(skill: dict[str, Any], current_level: int) -> int:
+    spec = skill_upgrade_spec(skill)
+    costs = spec.get("cost_curve", DEFAULT_SKILL_UPGRADE_COSTS)
+    if current_level >= int(spec.get("max_level", DEFAULT_SKILL_MAX_LEVEL)):
+        return 0
+    idx = max(0, current_level - 1)
+    if idx < len(costs):
+        return int(costs[idx])
+    return int(costs[-1]) + (idx - len(costs) + 1) * 8
+
+
+def skill_milestone_for_level(skill: dict[str, Any], level: int) -> dict[str, Any] | None:
+    for raw in skill_upgrade_spec(skill).get("milestones", []):
+        if isinstance(raw, dict) and int(raw.get("level", 0)) == level:
+            return copy.deepcopy(raw)
+    return None
+
+
+def skill_upgrade_choices_for_level(skill: dict[str, Any], level: int) -> list[dict[str, Any]]:
+    milestone = skill_milestone_for_level(skill, level)
+    choices = milestone.get("choices", []) if milestone else []
+    return [copy.deepcopy(c) for c in choices if isinstance(c, dict) and c.get("id")]
+
+
+def clamp_float(value: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, value))
+
+
+def add_skill_modifier(skill: dict[str, Any], field: str, delta: Any) -> None:
+    if field == "add_status" and isinstance(delta, dict):
+        skill.setdefault("status_effects", [])
+        if isinstance(skill["status_effects"], list):
+            skill["status_effects"].append(copy.deepcopy(delta))
+        return
+    if field == "status_potency":
+        for st in skill.get("status_effects", []):
+            if isinstance(st, dict):
+                st["potency"] = max(0, int(round(float(st.get("potency", 0)) + float(delta))))
+        return
+    if field == "status_duration":
+        for st in skill.get("status_effects", []):
+            if isinstance(st, dict):
+                st["duration"] = max(1, int(round(float(st.get("duration", 1)) + float(delta))))
+        return
+    if field == "status_chance":
+        for st in skill.get("status_effects", []):
+            if isinstance(st, dict) and "chance" in st:
+                st["chance"] = round(clamp_float(float(st.get("chance", 1.0)) + float(delta), 0.05, 1.0), 3)
+        return
+    if field.startswith("speed_formula_") and isinstance(skill.get("speed_formula"), dict):
+        speed_field = field.replace("speed_formula_", "")
+        if speed_field == "flat":
+            base_key = "flat" if "flat" in skill["speed_formula"] else "base"
+        elif speed_field == "level_weight":
+            base_key = "level_weight"
+        elif speed_field == "max":
+            base_key = "max"
+        else:
+            base_key = speed_field
+        skill["speed_formula"][base_key] = round(float(skill["speed_formula"].get(base_key, 0)) + float(delta), 3)
+        return
+    if field == "target_count":
+        skill[field] = max(1, int(skill.get(field, 1)) + int(delta))
+        return
+    if field in {"power", "accuracy_modifier", "uses_per_dungeon", "mana_cost"}:
+        if field == "uses_per_dungeon" and int(skill.get(field, 999)) >= 999:
+            return
+        skill[field] = max(0 if field == "mana_cost" else 1, int(round(float(skill.get(field, 0)) + float(delta))))
+        return
+    if field in {"attribute_scale", "ignore_defense", "defense_factor", "crit_chance", "crit_multiplier", "execute_bonus", "status_bonus"}:
+        skill[field] = round(float(skill.get(field, 0)) + float(delta), 3)
+
+
+def apply_skill_modifiers(skill: dict[str, Any], modifiers: dict[str, Any], multiplier: float = 1.0) -> None:
+    for field, delta in modifiers.items():
+        if isinstance(delta, (int, float)):
+            add_skill_modifier(skill, str(field), float(delta) * multiplier)
+        else:
+            add_skill_modifier(skill, str(field), delta)
+
+
+def upgraded_skill_for_character(ch: dict[str, Any], skill_id: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
+    data = data or load_data()
+    base = copy.deepcopy(data["skill_by_id"].get(skill_id, {}))
+    if not base:
+        return base
+    row = skill_upgrade_row(ch, skill_id)
+    level = int(row.get("level", 1))
+    spec = skill_upgrade_spec(base)
+    if level > 1:
+        apply_skill_modifiers(base, spec.get("scaling", {}), level - 1)
+    choices = row.get("choices", {})
+    if isinstance(choices, dict):
+        for raw_level, choice_id in choices.items():
+            try:
+                milestone_level = int(raw_level)
+            except ValueError:
+                continue
+            if milestone_level > level:
+                continue
+            choice = next((c for c in skill_upgrade_choices_for_level(base, milestone_level) if str(c.get("id")) == str(choice_id)), None)
+            if choice and isinstance(choice.get("modifiers"), dict):
+                apply_skill_modifiers(base, choice["modifiers"])
+    base["upgrade_level"] = level
+    base["upgrade_max_level"] = int(spec.get("max_level", DEFAULT_SKILL_MAX_LEVEL))
+    return base
+
+
+def skill_upgrade_status(state: dict[str, Any], ch: dict[str, Any], skill_id: str) -> dict[str, Any]:
+    data = load_data()
+    skill = data["skill_by_id"].get(skill_id)
+    if not skill:
+        return {"upgradeable": False, "reason": "技能不存在"}
+    if skill_id not in ch.get("learned_skills", []):
+        return {"upgradeable": False, "reason": "需要先学习该技能"}
+    row = skill_upgrade_row(ch, skill_id)
+    current = int(row.get("level", 1))
+    spec = skill_upgrade_spec(skill)
+    max_level = int(spec.get("max_level", DEFAULT_SKILL_MAX_LEVEL))
+    if current >= max_level:
+        return {"upgradeable": False, "reason": "已达最高等级", "level": current, "max_level": max_level}
+    cost = skill_upgrade_cost(skill, current)
+    essence = int(state.get("materials", {}).get(SKILL_ESSENCE_KEY, 0))
+    next_level = current + 1
+    choices = skill_upgrade_choices_for_level(skill, next_level)
+    if essence < cost:
+        return {
+            "upgradeable": False,
+            "reason": f"技能精华不足：需要 {cost}，当前 {essence}",
+            "level": current,
+            "max_level": max_level,
+            "cost": cost,
+            "choices": choices,
+        }
+    return {
+        "upgradeable": True,
+        "reason": "可升级",
+        "level": current,
+        "max_level": max_level,
+        "cost": cost,
+        "choices": choices,
+    }
+
+
 def legacy_level_unlocked_skill_ids(ch: dict[str, Any], class_row: dict[str, Any], data: dict[str, Any]) -> list[str]:
     level = int(ch.get("level", 1))
     out: list[str] = []
@@ -417,7 +793,13 @@ def class_preset_meta(class_id: str | None) -> dict[str, Any]:
         return {}
     data = load_data()
     meta = data.get("class_ui_by_id", {}).get(class_id, {})
-    return meta if isinstance(meta, dict) else {}
+    if isinstance(meta, dict) and meta:
+        return meta
+    base_id = base_class_id_for_class(class_id, data)
+    if base_id and base_id != class_id:
+        base_meta = data.get("class_ui_by_id", {}).get(base_id, {})
+        return base_meta if isinstance(base_meta, dict) else {}
+    return {}
 
 
 def default_target_priority_for_class(class_id: str | None) -> str:
@@ -549,6 +931,13 @@ def normalize_character(ch: dict[str, Any]) -> dict[str, Any]:
     class_row = data["class_by_id"].get(ch.get("class_id"))
     if not class_row:
         return ch
+    if class_row.get("base_class_id"):
+        ch["base_class_id"] = str(class_row.get("base_class_id"))
+        ch.setdefault("class_path", [ch["base_class_id"], ch.get("class_id")])
+    else:
+        ch.setdefault("base_class_id", ch.get("class_id"))
+        if not isinstance(ch.get("class_path"), list):
+            ch["class_path"] = [ch.get("class_id")]
     legacy_without_attributes = not isinstance(ch.get("attributes"), dict)
     ch.setdefault("class_name", class_row.get("name", ch.get("class_id", "")))
     ch.setdefault("role", class_row.get("role", ""))
@@ -567,6 +956,7 @@ def normalize_character(ch: dict[str, Any]) -> dict[str, Any]:
         ch["learned_skills"] = legacy_level_unlocked_skill_ids(ch, class_row, data)
     ch["learned_skills"] = clean_learned_skill_ids(ch.get("class_id"), ch.get("learned_skills"))
     ch["skill_points"] = max(0, int(ch.get("skill_points", 0)))
+    normalize_skill_upgrades(ch)
     ch.setdefault("equipment", {"weapon": None, "armor": None, "trinket": None})
     ch.setdefault("status_effects", [])
     ch.setdefault("injury_state", "healthy")
@@ -668,20 +1058,36 @@ def skill_unlock_status(ch: dict[str, Any], skill_id: str) -> tuple[bool, str]:
     return True, "可学习"
 
 
-def skill_public_summary(ch: dict[str, Any]) -> list[dict[str, Any]]:
+def skill_public_summary(ch: dict[str, Any], state: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     normalize_character(ch)
     data = load_data()
     learned = set(ch.get("learned_skills", []))
     tree = class_skill_tree_node_map(ch.get("class_id"))
     rows: list[dict[str, Any]] = []
     for sid in ch.get("skills", []):
-        skill = data["skill_by_id"].get(sid)
-        if not skill:
+        base_skill = data["skill_by_id"].get(sid)
+        if not base_skill:
             continue
-        req = skill_level_requirement(skill)
+        skill = upgraded_skill_for_character(ch, sid, data)
+        req = skill_level_requirement(base_skill)
         node = tree.get(sid, {})
         prereqs = list(node.get("prerequisites", [])) if isinstance(node.get("prerequisites", []), list) else []
         unlockable, unlock_reason = skill_unlock_status(ch, sid)
+        upgrade_status = skill_upgrade_status(state, ch, sid) if state is not None else {}
+        upgrade_row = skill_upgrade_row(ch, sid)
+        upgrade_level = int(upgrade_row.get("level", 1))
+        upgrade_max = int(skill_upgrade_spec(base_skill).get("max_level", DEFAULT_SKILL_MAX_LEVEL))
+        upgrade_cost = 0 if upgrade_level >= upgrade_max else skill_upgrade_cost(base_skill, upgrade_level)
+        next_level = min(upgrade_max, upgrade_level + 1)
+        next_choices = skill_upgrade_choices_for_level(base_skill, next_level) if upgrade_level < upgrade_max else []
+        selected_choice_names: dict[str, str] = {}
+        for raw_level, choice_id in upgrade_row.get("choices", {}).items():
+            try:
+                milestone_level = int(raw_level)
+            except ValueError:
+                milestone_level = 0
+            choice = next((c for c in skill_upgrade_choices_for_level(base_skill, milestone_level) if str(c.get("id")) == str(choice_id)), None)
+            selected_choice_names[str(raw_level)] = str(choice.get("name", choice_id)) if choice else str(choice_id)
         rows.append({
             "id": sid,
             "name": skill.get("name", sid),
@@ -723,19 +1129,125 @@ def skill_public_summary(ch: dict[str, Any]) -> list[dict[str, Any]]:
             "mana_cost": int(skill.get("mana_cost", 0)),
             "speed_formula": copy.deepcopy(skill.get("speed_formula")) if isinstance(skill.get("speed_formula"), dict) else None,
             "is_initiative_skill": is_initiative_skill(skill),
+            "skill_level": upgrade_level,
+            "skill_max_level": upgrade_max,
+            "skill_upgrade_cost": upgrade_cost,
+            "skill_upgrade_currency": SKILL_ESSENCE_KEY,
+            "skill_upgrade_currency_name": MATERIAL_NAMES[SKILL_ESSENCE_KEY],
+            "skill_upgradeable": bool(upgrade_status.get("upgradeable")) if upgrade_status else False,
+            "skill_upgrade_reason": str(upgrade_status.get("reason", "")) if upgrade_status else "",
+            "skill_upgrade_choices": copy.deepcopy(upgrade_status.get("choices", next_choices)) if upgrade_status else next_choices,
+            "skill_selected_upgrade_choices": copy.deepcopy(upgrade_row.get("choices", {})),
+            "skill_selected_upgrade_choice_names": selected_choice_names,
         })
     return rows
+
+
+def promotion_cost_rows(costs: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for key, raw in costs.items():
+        amount = max(0, int(raw))
+        if amount <= 0:
+            continue
+        rows.append({"key": key, "name": MATERIAL_NAMES.get(key, key), "amount": amount})
+    return rows
+
+
+def promotion_requirements(class_row: dict[str, Any]) -> tuple[int, dict[str, int], str]:
+    promo = class_row.get("promotion", {}) if isinstance(class_row.get("promotion", {}), dict) else {}
+    level_required = max(1, int(promo.get("level_required", DEFAULT_PROMOTION_LEVEL)))
+    raw_costs = promo.get("materials", {PROMOTION_BADGE_KEY: 1})
+    if not isinstance(raw_costs, dict):
+        raw_costs = {PROMOTION_BADGE_KEY: 1}
+    costs = {str(k): max(0, int(v)) for k, v in raw_costs.items() if int(v) > 0}
+    return level_required, costs, str(promo.get("description", ""))
+
+
+def promotion_options_for_character(state: dict[str, Any], ch: dict[str, Any]) -> list[dict[str, Any]]:
+    normalize_character(ch)
+    data = load_data()
+    current_id = str(ch.get("class_id") or "")
+    current_row = data.get("class_by_id", {}).get(current_id, {})
+    if not current_row or current_row.get("base_class_id"):
+        return []
+    materials = state.setdefault("materials", {})
+    base_id = current_id
+    rows = [
+        c for c in data.get("classes", [])
+        if str(c.get("base_class_id") or "") == base_id and c.get("is_advanced")
+    ]
+    rows.sort(key=lambda c: (int(c.get("promotion", {}).get("order", 99)) if isinstance(c.get("promotion"), dict) else 99, str(c.get("name", ""))))
+
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        target_id = str(row.get("id") or "")
+        level_required, costs, description = promotion_requirements(row)
+        reasons: list[str] = []
+        if int(ch.get("level", 1)) < level_required:
+            reasons.append(f"需要 Lv.{level_required}")
+        missing = []
+        for key, amount in costs.items():
+            owned = int(materials.get(key, 0))
+            if owned < amount:
+                missing.append(f"{MATERIAL_NAMES.get(key, key)} {owned}/{amount}")
+        if missing:
+            reasons.append("材料不足：" + "、".join(missing))
+        skill_ids = direct_class_skill_ids(row)
+        out.append({
+            "class_id": target_id,
+            "name": row.get("name", target_id),
+            "role": row.get("role", ""),
+            "base_class_id": base_id,
+            "description": description,
+            "level_required": level_required,
+            "cost": costs,
+            "cost_rows": promotion_cost_rows(costs),
+            "can_promote": not reasons,
+            "reason": "；".join(reasons) if reasons else "可转职",
+            "skill_ids": skill_ids,
+            "skill_names": [data["skill_by_id"].get(sid, {}).get("name", sid) for sid in skill_ids],
+            "class_meta": class_preset_meta(target_id),
+            "stat_growth": copy.deepcopy(row.get("stat_growth", {})),
+            "attribute_growth": copy.deepcopy(row.get("attribute_growth", {})),
+        })
+    return out
+
+
+def character_promotion_summary(state: dict[str, Any], ch: dict[str, Any]) -> dict[str, Any]:
+    normalize_character(ch)
+    data = load_data()
+    current_id = str(ch.get("class_id") or "")
+    current_row = data.get("class_by_id", {}).get(current_id, {})
+    base_id = str(ch.get("base_class_id") or current_row.get("base_class_id") or current_id)
+    base_row = data.get("class_by_id", {}).get(base_id, {})
+    promoted = bool(current_row.get("base_class_id"))
+    path = [{"class_id": base_id, "name": base_row.get("name", base_id)}]
+    if promoted:
+        path.append({"class_id": current_id, "name": current_row.get("name", current_id)})
+    return {
+        "promoted": promoted,
+        "base_class_id": base_id,
+        "base_class_name": base_row.get("name", base_id),
+        "current_class_id": current_id,
+        "current_class_name": current_row.get("name", ch.get("class_name", current_id)),
+        "promotion_level": ch.get("promotion_level") or ch.get("promoted_at_level"),
+        "path": path,
+        "options": [] if promoted else promotion_options_for_character(state, ch),
+    }
 
 
 def create_character(class_id: str, name: str, char_id: str | None = None) -> dict[str, Any]:
     data = load_data()
     c = copy.deepcopy(data["class_by_id"][class_id])
     stats = stat_block_for_class(c, 1)
+    base_id = base_class_id_for_class(class_id, data)
     ch = {
         "id": char_id or make_id("ch"),
         "name": name,
         "class_id": class_id,
         "class_name": c["name"],
+        "base_class_id": base_id,
+        "class_path": [base_id] + ([class_id] if class_id != base_id else []),
         "role": c.get("role", ""),
         "level": 1,
         "exp": 0,
@@ -747,6 +1259,7 @@ def create_character(class_id: str, name: str, char_id: str | None = None) -> di
         "skills": class_skill_ids(c),
         "learned_skills": clean_learned_skill_ids(class_id, class_auto_learn_skill_ids(class_id)),
         "skill_points": 0,
+        "skill_upgrades": {},
         "equipment": {"weapon": None, "armor": None, "trinket": None},
         "status_effects": [],
         "injury_state": "healthy",
@@ -771,7 +1284,14 @@ def default_state(seed: int | None = None) -> dict[str, Any]:
         "day": 1,
         "max_day": 30,
         "gold": 160,
-        "materials": {"leather": 2, "ore": 2, "venom_sac": 0, "cloth": 0},
+        "materials": {
+            SKILL_ESSENCE_KEY: STARTING_SKILL_ESSENCE,
+            PROMOTION_BADGE_KEY: STARTING_PROMOTION_BADGES,
+            "leather": 2,
+            "ore": 2,
+            "venom_sac": 0,
+            "cloth": 0,
+        },
         "consumables": {"healing_potion": 3, "antidote": 2},
         "characters": [],
         "formation": {},  # legacy alias for team_1; kept for older saves/API clients
@@ -944,7 +1464,7 @@ def initiative_speed_for_character(char: dict[str, Any], normal_speed: int, attr
         return default_speed_formula_result(normal_speed)
     if selected not in active_skill_ids_for_character(char):
         return default_speed_formula_result(normal_speed)
-    skill = data["skill_by_id"].get(selected, {})
+    skill = upgraded_skill_for_character(char, selected, data)
     if not is_initiative_skill(skill):
         return default_speed_formula_result(normal_speed)
     result = calculate_speed_formula(skill, normal_speed, attributes, derived, int(char.get("level", 1)))
@@ -1016,7 +1536,7 @@ def equip_item(state: dict[str, Any], char_id: str, item_id: str | None, slot: s
         raise ValueError("装备槽位不匹配")
     if validate_class:
         restriction = item.get("class_restriction") or []
-        if restriction and char["class_id"] not in restriction:
+        if not class_matches_restriction(char.get("class_id"), restriction):
             raise ValueError(f"{char['class_name']} 不能装备 {item['name']}")
     if item.get("equipped_by") and item["equipped_by"] != char_id:
         other = get_character(state, item["equipped_by"])
@@ -1701,6 +2221,94 @@ def learn_skill(state: dict[str, Any], character_id: str, skill_id: str) -> dict
     return ch
 
 
+def upgrade_skill(state: dict[str, Any], character_id: str, skill_id: str, choice_id: str | None = None) -> dict[str, Any]:
+    ch = get_character(state, character_id)
+    if not ch:
+        raise ValueError("角色不存在")
+    normalize_character(ch)
+    sid = str(skill_id or "")
+    data = load_data()
+    skill = data["skill_by_id"].get(sid)
+    if not skill or sid not in ch.get("skills", []):
+        raise ValueError("该技能不在本职业技能树中")
+    if sid not in ch.get("learned_skills", []):
+        raise ValueError("需要先学习该技能")
+    status = skill_upgrade_status(state, ch, sid)
+    if not status.get("upgradeable"):
+        raise ValueError(str(status.get("reason", "暂时无法升级")))
+    row = skill_upgrade_row(ch, sid)
+    current = int(row.get("level", 1))
+    next_level = current + 1
+    choices = skill_upgrade_choices_for_level(skill, next_level)
+    chosen = str(choice_id or "")
+    if choices:
+        allowed = {str(c.get("id")) for c in choices}
+        if chosen not in allowed:
+            names = "、".join(str(c.get("name", c.get("id"))) for c in choices)
+            raise ValueError(f"该等级需要选择一个额外效果：{names}")
+    cost = int(status.get("cost", skill_upgrade_cost(skill, current)))
+    state.setdefault("materials", {})
+    essence = int(state["materials"].get(SKILL_ESSENCE_KEY, 0))
+    if essence < cost:
+        raise ValueError(f"技能精华不足：需要 {cost}，当前 {essence}")
+    state["materials"][SKILL_ESSENCE_KEY] = max(0, essence - cost)
+    upgrades = ch.setdefault("skill_upgrades", {})
+    if not isinstance(upgrades, dict):
+        upgrades = {}
+        ch["skill_upgrades"] = upgrades
+    row["level"] = next_level
+    if choices:
+        row.setdefault("choices", {})[str(next_level)] = chosen
+    upgrades[sid] = row
+    normalize_character(ch)
+    return ch
+
+
+def promote_character(state: dict[str, Any], character_id: str, target_class_id: str) -> dict[str, Any]:
+    ch = get_character(state, character_id)
+    if not ch:
+        raise ValueError("角色不存在")
+    normalize_character(ch)
+    data = load_data()
+    current_id = str(ch.get("class_id") or "")
+    current_row = data.get("class_by_id", {}).get(current_id, {})
+    if not current_row:
+        raise ValueError("当前职业不存在")
+    if current_row.get("base_class_id"):
+        raise ValueError("该角色已经完成转职")
+    target_id = str(target_class_id or "")
+    target_row = data.get("class_by_id", {}).get(target_id)
+    if not target_row or not target_row.get("is_advanced"):
+        raise ValueError("目标进阶职业不存在")
+    if str(target_row.get("base_class_id") or "") != current_id:
+        raise ValueError("该进阶职业不属于当前基础职业")
+
+    option = next((o for o in promotion_options_for_character(state, ch) if o["class_id"] == target_id), None)
+    if not option:
+        raise ValueError("无法转职为该职业")
+    if not option.get("can_promote"):
+        raise ValueError(str(option.get("reason", "暂时无法转职")))
+
+    materials = state.setdefault("materials", {})
+    costs = option.get("cost", {})
+    for key, amount in costs.items():
+        materials[key] = max(0, int(materials.get(key, 0)) - int(amount))
+
+    base_id = current_id
+    ch["base_class_id"] = base_id
+    ch["class_path"] = [base_id, target_id]
+    ch["class_id"] = target_id
+    ch["class_name"] = target_row.get("name", target_id)
+    ch["role"] = target_row.get("role", ch.get("role", ""))
+    ch["promotion_level"] = int(ch.get("level", 1))
+    ch["promoted_at_level"] = int(ch.get("level", 1))
+    ch["promotion_choice"] = target_id
+    ch["skills"] = class_skill_ids(target_row)
+    ch["learned_skills"] = clean_learned_skill_ids(target_id, ch.get("learned_skills", []))
+    normalize_character(ch)
+    return ch
+
+
 def buy_shop_item(state: dict[str, Any], shop_id: str) -> dict[str, Any]:
     item = next((i for i in state["shop"]["items"] if i["shop_id"] == shop_id), None)
     if not item:
@@ -1754,6 +2362,8 @@ def public_state_view(state: dict[str, Any]) -> dict[str, Any]:
         "day": state["day"],
         "max_day": state["max_day"],
         "gold": state["gold"],
+        "skill_essence": int(state["materials"].get(SKILL_ESSENCE_KEY, 0)),
+        "promotion_badges": int(state["materials"].get(PROMOTION_BADGE_KEY, 0)),
         "materials": state["materials"],
         "materials_display": {MATERIAL_NAMES.get(k, k): v for k, v in state["materials"].items()},
         "consumables": state.get("consumables", {}),
@@ -1806,6 +2416,12 @@ def preset_list_view() -> dict[str, Any]:
 def migrate_state(state: dict[str, Any]) -> dict[str, Any]:
     """Best-effort save migration for data-driven WOD attributes and skills."""
     rebuild_level_scaled_sheet = int(state.get("schema_version", 1)) < 3 or state.get("attribute_system_version") != 1
+    state.setdefault("materials", {})
+    state["materials"][SKILL_ESSENCE_KEY] = max(0, int(state["materials"].get(SKILL_ESSENCE_KEY, 0)))
+    if PROMOTION_BADGE_KEY not in state["materials"]:
+        state["materials"][PROMOTION_BADGE_KEY] = STARTING_PROMOTION_BADGES
+    else:
+        state["materials"][PROMOTION_BADGE_KEY] = max(0, int(state["materials"].get(PROMOTION_BADGE_KEY, 0)))
     for ch in state.get("characters", []):
         if rebuild_level_scaled_sheet:
             class_row = load_data()["class_by_id"].get(ch.get("class_id"))
@@ -1840,6 +2456,8 @@ def party_summary(state: dict[str, Any]) -> dict[str, Any]:
             "name": ch["name"],
             "class_id": ch["class_id"],
             "class_name": ch["class_name"],
+            "base_class_id": ch.get("base_class_id"),
+            "class_path": copy.deepcopy(ch.get("class_path", [])),
             "class_meta": class_preset_meta(ch["class_id"]),
             "level": ch["level"],
             "exp": ch["exp"],
@@ -1848,6 +2466,7 @@ def party_summary(state: dict[str, Any]) -> dict[str, Any]:
             "mana": max(0, min(int(ch.get("mana", stats.get("max_mana", 0))), int(stats.get("max_mana", 0)))),
             "max_mana": int(stats.get("max_mana", ch.get("max_mana", 0))),
             "skill_points": int(ch.get("skill_points", 0)),
+            "skill_upgrades": copy.deepcopy(ch.get("skill_upgrades", {})),
             "learned_skills": copy.deepcopy(ch.get("learned_skills", [])),
             "injury_state": ch.get("injury_state", "healthy"),
             "available": ch.get("available", True),
@@ -1864,7 +2483,8 @@ def party_summary(state: dict[str, Any]) -> dict[str, Any]:
             "attribute_growth": copy.deepcopy(class_row.get("attribute_growth", {})),
             "stat_breakdown": stat_breakdown_for_character(ch, class_row, stats),
             "attribute_breakdown": attribute_breakdown_for_character(ch, class_row),
-            "skill_summary": skill_public_summary(ch),
+            "skill_summary": skill_public_summary(ch, state),
+            "promotion": character_promotion_summary(state, ch),
             "in_formation": ch["id"] in member_team,
             "team_id": member_team.get(ch["id"]),
             "team_name": TEAM_LABELS.get(member_team.get(ch["id"], ""), ""),
@@ -2000,6 +2620,7 @@ class Combatant(dict):
 
 def make_player_combatants(state: dict[str, Any], team_id: str = "team_1") -> list[Combatant]:
     out: list[Combatant] = []
+    data = load_data()
     formation = ensure_formations(state).get(team_id, {})
     formation_by_id = {cid: cell for cell, cid in formation.items()}
     for ch in ordered_party_members(state, team_id):
@@ -2009,6 +2630,8 @@ def make_player_combatants(state: dict[str, Any], team_id: str = "team_1") -> li
         hp = min(int(ch.get("hp", max_hp)), max_hp)
         max_mana = int(stats.get("max_mana", ch.get("max_mana", 0)))
         mana = max(0, min(int(ch.get("mana", max_mana)), max_mana))
+        active_skills = active_skill_ids_for_character(ch)
+        skill_data_by_id = {sid: upgraded_skill_for_character(ch, sid, data) for sid in active_skills}
         unit = Combatant({
             "id": ch["id"], "name": ch["name"], "side": "party", "class_id": ch["class_id"], "class_name": ch["class_name"],
             "team_id": team_id, "team_name": TEAM_LABELS.get(team_id, team_id),
@@ -2017,14 +2640,13 @@ def make_player_combatants(state: dict[str, Any], team_id: str = "team_1") -> li
             "normal_speed": int(stats.get("normal_speed", stats.get("speed", 0))), "initiative_skill": copy.deepcopy(stats.get("initiative_skill")),
             "action_count": int(stats.get("action_count", 1)), "resistances": stats.get("resistances", {}), "special_effects": stats.get("special_effects", []),
             "attributes": copy.deepcopy(ch.get("attributes", {})), "derived_stats": copy.deepcopy(stats.get("derived", {})),
-            "skills": active_skill_ids_for_character(ch), "skill_uses": {}, "statuses": copy.deepcopy(ch.get("status_effects", [])),
+            "skills": active_skills, "skill_data_by_id": skill_data_by_id, "skill_uses": {}, "statuses": copy.deepcopy(ch.get("status_effects", [])),
             "cell": formation_by_id.get(ch["id"], "r2c1"), "tactics": copy.deepcopy(ch.get("tactics", {})), "source": ch, "guarding": False,
         })
         out.append(unit)
-    data = load_data()
     for unit in out:
         for sid in unit["skills"]:
-            unit["skill_uses"][sid] = int(data["skill_by_id"].get(sid, {}).get("uses_per_dungeon", 999))
+            unit["skill_uses"][sid] = int(unit.get("skill_data_by_id", {}).get(sid, {}).get("uses_per_dungeon", 999))
     return out
 
 
@@ -2248,13 +2870,22 @@ def spend_skill_mana(actor: Combatant, skill: dict[str, Any], report: dict[str, 
     return True
 
 
+def skill_for_combatant(unit: Combatant, skill_id: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
+    if unit.get("side") == "party":
+        row = unit.get("skill_data_by_id", {}).get(skill_id)
+        if isinstance(row, dict) and row:
+            return row
+    data = data or load_data()
+    return data["skill_by_id"].get(skill_id, {})
+
+
 def can_combatant_use_skill(unit: Combatant, skill_id: str, data: dict[str, Any]) -> bool:
     if skill_id not in unit.get("skills", []):
         return False
     remaining = int(unit.get("skill_uses", {}).get(skill_id, 0))
     if remaining <= 0:
         return False
-    skill = data["skill_by_id"].get(skill_id, {})
+    skill = skill_for_combatant(unit, skill_id, data)
     if skill.get("type") == "passive":
         return False
     if not has_mana_for_skill(unit, skill):
@@ -2311,7 +2942,7 @@ def execute_player_skill(actor: Combatant, sid: str, party: list[Combatant], ene
     data = load_data()
     if not can_combatant_use_skill(actor, sid, data):
         return False
-    skill = copy.deepcopy(data["skill_by_id"].get(sid))
+    skill = copy.deepcopy(skill_for_combatant(actor, sid, data))
     if not skill:
         return False
     if not spend_skill_mana(actor, skill, report):
@@ -2367,7 +2998,7 @@ def use_opening_skills(party: list[Combatant], enemies: list[Combatant], rng: ra
     data = load_data()
     for unit in sorted(alive(party), key=lambda u: (-u.get("speed", 0), u.get("name", ""))):
         for sid in opening_skill_candidates(unit):
-            skill = data["skill_by_id"].get(sid, {})
+            skill = skill_for_combatant(unit, sid, data)
             if skill.get("type") == "heal" and not should_use_priority_skill(skill, unit, party, enemies):
                 continue
             if skill.get("type") == "cleanse" and not should_use_priority_skill(skill, unit, party, enemies):
@@ -2409,7 +3040,7 @@ def maybe_use_defense_skill(target: Combatant, incoming_actor: Combatant, incomi
     party = report.get("current_party", [])
     for key in incoming_defense_keys(incoming_skill):
         sid = defense_map.get(key)
-        skill = data["skill_by_id"].get(sid or "", {})
+        skill = skill_for_combatant(target, sid or "", data)
         if not sid or skill.get("type") not in {"guard", "buff", "support"}:
             continue
         if key not in defense_types_for_skill(skill):
@@ -2418,6 +3049,18 @@ def maybe_use_defense_skill(target: Combatant, incoming_actor: Combatant, incomi
             continue
         if execute_player_skill(target, sid, party, [incoming_actor], rng, logs, report, reason=f"防御·{DEFENSE_TRIGGER_LABELS.get(key, key)}", preferred_ally=target):
             return
+
+
+def skill_ai_rules_for_class(class_id: str | None, data: dict[str, Any]) -> list[dict[str, Any]]:
+    by_class = data.get("skill_ai_by_class_id", {})
+    own_rules = by_class.get(class_id or "", [])
+    out = own_rules if isinstance(own_rules, list) else []
+    base_id = base_class_id_for_class(class_id, data)
+    if base_id and base_id != class_id:
+        base_rules = by_class.get(base_id, [])
+        if isinstance(base_rules, list):
+            out = out + base_rules
+    return out
 
 
 def choose_player_skill(unit: Combatant, party: list[Combatant], enemies: list[Combatant]) -> str:
@@ -2452,7 +3095,7 @@ def choose_player_skill(unit: Combatant, party: list[Combatant], enemies: list[C
         return [e for e in living_enemies if "boss" in e.get("tags", []) or "elite" in e.get("tags", []) or e.get("attack", 0) >= 14]
 
     for skill_id in unit.get("tactics", {}).get("skill_priority", []):
-        skill = data["skill_by_id"].get(skill_id, {})
+        skill = skill_for_combatant(unit, skill_id, data)
         if can(skill_id) and should_use_priority_skill(skill, unit, party, enemies):
             return skill_id
 
@@ -2511,8 +3154,7 @@ def choose_player_skill(unit: Combatant, party: list[Combatant], enemies: list[C
             return any(hp_pct(e) < float(rule.get("hp_below", rule.get("threshold", 0.35))) for e in living_enemies)
         return False
 
-    rules = data.get("skill_ai_by_class_id", {}).get(class_id, [])
-    for rule in (rules if isinstance(rules, list) else []):
+    for rule in skill_ai_rules_for_class(class_id, data):
         if not isinstance(rule, dict):
             continue
         skill_id = str(rule.get("skill", ""))
@@ -3277,9 +3919,17 @@ def apply_rewards_for_report(state: dict[str, Any], dungeon: dict[str, Any], tem
     base = template["rewards"]
     gold = int(base.get("gold", 0) * clear_ratio * multiplier)
     exp = int(base.get("exp", 0) * max(0.25, clear_ratio) * (1.15 if success else 0.8))
+    essence = int(round((3 + int(dungeon.get("danger_level", 1))) * max(0.25, clear_ratio) * multiplier * (1.25 if success else 0.75)))
     state["gold"] += gold
     report["rewards"]["gold"] = gold
     report["rewards"]["exp"] = exp
+    if essence > 0:
+        state["materials"][SKILL_ESSENCE_KEY] = state["materials"].get(SKILL_ESSENCE_KEY, 0) + essence
+        report["rewards"]["materials"][SKILL_ESSENCE_KEY] = essence
+    if success and dungeon.get("reward_charges", 0) > 0:
+        badges = 1 + (1 if int(dungeon.get("danger_level", 1)) >= 5 else 0)
+        state["materials"][PROMOTION_BADGE_KEY] = state["materials"].get(PROMOTION_BADGE_KEY, 0) + badges
+        report["rewards"]["materials"][PROMOTION_BADGE_KEY] = badges
     for k, v in base.get("materials", {}).items():
         amount = int(round(v * clear_ratio * multiplier))
         if amount > 0:

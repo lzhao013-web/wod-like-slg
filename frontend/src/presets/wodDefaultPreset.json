@@ -94,6 +94,208 @@
       ],
       "defaultSkillPriority": [],
       "defaultDefenseSkillByType": {}
+    },
+    "berserker": {
+      "id": "berserker",
+      "icon": "🩸",
+      "accent": "#ef5350",
+      "roleShort": "狂战",
+      "position": "front",
+      "defaultTargetPriority": "lowest_hp",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "blood_frenzy"
+      ],
+      "defaultSkillPriority": [
+        "whirlwind_execution"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "sword_commander": {
+      "id": "sword_commander",
+      "icon": "🚩",
+      "accent": "#ffb74d",
+      "roleShort": "统领",
+      "position": "front",
+      "defaultTargetPriority": "elite",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "rallying_banner"
+      ],
+      "defaultSkillPriority": [
+        "commanding_strike"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "sacred_guardian": {
+      "id": "sacred_guardian",
+      "icon": "🔆",
+      "accent": "#ffd54f",
+      "roleShort": "圣盾",
+      "position": "front",
+      "defaultTargetPriority": "front",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "sanctified_guard"
+      ],
+      "defaultSkillPriority": [
+        "last_bastion"
+      ],
+      "defaultDefenseSkillByType": {
+        "melee": "last_bastion",
+        "ranged": "sanctified_guard",
+        "magic": "sanctified_guard",
+        "mental": "sanctified_guard",
+        "special": "sanctified_guard"
+      }
+    },
+    "fortress_commander": {
+      "id": "fortress_commander",
+      "icon": "🏰",
+      "accent": "#90a4ae",
+      "roleShort": "堡垒",
+      "position": "front",
+      "defaultTargetPriority": "highest_attack",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "fortress_order"
+      ],
+      "defaultSkillPriority": [
+        "counter_charge"
+      ],
+      "defaultDefenseSkillByType": {
+        "melee": "fortress_order",
+        "ranged": "fortress_order",
+        "special": "fortress_order"
+      }
+    },
+    "sharpshooter": {
+      "id": "sharpshooter",
+      "icon": "🎯",
+      "accent": "#81c784",
+      "roleShort": "神射",
+      "position": "back",
+      "defaultTargetPriority": "rear",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "deadeye_focus"
+      ],
+      "defaultSkillPriority": [
+        "sniper_killshot"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "wild_hunter": {
+      "id": "wild_hunter",
+      "icon": "🌲",
+      "accent": "#66bb6a",
+      "roleShort": "猎手",
+      "position": "back",
+      "defaultTargetPriority": "elite",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "barbed_trap"
+      ],
+      "defaultSkillPriority": [
+        "pack_hunt"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "shadow_dancer": {
+      "id": "shadow_dancer",
+      "icon": "🌘",
+      "accent": "#4dd0e1",
+      "roleShort": "影舞",
+      "position": "back",
+      "defaultTargetPriority": "rear",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "phantom_step"
+      ],
+      "defaultSkillPriority": [
+        "death_blossom"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "venom_blade": {
+      "id": "venom_blade",
+      "icon": "☠️",
+      "accent": "#9ccc65",
+      "roleShort": "毒刃",
+      "position": "back",
+      "defaultTargetPriority": "highest_defense",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "venom_cascade"
+      ],
+      "defaultSkillPriority": [
+        "toxin_execution"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "high_priest": {
+      "id": "high_priest",
+      "icon": "✨",
+      "accent": "#fff176",
+      "roleShort": "大祭司",
+      "position": "mid",
+      "defaultTargetPriority": "lowest_hp",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "sanctuary"
+      ],
+      "defaultSkillPriority": [
+        "miracle"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "inquisitor": {
+      "id": "inquisitor",
+      "icon": "🔥",
+      "accent": "#ff8a65",
+      "roleShort": "审判",
+      "position": "mid",
+      "defaultTargetPriority": "elite",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "judgement_mark"
+      ],
+      "defaultSkillPriority": [
+        "purifying_flame"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "elementalist": {
+      "id": "elementalist",
+      "icon": "🌩️",
+      "accent": "#5c9cff",
+      "roleShort": "元素",
+      "position": "back",
+      "defaultTargetPriority": "lowest_hp",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "elemental_overload"
+      ],
+      "defaultSkillPriority": [
+        "stormfall"
+      ],
+      "defaultDefenseSkillByType": {}
+    },
+    "hex_scholar": {
+      "id": "hex_scholar",
+      "icon": "🜏",
+      "accent": "#b388ff",
+      "roleShort": "咒文",
+      "position": "back",
+      "defaultTargetPriority": "highest_attack",
+      "defaultSkillMode": "balanced",
+      "defaultOpeningSkillPriority": [
+        "hex_bind"
+      ],
+      "defaultSkillPriority": [
+        "doom_ritual"
+      ],
+      "defaultDefenseSkillByType": {}
     }
   },
   "skills": {
@@ -115,8 +317,8 @@
       "attribute_focus": "melee",
       "attribute_scale": 0.06,
       "status_effects": [],
-      "uses": 999,
-      "attack_type": "melee"
+      "attack_type": "melee",
+      "uses": 999
     },
     "guard": {
       "id": "guard",
@@ -139,11 +341,11 @@
           "potency": 45
         }
       ],
-      "uses": 4,
       "defense_types": [
         "melee",
         "ranged"
-      ]
+      ],
+      "uses": 4
     },
     "shield_wall": {
       "id": "shield_wall",
@@ -171,12 +373,12 @@
           "potency": 8
         }
       ],
-      "uses": 3,
       "defense_types": [
         "melee",
         "ranged",
         "special"
-      ]
+      ],
+      "uses": 3
     },
     "power_strike": {
       "id": "power_strike",
@@ -196,8 +398,8 @@
       "attribute_focus": "melee",
       "attribute_scale": 0.11,
       "status_effects": [],
-      "uses": 3,
-      "attack_type": "melee"
+      "attack_type": "melee",
+      "uses": 3
     },
     "cleave": {
       "id": "cleave",
@@ -218,8 +420,8 @@
       "attribute_scale": 0.11,
       "status_effects": [],
       "target_count": 2,
-      "uses": 3,
-      "attack_type": "melee"
+      "attack_type": "melee",
+      "uses": 3
     },
     "shield_bash": {
       "id": "shield_bash",
@@ -247,8 +449,8 @@
         }
       ],
       "crit_chance": 0.02,
-      "uses": 3,
-      "attack_type": "melee"
+      "attack_type": "melee",
+      "uses": 3
     },
     "battle_focus": {
       "id": "battle_focus",
@@ -298,8 +500,8 @@
       "status_effects": [],
       "crit_chance": 0.06,
       "execute_bonus": 0.35,
-      "uses": 2,
-      "attack_type": "melee"
+      "attack_type": "melee",
+      "uses": 2
     },
     "aimed_shot": {
       "id": "aimed_shot",
@@ -319,8 +521,8 @@
       "attribute_focus": "ranged",
       "attribute_scale": 0.11,
       "status_effects": [],
-      "uses": 4,
-      "attack_type": "ranged"
+      "attack_type": "ranged",
+      "uses": 4
     },
     "volley": {
       "id": "volley",
@@ -341,8 +543,8 @@
       "attribute_scale": 0.11,
       "status_effects": [],
       "target_count": 3,
-      "uses": 2,
-      "attack_type": "ranged"
+      "attack_type": "ranged",
+      "uses": 2
     },
     "hunter_mark": {
       "id": "hunter_mark",
@@ -363,11 +565,11 @@
           "type": "marked",
           "duration": 3,
           "potency": 12,
-          "chance": 1.0
+          "chance": 1
         }
       ],
-      "uses": 4,
-      "attack_type": "ranged"
+      "attack_type": "ranged",
+      "uses": 4
     },
     "pinning_shot": {
       "id": "pinning_shot",
@@ -394,8 +596,8 @@
           "chance": 0.75
         }
       ],
-      "uses": 3,
-      "attack_type": "ranged"
+      "attack_type": "ranged",
+      "uses": 3
     },
     "piercing_shot": {
       "id": "piercing_shot",
@@ -416,8 +618,8 @@
       "attribute_scale": 0.11,
       "status_effects": [],
       "ignore_defense": 0.45,
-      "uses": 3,
-      "attack_type": "ranged"
+      "attack_type": "ranged",
+      "uses": 3
     },
     "rain_of_arrows": {
       "id": "rain_of_arrows",
@@ -438,8 +640,8 @@
       "attribute_scale": 0.11,
       "status_effects": [],
       "target_count": 4,
-      "uses": 2,
-      "attack_type": "ranged"
+      "attack_type": "ranged",
+      "uses": 2
     },
     "heal": {
       "id": "heal",
@@ -501,7 +703,7 @@
       "uses_per_dungeon": 3,
       "level_required": 2,
       "attribute_focus": "faith",
-      "attribute_scale": 0.0,
+      "attribute_scale": 0,
       "status_effects": [
         {
           "type": "ward",
@@ -510,12 +712,12 @@
         }
       ],
       "mana_cost": 10,
-      "uses": 3,
       "defense_types": [
         "magic",
         "mental",
         "special"
-      ]
+      ],
+      "uses": 3
     },
     "group_heal": {
       "id": "group_heal",
@@ -564,8 +766,8 @@
       ],
       "defense_factor": 0.55,
       "mana_cost": 10,
-      "uses": 4,
-      "attack_type": "mental"
+      "attack_type": "mental",
+      "uses": 4
     },
     "mass_cleanse": {
       "id": "mass_cleanse",
@@ -610,7 +812,7 @@
       "uses_per_dungeon": 2,
       "level_required": 7,
       "attribute_focus": "faith",
-      "attribute_scale": 0.0,
+      "attribute_scale": 0,
       "status_effects": [
         {
           "type": "barrier",
@@ -624,14 +826,14 @@
         }
       ],
       "mana_cost": 18,
-      "uses": 2,
       "defense_types": [
         "melee",
         "ranged",
         "magic",
         "mental",
         "special"
-      ]
+      ],
+      "uses": 2
     },
     "backstab": {
       "id": "backstab",
@@ -652,8 +854,8 @@
       "attribute_scale": 0.11,
       "status_effects": [],
       "crit_chance": 0.08,
-      "uses": 4,
-      "attack_type": "special"
+      "attack_type": "special",
+      "uses": 4
     },
     "armor_break": {
       "id": "armor_break",
@@ -680,8 +882,8 @@
           "chance": 0.9
         }
       ],
-      "uses": 4,
-      "attack_type": "melee"
+      "attack_type": "melee",
+      "uses": 4
     },
     "poison_blade": {
       "id": "poison_blade",
@@ -709,8 +911,8 @@
           "chance": 0.75
         }
       ],
-      "uses": 3,
-      "attack_type": "melee"
+      "attack_type": "melee",
+      "uses": 3
     },
     "smoke_step": {
       "id": "smoke_step",
@@ -738,12 +940,12 @@
           "potency": 6
         }
       ],
-      "uses": 3,
       "defense_types": [
         "melee",
         "ranged",
         "special"
-      ]
+      ],
+      "uses": 3
     },
     "kidney_shot": {
       "id": "kidney_shot",
@@ -770,8 +972,8 @@
           "chance": 0.55
         }
       ],
-      "uses": 3,
-      "attack_type": "melee"
+      "attack_type": "melee",
+      "uses": 3
     },
     "shadow_finish": {
       "id": "shadow_finish",
@@ -800,8 +1002,8 @@
         "vulnerable"
       ],
       "status_bonus": 0.22,
-      "uses": 2,
-      "attack_type": "special"
+      "attack_type": "special",
+      "uses": 2
     },
     "fireball": {
       "id": "fireball",
@@ -832,8 +1034,8 @@
       "target_count": 3,
       "defense_factor": 0.55,
       "mana_cost": 12,
-      "uses": 4,
-      "attack_type": "magic"
+      "attack_type": "magic",
+      "uses": 4
     },
     "arcane_bolt": {
       "id": "arcane_bolt",
@@ -855,8 +1057,8 @@
       "status_effects": [],
       "defense_factor": 0.5,
       "mana_cost": 8,
-      "uses": 5,
-      "attack_type": "magic"
+      "attack_type": "magic",
+      "uses": 5
     },
     "arcane_barrier": {
       "id": "arcane_barrier",
@@ -871,7 +1073,7 @@
       "uses_per_dungeon": 3,
       "level_required": 2,
       "attribute_focus": "magic",
-      "attribute_scale": 0.0,
+      "attribute_scale": 0,
       "status_effects": [
         {
           "type": "barrier",
@@ -886,12 +1088,12 @@
       ],
       "target_count": 1,
       "mana_cost": 10,
-      "uses": 3,
       "defense_types": [
         "magic",
         "mental",
         "special"
-      ]
+      ],
+      "uses": 3
     },
     "ignite": {
       "id": "ignite",
@@ -920,8 +1122,8 @@
       ],
       "defense_factor": 0.45,
       "mana_cost": 9,
-      "uses": 3,
-      "attack_type": "magic"
+      "attack_type": "magic",
+      "uses": 3
     },
     "chain_lightning": {
       "id": "chain_lightning",
@@ -944,8 +1146,8 @@
       "target_count": 3,
       "defense_factor": 0.45,
       "mana_cost": 14,
-      "uses": 3,
-      "attack_type": "magic"
+      "attack_type": "magic",
+      "uses": 3
     },
     "curse_of_fragility": {
       "id": "curse_of_fragility",
@@ -976,8 +1178,8 @@
         }
       ],
       "mana_cost": 10,
-      "uses": 3,
-      "attack_type": "mental"
+      "attack_type": "mental",
+      "uses": 3
     },
     "meteor_shower": {
       "id": "meteor_shower",
@@ -1009,8 +1211,8 @@
       "defense_factor": 0.45,
       "crit_chance": 0.04,
       "mana_cost": 18,
-      "uses": 2,
-      "attack_type": "magic"
+      "attack_type": "magic",
+      "uses": 2
     },
     "taunting_roar": {
       "id": "taunting_roar",
@@ -1041,8 +1243,8 @@
         }
       ],
       "target_count": 3,
-      "uses": 3,
-      "attack_type": "mental"
+      "attack_type": "mental",
+      "uses": 3
     },
     "iron_vow": {
       "id": "iron_vow",
@@ -1057,7 +1259,7 @@
       "uses_per_dungeon": 2,
       "level_required": 5,
       "attribute_focus": "guard",
-      "attribute_scale": 0.0,
+      "attribute_scale": 0,
       "status_effects": [
         {
           "type": "ward",
@@ -1071,12 +1273,12 @@
         }
       ],
       "target_count": 4,
-      "uses": 2,
       "defense_types": [
         "melee",
         "ranged",
         "special"
-      ]
+      ],
+      "uses": 2
     },
     "bulwark_aura": {
       "id": "bulwark_aura",
@@ -1091,7 +1293,7 @@
       "uses_per_dungeon": 2,
       "level_required": 6,
       "attribute_focus": "guard",
-      "attribute_scale": 0.0,
+      "attribute_scale": 0,
       "status_effects": [
         {
           "type": "barrier",
@@ -1105,12 +1307,12 @@
         }
       ],
       "target_count": 4,
-      "uses": 2,
       "defense_types": [
         "melee",
         "ranged",
         "magic"
-      ]
+      ],
+      "uses": 2
     },
     "battle_readiness": {
       "id": "battle_readiness",
@@ -1287,6 +1489,815 @@
       },
       "status_effects": [],
       "uses": 999
+    },
+    "blood_frenzy": {
+      "id": "blood_frenzy",
+      "name": "血怒",
+      "type": "buff",
+      "category": "姿态",
+      "description": "进入血怒姿态，提高攻击与命中，适合压低敌人后接斩杀。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "self",
+      "range": "self",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "melee",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "might",
+          "duration": 3,
+          "potency": 5
+        },
+        {
+          "type": "focus",
+          "duration": 3,
+          "potency": 8
+        }
+      ],
+      "uses": 2
+    },
+    "whirlwind_execution": {
+      "id": "whirlwind_execution",
+      "name": "旋风处决",
+      "type": "damage",
+      "category": "攻击",
+      "description": "横扫前中排，目标带流血或低血时收益更高。",
+      "damage_types": [
+        "physical",
+        "bleed"
+      ],
+      "power": 14,
+      "accuracy_modifier": -6,
+      "target_rule": "all_front",
+      "range": "melee",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "melee",
+      "attribute_scale": 0.12,
+      "status_effects": [
+        {
+          "type": "bleed",
+          "duration": 2,
+          "potency": 6,
+          "chance": 0.7
+        }
+      ],
+      "attack_type": "melee",
+      "target_count": 3,
+      "execute_bonus": 0.25,
+      "bonus_vs_status": [
+        "bleed"
+      ],
+      "status_bonus": 0.16,
+      "crit_chance": 0.05,
+      "uses": 2
+    },
+    "commanding_strike": {
+      "id": "commanding_strike",
+      "name": "号令斩",
+      "type": "damage",
+      "category": "攻击",
+      "description": "对精英或高威胁目标施加标记，为全队集火创造窗口。",
+      "damage_types": [
+        "physical"
+      ],
+      "power": 9,
+      "accuracy_modifier": 5,
+      "target_rule": "elite",
+      "range": "melee",
+      "uses_per_dungeon": 3,
+      "level_required": 6,
+      "attribute_focus": "tactics",
+      "attribute_scale": 0.1,
+      "status_effects": [
+        {
+          "type": "marked",
+          "duration": 3,
+          "potency": 10,
+          "chance": 1
+        }
+      ],
+      "attack_type": "melee",
+      "uses": 3
+    },
+    "rallying_banner": {
+      "id": "rallying_banner",
+      "name": "集结战旗",
+      "type": "support",
+      "category": "支援",
+      "description": "鼓舞全队，提高专注与攻击，适合 Boss 战开场。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "ally_all",
+      "range": "ally",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "tactics",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "focus",
+          "duration": 2,
+          "potency": 8
+        },
+        {
+          "type": "might",
+          "duration": 2,
+          "potency": 3
+        }
+      ],
+      "target_count": 4,
+      "uses": 2
+    },
+    "sanctified_guard": {
+      "id": "sanctified_guard",
+      "name": "圣化守护",
+      "type": "support",
+      "category": "支援",
+      "description": "展开圣盾，为全队提供屏障与圣佑抗性。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "ally_all",
+      "range": "ally",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "guard",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "ward",
+          "duration": 2,
+          "potency": 10
+        },
+        {
+          "type": "barrier",
+          "duration": 2,
+          "potency": 10
+        }
+      ],
+      "target_count": 4,
+      "defense_types": [
+        "magic",
+        "mental",
+        "special"
+      ],
+      "uses": 2
+    },
+    "last_bastion": {
+      "id": "last_bastion",
+      "name": "最后堡垒",
+      "type": "support",
+      "category": "支援",
+      "description": "关键回合为全队提供强屏障、圣佑与再生。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "ally_all",
+      "range": "ally",
+      "uses_per_dungeon": 1,
+      "level_required": 6,
+      "attribute_focus": "guard",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "barrier",
+          "duration": 2,
+          "potency": 16
+        },
+        {
+          "type": "ward",
+          "duration": 2,
+          "potency": 10
+        },
+        {
+          "type": "regeneration",
+          "duration": 2,
+          "potency": 4
+        }
+      ],
+      "target_count": 4,
+      "defense_types": [
+        "melee",
+        "ranged",
+        "magic",
+        "mental",
+        "special"
+      ],
+      "uses": 1
+    },
+    "fortress_order": {
+      "id": "fortress_order",
+      "name": "堡垒号令",
+      "type": "support",
+      "category": "支援",
+      "description": "令全队收拢阵线，获得短暂盾墙与屏障。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "ally_all",
+      "range": "ally",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "tactics",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "shield_wall",
+          "duration": 1,
+          "potency": 16
+        },
+        {
+          "type": "barrier",
+          "duration": 2,
+          "potency": 8
+        }
+      ],
+      "target_count": 4,
+      "defense_types": [
+        "melee",
+        "ranged",
+        "special"
+      ],
+      "uses": 2
+    },
+    "counter_charge": {
+      "id": "counter_charge",
+      "name": "反冲锋",
+      "type": "damage",
+      "category": "攻击",
+      "description": "打断最高攻击目标，附带稳定眩晕概率。",
+      "damage_types": [
+        "physical"
+      ],
+      "power": 10,
+      "accuracy_modifier": 4,
+      "target_rule": "highest_attack",
+      "range": "melee",
+      "uses_per_dungeon": 3,
+      "level_required": 6,
+      "attribute_focus": "guard",
+      "attribute_scale": 0.11,
+      "status_effects": [
+        {
+          "type": "stun",
+          "duration": 1,
+          "potency": 1,
+          "chance": 0.45
+        }
+      ],
+      "attack_type": "melee",
+      "crit_chance": 0.03,
+      "uses": 3
+    },
+    "deadeye_focus": {
+      "id": "deadeye_focus",
+      "name": "鹰眼专注",
+      "type": "buff",
+      "category": "姿态",
+      "description": "短时间提高命中、爆发与行动节奏。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "self",
+      "range": "self",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "ranged",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "focus",
+          "duration": 3,
+          "potency": 14
+        },
+        {
+          "type": "might",
+          "duration": 2,
+          "potency": 3
+        },
+        {
+          "type": "haste",
+          "duration": 2,
+          "potency": 2
+        }
+      ],
+      "uses": 2
+    },
+    "sniper_killshot": {
+      "id": "sniper_killshot",
+      "name": "狙杀",
+      "type": "damage",
+      "category": "攻击",
+      "description": "高命中穿防射击，对低血目标有显著斩杀收益。",
+      "damage_types": [
+        "physical"
+      ],
+      "power": 17,
+      "accuracy_modifier": 12,
+      "target_rule": "rear",
+      "range": "ranged",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "ranged",
+      "attribute_scale": 0.12,
+      "status_effects": [],
+      "attack_type": "ranged",
+      "ignore_defense": 0.35,
+      "crit_chance": 0.12,
+      "execute_bonus": 0.3,
+      "uses": 2
+    },
+    "barbed_trap": {
+      "id": "barbed_trap",
+      "name": "倒刺陷阱",
+      "type": "debuff",
+      "category": "削弱",
+      "description": "压制前中排，使敌人减速并流血。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "all_front",
+      "range": "ranged",
+      "uses_per_dungeon": 3,
+      "level_required": 6,
+      "attribute_focus": "ranged",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "slow",
+          "duration": 2,
+          "potency": 4,
+          "chance": 0.9
+        },
+        {
+          "type": "bleed",
+          "duration": 3,
+          "potency": 5,
+          "chance": 0.8
+        }
+      ],
+      "attack_type": "special",
+      "target_count": 3,
+      "uses": 3
+    },
+    "pack_hunt": {
+      "id": "pack_hunt",
+      "name": "群猎",
+      "type": "damage",
+      "category": "攻击",
+      "description": "追猎带有标记、减速、流血或中毒的敌群。",
+      "damage_types": [
+        "physical",
+        "poison"
+      ],
+      "power": 9,
+      "accuracy_modifier": 4,
+      "target_rule": "all",
+      "range": "ranged",
+      "uses_per_dungeon": 3,
+      "level_required": 6,
+      "attribute_focus": "ranged",
+      "attribute_scale": 0.11,
+      "status_effects": [
+        {
+          "type": "marked",
+          "duration": 2,
+          "potency": 6,
+          "chance": 0.6
+        }
+      ],
+      "attack_type": "ranged",
+      "target_count": 3,
+      "bonus_vs_status": [
+        "marked",
+        "slow",
+        "bleed",
+        "poison"
+      ],
+      "status_bonus": 0.22,
+      "uses": 3
+    },
+    "phantom_step": {
+      "id": "phantom_step",
+      "name": "幻影步",
+      "type": "buff",
+      "category": "姿态",
+      "description": "大幅提高闪避与速度，为后续爆发创造空间。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "self",
+      "range": "self",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "finesse",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "evasion_up",
+          "duration": 2,
+          "potency": 18
+        },
+        {
+          "type": "haste",
+          "duration": 2,
+          "potency": 3
+        },
+        {
+          "type": "focus",
+          "duration": 2,
+          "potency": 8
+        }
+      ],
+      "uses": 2
+    },
+    "death_blossom": {
+      "id": "death_blossom",
+      "name": "死亡绽放",
+      "type": "damage",
+      "category": "攻击",
+      "description": "高速连斩多个敌人，对已破甲或脆弱目标更致命。",
+      "damage_types": [
+        "physical"
+      ],
+      "power": 13,
+      "accuracy_modifier": 4,
+      "target_rule": "all",
+      "range": "melee",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "finesse",
+      "attribute_scale": 0.12,
+      "status_effects": [],
+      "attack_type": "melee",
+      "target_count": 3,
+      "ignore_defense": 0.25,
+      "crit_chance": 0.1,
+      "bonus_vs_status": [
+        "marked",
+        "armor_break",
+        "vulnerable"
+      ],
+      "status_bonus": 0.2,
+      "uses": 2
+    },
+    "venom_cascade": {
+      "id": "venom_cascade",
+      "name": "毒潮",
+      "type": "damage",
+      "category": "攻击",
+      "description": "毒刃扩散到多个目标，并附加脆弱。",
+      "damage_types": [
+        "poison"
+      ],
+      "power": 8,
+      "accuracy_modifier": 3,
+      "target_rule": "all",
+      "range": "melee",
+      "uses_per_dungeon": 3,
+      "level_required": 6,
+      "attribute_focus": "finesse",
+      "attribute_scale": 0.1,
+      "status_effects": [
+        {
+          "type": "poison",
+          "duration": 3,
+          "potency": 7,
+          "chance": 0.9
+        },
+        {
+          "type": "vulnerable",
+          "duration": 2,
+          "potency": 8,
+          "chance": 0.7
+        }
+      ],
+      "attack_type": "melee",
+      "target_count": 3,
+      "defense_factor": 0.55,
+      "uses": 3
+    },
+    "toxin_execution": {
+      "id": "toxin_execution",
+      "name": "毒素处决",
+      "type": "damage",
+      "category": "攻击",
+      "description": "收割中毒目标，目标越虚弱越容易被处决。",
+      "damage_types": [
+        "poison",
+        "physical"
+      ],
+      "power": 12,
+      "accuracy_modifier": 6,
+      "target_rule": "lowest_hp",
+      "range": "melee",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "finesse",
+      "attribute_scale": 0.12,
+      "status_effects": [
+        {
+          "type": "poison",
+          "duration": 2,
+          "potency": 8,
+          "chance": 0.8
+        }
+      ],
+      "attack_type": "melee",
+      "execute_bonus": 0.45,
+      "bonus_vs_status": [
+        "poison"
+      ],
+      "status_bonus": 0.25,
+      "crit_chance": 0.08,
+      "uses": 2
+    },
+    "sanctuary": {
+      "id": "sanctuary",
+      "name": "圣域",
+      "type": "support",
+      "category": "支援",
+      "description": "展开圣域，为全队提供屏障、圣佑与再生。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "ally_all",
+      "range": "ally",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "healing",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "barrier",
+          "duration": 2,
+          "potency": 12
+        },
+        {
+          "type": "ward",
+          "duration": 2,
+          "potency": 10
+        },
+        {
+          "type": "regeneration",
+          "duration": 2,
+          "potency": 5
+        }
+      ],
+      "target_count": 4,
+      "mana_cost": 16,
+      "defense_types": [
+        "magic",
+        "mental",
+        "special"
+      ],
+      "uses": 2
+    },
+    "miracle": {
+      "id": "miracle",
+      "name": "奇迹",
+      "type": "heal",
+      "category": "治疗",
+      "description": "强力单体救场治疗，并附带屏障与再生。",
+      "power": 42,
+      "accuracy_modifier": 0,
+      "target_rule": "ally_low_hp",
+      "range": "ally",
+      "uses_per_dungeon": 1,
+      "level_required": 6,
+      "attribute_focus": "healing",
+      "attribute_scale": 0.24,
+      "status_effects": [
+        {
+          "type": "barrier",
+          "duration": 2,
+          "potency": 12
+        },
+        {
+          "type": "regeneration",
+          "duration": 2,
+          "potency": 6
+        }
+      ],
+      "mana_cost": 22,
+      "uses": 1
+    },
+    "judgement_mark": {
+      "id": "judgement_mark",
+      "name": "审判印记",
+      "type": "debuff",
+      "category": "削弱",
+      "description": "标记精英目标并附加脆弱与虚弱。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "elite",
+      "range": "ranged",
+      "uses_per_dungeon": 3,
+      "level_required": 6,
+      "attribute_focus": "faith",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "marked",
+          "duration": 3,
+          "potency": 12,
+          "chance": 1
+        },
+        {
+          "type": "vulnerable",
+          "duration": 3,
+          "potency": 12,
+          "chance": 0.9
+        },
+        {
+          "type": "enfeeble",
+          "duration": 2,
+          "potency": 4,
+          "chance": 0.8
+        }
+      ],
+      "attack_type": "mental",
+      "uses": 3
+    },
+    "purifying_flame": {
+      "id": "purifying_flame",
+      "name": "净化之焰",
+      "type": "damage",
+      "category": "攻击",
+      "description": "以圣焰打击精英目标，对被审判的敌人伤害更高。",
+      "damage_types": [
+        "fire",
+        "magic"
+      ],
+      "power": 13,
+      "accuracy_modifier": 4,
+      "target_rule": "elite",
+      "range": "ranged",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "faith",
+      "attribute_scale": 0.12,
+      "status_effects": [
+        {
+          "type": "burn",
+          "duration": 2,
+          "potency": 7,
+          "chance": 0.8
+        }
+      ],
+      "attack_type": "magic",
+      "bonus_vs_status": [
+        "marked",
+        "vulnerable",
+        "curse"
+      ],
+      "status_bonus": 0.22,
+      "defense_factor": 0.45,
+      "mana_cost": 14,
+      "uses": 2
+    },
+    "elemental_overload": {
+      "id": "elemental_overload",
+      "name": "元素超载",
+      "type": "buff",
+      "category": "姿态",
+      "description": "短时间提高法术命中、威力与行动节奏。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "self",
+      "range": "self",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "magic",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "focus",
+          "duration": 3,
+          "potency": 12
+        },
+        {
+          "type": "might",
+          "duration": 2,
+          "potency": 4
+        },
+        {
+          "type": "haste",
+          "duration": 2,
+          "potency": 2
+        }
+      ],
+      "mana_cost": 10,
+      "uses": 2
+    },
+    "stormfall": {
+      "id": "stormfall",
+      "name": "风暴坠落",
+      "type": "damage",
+      "category": "攻击",
+      "description": "大范围元素轰击，附带燃烧与减速。",
+      "damage_types": [
+        "magic",
+        "fire"
+      ],
+      "power": 15,
+      "accuracy_modifier": -5,
+      "target_rule": "all",
+      "range": "ranged",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "magic",
+      "attribute_scale": 0.12,
+      "status_effects": [
+        {
+          "type": "burn",
+          "duration": 2,
+          "potency": 8,
+          "chance": 0.7
+        },
+        {
+          "type": "slow",
+          "duration": 2,
+          "potency": 3,
+          "chance": 0.55
+        }
+      ],
+      "attack_type": "magic",
+      "target_count": 4,
+      "defense_factor": 0.45,
+      "crit_chance": 0.06,
+      "mana_cost": 24,
+      "uses": 2
+    },
+    "hex_bind": {
+      "id": "hex_bind",
+      "name": "缚魂咒",
+      "type": "debuff",
+      "category": "削弱",
+      "description": "束缚最高攻击目标，附加诅咒、减速与脆弱。",
+      "power": 0,
+      "accuracy_modifier": 0,
+      "target_rule": "highest_attack",
+      "range": "ranged",
+      "uses_per_dungeon": 3,
+      "level_required": 6,
+      "attribute_focus": "magic",
+      "attribute_scale": 0,
+      "status_effects": [
+        {
+          "type": "curse",
+          "duration": 3,
+          "potency": 10,
+          "chance": 0.9
+        },
+        {
+          "type": "slow",
+          "duration": 2,
+          "potency": 4,
+          "chance": 0.9
+        },
+        {
+          "type": "vulnerable",
+          "duration": 2,
+          "potency": 10,
+          "chance": 0.75
+        }
+      ],
+      "attack_type": "mental",
+      "uses": 3
+    },
+    "doom_ritual": {
+      "id": "doom_ritual",
+      "name": "厄运仪式",
+      "type": "damage",
+      "category": "攻击",
+      "description": "对多名敌人施加诅咒并造成魔法伤害，善于放大后续爆发。",
+      "damage_types": [
+        "curse",
+        "magic"
+      ],
+      "power": 10,
+      "accuracy_modifier": 2,
+      "target_rule": "all",
+      "range": "ranged",
+      "uses_per_dungeon": 2,
+      "level_required": 6,
+      "attribute_focus": "magic",
+      "attribute_scale": 0.11,
+      "status_effects": [
+        {
+          "type": "curse",
+          "duration": 3,
+          "potency": 10,
+          "chance": 0.65
+        }
+      ],
+      "attack_type": "mental",
+      "target_count": 3,
+      "bonus_vs_status": [
+        "curse",
+        "vulnerable"
+      ],
+      "status_bonus": 0.24,
+      "defense_factor": 0.48,
+      "mana_cost": 18,
+      "uses": 2
     }
   },
   "classSkills": {
@@ -1351,6 +2362,154 @@
       "taunting_roar",
       "iron_vow",
       "bulwark_aura"
+    ],
+    "berserker": [
+      "basic_attack",
+      "battle_readiness",
+      "guard",
+      "power_strike",
+      "cleave",
+      "shield_bash",
+      "battle_focus",
+      "execute",
+      "blood_frenzy",
+      "whirlwind_execution"
+    ],
+    "sword_commander": [
+      "basic_attack",
+      "battle_readiness",
+      "guard",
+      "power_strike",
+      "cleave",
+      "shield_bash",
+      "battle_focus",
+      "execute",
+      "commanding_strike",
+      "rallying_banner"
+    ],
+    "sacred_guardian": [
+      "basic_attack",
+      "shield_readiness",
+      "guard",
+      "shield_wall",
+      "shield_bash",
+      "taunting_roar",
+      "iron_vow",
+      "bulwark_aura",
+      "sanctified_guard",
+      "last_bastion"
+    ],
+    "fortress_commander": [
+      "basic_attack",
+      "shield_readiness",
+      "guard",
+      "shield_wall",
+      "shield_bash",
+      "taunting_roar",
+      "iron_vow",
+      "bulwark_aura",
+      "fortress_order",
+      "counter_charge"
+    ],
+    "sharpshooter": [
+      "basic_attack",
+      "quick_draw",
+      "aimed_shot",
+      "volley",
+      "hunter_mark",
+      "pinning_shot",
+      "piercing_shot",
+      "rain_of_arrows",
+      "deadeye_focus",
+      "sniper_killshot"
+    ],
+    "wild_hunter": [
+      "basic_attack",
+      "quick_draw",
+      "aimed_shot",
+      "volley",
+      "hunter_mark",
+      "pinning_shot",
+      "piercing_shot",
+      "rain_of_arrows",
+      "barbed_trap",
+      "pack_hunt"
+    ],
+    "shadow_dancer": [
+      "basic_attack",
+      "shadow_reflex",
+      "backstab",
+      "armor_break",
+      "poison_blade",
+      "smoke_step",
+      "kidney_shot",
+      "shadow_finish",
+      "phantom_step",
+      "death_blossom"
+    ],
+    "venom_blade": [
+      "basic_attack",
+      "shadow_reflex",
+      "backstab",
+      "armor_break",
+      "poison_blade",
+      "smoke_step",
+      "kidney_shot",
+      "shadow_finish",
+      "venom_cascade",
+      "toxin_execution"
+    ],
+    "high_priest": [
+      "basic_attack",
+      "battle_prayer",
+      "heal",
+      "cleanse",
+      "sacred_ward",
+      "group_heal",
+      "smite_undead",
+      "mass_cleanse",
+      "divine_aegis",
+      "sanctuary",
+      "miracle"
+    ],
+    "inquisitor": [
+      "basic_attack",
+      "battle_prayer",
+      "heal",
+      "cleanse",
+      "sacred_ward",
+      "group_heal",
+      "smite_undead",
+      "mass_cleanse",
+      "divine_aegis",
+      "judgement_mark",
+      "purifying_flame"
+    ],
+    "elementalist": [
+      "basic_attack",
+      "arcane_preparation",
+      "arcane_bolt",
+      "fireball",
+      "arcane_barrier",
+      "ignite",
+      "chain_lightning",
+      "curse_of_fragility",
+      "meteor_shower",
+      "elemental_overload",
+      "stormfall"
+    ],
+    "hex_scholar": [
+      "basic_attack",
+      "arcane_preparation",
+      "arcane_bolt",
+      "fireball",
+      "arcane_barrier",
+      "ignite",
+      "chain_lightning",
+      "curse_of_fragility",
+      "meteor_shower",
+      "hex_bind",
+      "doom_ritual"
     ]
   },
   "classes": [
@@ -1667,6 +2826,681 @@
         "iron_vow",
         "bulwark_aura"
       ]
+    },
+    {
+      "id": "berserker",
+      "name": "狂战士",
+      "role": "前排爆发 / 流血压制 / 低血收割",
+      "attributes": {
+        "strength": 15,
+        "constitution": 14,
+        "dexterity": 10,
+        "agility": 8,
+        "intelligence": 6,
+        "willpower": 10,
+        "perception": 8,
+        "charisma": 8
+      },
+      "attribute_growth": {
+        "strength": 2,
+        "constitution": 1,
+        "agility": 1
+      },
+      "stats": {
+        "max_hp": 76,
+        "attack": 10,
+        "defense": 8,
+        "speed": 5,
+        "accuracy": 72,
+        "evasion": 3,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 6,
+        "attack": 2,
+        "speed": 1
+      },
+      "resistances": {
+        "physical": 8,
+        "poison": 0,
+        "magic": 0,
+        "curse": 0,
+        "fire": 0,
+        "bleed": 16
+      },
+      "skills": [
+        "blood_frenzy",
+        "whirlwind_execution"
+      ],
+      "is_advanced": true,
+      "base_class_id": "warrior",
+      "promotion": {
+        "order": 1,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "牺牲部分稳定性换取爆发、流血联动与斩杀窗口。"
+      }
+    },
+    {
+      "id": "sword_commander",
+      "name": "剑锋统领",
+      "role": "前排指挥 / 标记集火 / 稳定输出",
+      "attributes": {
+        "strength": 15,
+        "constitution": 14,
+        "dexterity": 10,
+        "agility": 8,
+        "intelligence": 6,
+        "willpower": 10,
+        "perception": 8,
+        "charisma": 8
+      },
+      "attribute_growth": {
+        "strength": 1,
+        "dexterity": 1,
+        "charisma": 1
+      },
+      "stats": {
+        "max_hp": 76,
+        "attack": 10,
+        "defense": 8,
+        "speed": 5,
+        "accuracy": 72,
+        "evasion": 3,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 5,
+        "attack": 1,
+        "defense": 1,
+        "accuracy": 1
+      },
+      "resistances": {
+        "physical": 8,
+        "poison": 0,
+        "magic": 0,
+        "curse": 0,
+        "fire": 0,
+        "bleed": 10
+      },
+      "skills": [
+        "commanding_strike",
+        "rallying_banner"
+      ],
+      "is_advanced": true,
+      "base_class_id": "warrior",
+      "promotion": {
+        "order": 2,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "把战士从个人压制转向团队指挥，强化集火和队伍节奏。"
+      }
+    },
+    {
+      "id": "sacred_guardian",
+      "name": "圣盾守护者",
+      "role": "前排守护 / 圣佑抗性 / 濒危兜底",
+      "attributes": {
+        "strength": 12,
+        "constitution": 17,
+        "dexterity": 8,
+        "agility": 6,
+        "intelligence": 6,
+        "willpower": 13,
+        "perception": 8,
+        "charisma": 7
+      },
+      "attribute_growth": {
+        "constitution": 1,
+        "willpower": 2,
+        "charisma": 1
+      },
+      "stats": {
+        "max_hp": 90,
+        "attack": 7,
+        "defense": 10,
+        "speed": 4,
+        "accuracy": 70,
+        "evasion": 1,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 6,
+        "defense": 2
+      },
+      "resistances": {
+        "physical": 14,
+        "poison": 0,
+        "magic": 6,
+        "curse": 8,
+        "fire": 4,
+        "bleed": 14
+      },
+      "skills": [
+        "sanctified_guard",
+        "last_bastion"
+      ],
+      "is_advanced": true,
+      "base_class_id": "guardian",
+      "promotion": {
+        "order": 1,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "强化守卫的魔法、诅咒与毒火应对能力，适合高压 Boss 战。"
+      }
+    },
+    {
+      "id": "fortress_commander",
+      "name": "堡垒统领",
+      "role": "阵线统领 / 群体减伤 / 反冲控制",
+      "attributes": {
+        "strength": 12,
+        "constitution": 17,
+        "dexterity": 8,
+        "agility": 6,
+        "intelligence": 6,
+        "willpower": 13,
+        "perception": 8,
+        "charisma": 7
+      },
+      "attribute_growth": {
+        "constitution": 2,
+        "strength": 1,
+        "perception": 1
+      },
+      "stats": {
+        "max_hp": 90,
+        "attack": 7,
+        "defense": 10,
+        "speed": 4,
+        "accuracy": 70,
+        "evasion": 1,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 7,
+        "defense": 2,
+        "attack": 1
+      },
+      "resistances": {
+        "physical": 18,
+        "poison": 0,
+        "magic": 0,
+        "curse": 0,
+        "fire": 0,
+        "bleed": 18
+      },
+      "skills": [
+        "fortress_order",
+        "counter_charge"
+      ],
+      "is_advanced": true,
+      "base_class_id": "guardian",
+      "promotion": {
+        "order": 2,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "把守卫扩展为队伍阵线核心，兼具保护、指挥和反击。"
+      }
+    },
+    {
+      "id": "sharpshooter",
+      "name": "神射手",
+      "role": "后排狙击 / 精英点杀 / 高命中暴击",
+      "attributes": {
+        "strength": 9,
+        "constitution": 9,
+        "dexterity": 15,
+        "agility": 14,
+        "intelligence": 8,
+        "willpower": 8,
+        "perception": 16,
+        "charisma": 8
+      },
+      "attribute_growth": {
+        "perception": 2,
+        "dexterity": 1,
+        "agility": 1
+      },
+      "stats": {
+        "max_hp": 52,
+        "attack": 10,
+        "defense": 3,
+        "speed": 8,
+        "accuracy": 78,
+        "evasion": 7,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 4,
+        "attack": 2,
+        "accuracy": 2
+      },
+      "resistances": {
+        "physical": 0,
+        "poison": 0,
+        "magic": 0,
+        "curse": 0,
+        "fire": 0,
+        "bleed": 0
+      },
+      "skills": [
+        "deadeye_focus",
+        "sniper_killshot"
+      ],
+      "is_advanced": true,
+      "base_class_id": "ranger",
+      "promotion": {
+        "order": 1,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "极限强化单点命中、穿防和斩杀，对后排与精英威胁尤其稳定。"
+      }
+    },
+    {
+      "id": "wild_hunter",
+      "name": "荒野猎手",
+      "role": "陷阱控制 / 流血毒伤 / 多目标追猎",
+      "attributes": {
+        "strength": 9,
+        "constitution": 9,
+        "dexterity": 15,
+        "agility": 14,
+        "intelligence": 8,
+        "willpower": 8,
+        "perception": 16,
+        "charisma": 8
+      },
+      "attribute_growth": {
+        "perception": 1,
+        "agility": 1,
+        "constitution": 1,
+        "dexterity": 1
+      },
+      "stats": {
+        "max_hp": 52,
+        "attack": 10,
+        "defense": 3,
+        "speed": 8,
+        "accuracy": 78,
+        "evasion": 7,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 5,
+        "attack": 1,
+        "speed": 1,
+        "evasion": 1
+      },
+      "resistances": {
+        "physical": 0,
+        "poison": 6,
+        "magic": 0,
+        "curse": 0,
+        "fire": 0,
+        "bleed": 0
+      },
+      "skills": [
+        "barbed_trap",
+        "pack_hunt"
+      ],
+      "is_advanced": true,
+      "base_class_id": "ranger",
+      "promotion": {
+        "order": 2,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "用陷阱、流血和毒压制造持续收益，更适合复杂遭遇和多目标战。"
+      }
+    },
+    {
+      "id": "shadow_dancer",
+      "name": "影舞者",
+      "role": "高速闪避 / 后排爆发 / 连段收割",
+      "attributes": {
+        "strength": 10,
+        "constitution": 8,
+        "dexterity": 16,
+        "agility": 17,
+        "intelligence": 9,
+        "willpower": 7,
+        "perception": 12,
+        "charisma": 8
+      },
+      "attribute_growth": {
+        "agility": 2,
+        "dexterity": 1,
+        "perception": 1
+      },
+      "stats": {
+        "max_hp": 50,
+        "attack": 9,
+        "defense": 3,
+        "speed": 10,
+        "accuracy": 76,
+        "evasion": 10,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 4,
+        "attack": 1,
+        "speed": 2,
+        "evasion": 1
+      },
+      "resistances": {
+        "physical": 0,
+        "poison": 8,
+        "magic": 0,
+        "curse": 0,
+        "fire": 0,
+        "bleed": 0
+      },
+      "skills": [
+        "phantom_step",
+        "death_blossom"
+      ],
+      "is_advanced": true,
+      "base_class_id": "rogue",
+      "promotion": {
+        "order": 1,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "把盗贼推向更快、更难被命中的爆发路线。"
+      }
+    },
+    {
+      "id": "venom_blade",
+      "name": "毒刃客",
+      "role": "毒刃扩散 / 脆弱叠加 / 中毒斩杀",
+      "attributes": {
+        "strength": 10,
+        "constitution": 8,
+        "dexterity": 16,
+        "agility": 17,
+        "intelligence": 9,
+        "willpower": 7,
+        "perception": 12,
+        "charisma": 8
+      },
+      "attribute_growth": {
+        "dexterity": 2,
+        "agility": 1,
+        "intelligence": 1
+      },
+      "stats": {
+        "max_hp": 50,
+        "attack": 9,
+        "defense": 3,
+        "speed": 10,
+        "accuracy": 76,
+        "evasion": 10,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 4,
+        "attack": 2,
+        "accuracy": 1
+      },
+      "resistances": {
+        "physical": 0,
+        "poison": 18,
+        "magic": 0,
+        "curse": 0,
+        "fire": 0,
+        "bleed": 0
+      },
+      "skills": [
+        "venom_cascade",
+        "toxin_execution"
+      ],
+      "is_advanced": true,
+      "base_class_id": "rogue",
+      "promotion": {
+        "order": 2,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "专精毒伤和状态联动，适合磨穿高血量与高护甲目标。"
+      }
+    },
+    {
+      "id": "high_priest",
+      "name": "大祭司",
+      "role": "群体治疗 / 圣域防护 / 奇迹抬血",
+      "attributes": {
+        "strength": 7,
+        "constitution": 11,
+        "dexterity": 8,
+        "agility": 8,
+        "intelligence": 12,
+        "willpower": 16,
+        "perception": 10,
+        "charisma": 15
+      },
+      "attribute_growth": {
+        "charisma": 2,
+        "willpower": 1,
+        "constitution": 1
+      },
+      "stats": {
+        "max_hp": 58,
+        "attack": 6,
+        "defense": 4,
+        "speed": 6,
+        "accuracy": 72,
+        "evasion": 4,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 5,
+        "defense": 1,
+        "attack": 1
+      },
+      "resistances": {
+        "physical": 0,
+        "poison": 10,
+        "magic": 14,
+        "curse": 22,
+        "fire": 0,
+        "bleed": 0
+      },
+      "skills": [
+        "sanctuary",
+        "miracle"
+      ],
+      "is_advanced": true,
+      "base_class_id": "cleric",
+      "promotion": {
+        "order": 1,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "把牧师推向纯支援路线，提供更强群体防护和关键回合救场。"
+      }
+    },
+    {
+      "id": "inquisitor",
+      "name": "审判官",
+      "role": "信仰输出 / 异端标记 / 净焰处决",
+      "attributes": {
+        "strength": 7,
+        "constitution": 11,
+        "dexterity": 8,
+        "agility": 8,
+        "intelligence": 12,
+        "willpower": 16,
+        "perception": 10,
+        "charisma": 15
+      },
+      "attribute_growth": {
+        "willpower": 2,
+        "intelligence": 1,
+        "charisma": 1
+      },
+      "stats": {
+        "max_hp": 58,
+        "attack": 6,
+        "defense": 4,
+        "speed": 6,
+        "accuracy": 72,
+        "evasion": 4,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 4,
+        "attack": 2,
+        "accuracy": 1
+      },
+      "resistances": {
+        "physical": 0,
+        "poison": 10,
+        "magic": 10,
+        "curse": 24,
+        "fire": 4,
+        "bleed": 0
+      },
+      "skills": [
+        "judgement_mark",
+        "purifying_flame"
+      ],
+      "is_advanced": true,
+      "base_class_id": "cleric",
+      "promotion": {
+        "order": 2,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "牺牲部分治疗专精，换取标记、脆弱与火焰/魔法输出。"
+      }
+    },
+    {
+      "id": "elementalist",
+      "name": "元素使",
+      "role": "元素爆发 / 群体压制 / 火焰连锁",
+      "attributes": {
+        "strength": 5,
+        "constitution": 8,
+        "dexterity": 8,
+        "agility": 9,
+        "intelligence": 17,
+        "willpower": 15,
+        "perception": 12,
+        "charisma": 9
+      },
+      "attribute_growth": {
+        "intelligence": 2,
+        "willpower": 1,
+        "perception": 1
+      },
+      "stats": {
+        "max_hp": 44,
+        "attack": 8,
+        "defense": 2,
+        "speed": 6,
+        "accuracy": 74,
+        "evasion": 3,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 3,
+        "attack": 2,
+        "accuracy": 1
+      },
+      "resistances": {
+        "physical": 0,
+        "poison": 0,
+        "magic": 18,
+        "curse": 8,
+        "fire": 20,
+        "bleed": 0
+      },
+      "skills": [
+        "elemental_overload",
+        "stormfall"
+      ],
+      "is_advanced": true,
+      "base_class_id": "mage",
+      "promotion": {
+        "order": 1,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "专精火焰与奥术群体输出，适合在多层战斗中快速清场。"
+      }
+    },
+    {
+      "id": "hex_scholar",
+      "name": "咒文学者",
+      "role": "诅咒控制 / 脆弱放大 / 多目标削弱",
+      "attributes": {
+        "strength": 5,
+        "constitution": 8,
+        "dexterity": 8,
+        "agility": 9,
+        "intelligence": 17,
+        "willpower": 15,
+        "perception": 12,
+        "charisma": 9
+      },
+      "attribute_growth": {
+        "intelligence": 1,
+        "willpower": 2,
+        "perception": 1
+      },
+      "stats": {
+        "max_hp": 44,
+        "attack": 8,
+        "defense": 2,
+        "speed": 6,
+        "accuracy": 74,
+        "evasion": 3,
+        "action_count": 1
+      },
+      "stat_growth": {
+        "max_hp": 4,
+        "attack": 1,
+        "accuracy": 2
+      },
+      "resistances": {
+        "physical": 0,
+        "poison": 0,
+        "magic": 18,
+        "curse": 18,
+        "fire": 12,
+        "bleed": 0
+      },
+      "skills": [
+        "hex_bind",
+        "doom_ritual"
+      ],
+      "is_advanced": true,
+      "base_class_id": "mage",
+      "promotion": {
+        "order": 2,
+        "level_required": 6,
+        "materials": {
+          "promotion_badge": 1
+        },
+        "description": "把法师转向诅咒、减速与脆弱控制，给队伍创造爆发窗口。"
+      }
     }
   ],
   "equipment": [
@@ -3846,66 +5680,1221 @@
   ],
   "skill_tree": {
     "warrior": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "battle_readiness", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "guard", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_readiness"], "x": 0, "y": 1 },
-      { "skill_id": "power_strike", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_readiness"], "x": 2, "y": 1 },
-      { "skill_id": "shield_bash", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 0, "y": 2 },
-      { "skill_id": "battle_focus", "cost": 1, "tier": 2, "prerequisites": ["battle_readiness"], "x": 1, "y": 2 },
-      { "skill_id": "cleave", "cost": 1, "tier": 2, "prerequisites": ["power_strike"], "x": 2, "y": 2 },
-      { "skill_id": "execute", "cost": 2, "tier": 3, "prerequisites": ["cleave", "battle_focus"], "x": 2, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "battle_readiness",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "guard",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "battle_readiness"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "power_strike",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "battle_readiness"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "shield_bash",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "guard"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "battle_focus",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "battle_readiness"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "cleave",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "power_strike"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "execute",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "cleave",
+          "battle_focus"
+        ],
+        "x": 2,
+        "y": 3
+      }
     ],
     "ranger": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "quick_draw", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "aimed_shot", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["quick_draw"], "x": 0, "y": 1 },
-      { "skill_id": "volley", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["quick_draw"], "x": 2, "y": 1 },
-      { "skill_id": "hunter_mark", "cost": 1, "tier": 2, "prerequisites": ["aimed_shot"], "x": 0, "y": 2 },
-      { "skill_id": "piercing_shot", "cost": 1, "tier": 2, "prerequisites": ["aimed_shot"], "x": 1, "y": 2 },
-      { "skill_id": "pinning_shot", "cost": 1, "tier": 3, "prerequisites": ["hunter_mark"], "x": 0, "y": 3 },
-      { "skill_id": "rain_of_arrows", "cost": 2, "tier": 3, "prerequisites": ["volley", "piercing_shot"], "x": 2, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "quick_draw",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "aimed_shot",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "quick_draw"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "volley",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "quick_draw"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "hunter_mark",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "aimed_shot"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "piercing_shot",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "aimed_shot"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "pinning_shot",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "hunter_mark"
+        ],
+        "x": 0,
+        "y": 3
+      },
+      {
+        "skill_id": "rain_of_arrows",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "volley",
+          "piercing_shot"
+        ],
+        "x": 2,
+        "y": 3
+      }
     ],
     "cleric": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "battle_prayer", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "heal", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_prayer"], "x": 0, "y": 1 },
-      { "skill_id": "cleanse", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_prayer"], "x": 2, "y": 1 },
-      { "skill_id": "sacred_ward", "cost": 1, "tier": 2, "prerequisites": ["heal"], "x": 0, "y": 2 },
-      { "skill_id": "smite_undead", "cost": 1, "tier": 2, "prerequisites": ["cleanse"], "x": 2, "y": 2 },
-      { "skill_id": "group_heal", "cost": 1, "tier": 3, "prerequisites": ["heal"], "x": 0, "y": 3 },
-      { "skill_id": "mass_cleanse", "cost": 1, "tier": 3, "prerequisites": ["cleanse"], "x": 2, "y": 3 },
-      { "skill_id": "divine_aegis", "cost": 2, "tier": 4, "prerequisites": ["sacred_ward", "group_heal"], "x": 1, "y": 4 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "battle_prayer",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "heal",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "battle_prayer"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "cleanse",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "battle_prayer"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "sacred_ward",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "heal"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "smite_undead",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "cleanse"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "group_heal",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "heal"
+        ],
+        "x": 0,
+        "y": 3
+      },
+      {
+        "skill_id": "mass_cleanse",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "cleanse"
+        ],
+        "x": 2,
+        "y": 3
+      },
+      {
+        "skill_id": "divine_aegis",
+        "cost": 2,
+        "tier": 4,
+        "prerequisites": [
+          "sacred_ward",
+          "group_heal"
+        ],
+        "x": 1,
+        "y": 4
+      }
     ],
     "rogue": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "shadow_reflex", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "backstab", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shadow_reflex"], "x": 0, "y": 1 },
-      { "skill_id": "armor_break", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shadow_reflex"], "x": 2, "y": 1 },
-      { "skill_id": "smoke_step", "cost": 1, "tier": 2, "prerequisites": ["backstab"], "x": 1, "y": 2 },
-      { "skill_id": "poison_blade", "cost": 1, "tier": 2, "prerequisites": ["armor_break"], "x": 2, "y": 2 },
-      { "skill_id": "kidney_shot", "cost": 1, "tier": 3, "prerequisites": ["armor_break"], "x": 2, "y": 3 },
-      { "skill_id": "shadow_finish", "cost": 2, "tier": 3, "prerequisites": ["backstab", "poison_blade"], "x": 0, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "shadow_reflex",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "backstab",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "shadow_reflex"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "armor_break",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "shadow_reflex"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "smoke_step",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "backstab"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "poison_blade",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "armor_break"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "kidney_shot",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "armor_break"
+        ],
+        "x": 2,
+        "y": 3
+      },
+      {
+        "skill_id": "shadow_finish",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "backstab",
+          "poison_blade"
+        ],
+        "x": 0,
+        "y": 3
+      }
     ],
     "mage": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "arcane_preparation", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "arcane_bolt", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["arcane_preparation"], "x": 0, "y": 1 },
-      { "skill_id": "fireball", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["arcane_preparation"], "x": 2, "y": 1 },
-      { "skill_id": "chain_lightning", "cost": 1, "tier": 2, "prerequisites": ["arcane_bolt"], "x": 0, "y": 2 },
-      { "skill_id": "arcane_barrier", "cost": 1, "tier": 2, "prerequisites": ["arcane_preparation"], "x": 1, "y": 2 },
-      { "skill_id": "ignite", "cost": 1, "tier": 2, "prerequisites": ["fireball"], "x": 2, "y": 2 },
-      { "skill_id": "curse_of_fragility", "cost": 1, "tier": 3, "prerequisites": ["arcane_barrier"], "x": 1, "y": 3 },
-      { "skill_id": "meteor_shower", "cost": 2, "tier": 3, "prerequisites": ["fireball", "chain_lightning"], "x": 2, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "arcane_preparation",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "arcane_bolt",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "arcane_preparation"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "fireball",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "arcane_preparation"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "chain_lightning",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "arcane_bolt"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "arcane_barrier",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "arcane_preparation"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "ignite",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "fireball"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "curse_of_fragility",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "arcane_barrier"
+        ],
+        "x": 1,
+        "y": 3
+      },
+      {
+        "skill_id": "meteor_shower",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "fireball",
+          "chain_lightning"
+        ],
+        "x": 2,
+        "y": 3
+      }
     ],
     "guardian": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "shield_readiness", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "guard", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shield_readiness"], "x": 0, "y": 1 },
-      { "skill_id": "shield_wall", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shield_readiness"], "x": 2, "y": 1 },
-      { "skill_id": "shield_bash", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 0, "y": 2 },
-      { "skill_id": "taunting_roar", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 1, "y": 2 },
-      { "skill_id": "iron_vow", "cost": 1, "tier": 2, "prerequisites": ["shield_wall"], "x": 2, "y": 2 },
-      { "skill_id": "bulwark_aura", "cost": 2, "tier": 3, "prerequisites": ["iron_vow", "guard"], "x": 1, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "shield_readiness",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "guard",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "shield_readiness"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "shield_wall",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "shield_readiness"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "shield_bash",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "guard"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "taunting_roar",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "guard"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "iron_vow",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "shield_wall"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "bulwark_aura",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "iron_vow",
+          "guard"
+        ],
+        "x": 1,
+        "y": 3
+      }
+    ],
+    "berserker": [
+      {
+        "skill_id": "blood_frenzy",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "whirlwind_execution",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "blood_frenzy",
+          "execute"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "sword_commander": [
+      {
+        "skill_id": "commanding_strike",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "rallying_banner",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "commanding_strike",
+          "battle_focus"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "sacred_guardian": [
+      {
+        "skill_id": "sanctified_guard",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "last_bastion",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "sanctified_guard",
+          "bulwark_aura"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "fortress_commander": [
+      {
+        "skill_id": "fortress_order",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "counter_charge",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "fortress_order",
+          "taunting_roar"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "sharpshooter": [
+      {
+        "skill_id": "deadeye_focus",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "sniper_killshot",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "deadeye_focus",
+          "piercing_shot"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "wild_hunter": [
+      {
+        "skill_id": "barbed_trap",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "pack_hunt",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "barbed_trap",
+          "hunter_mark"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "shadow_dancer": [
+      {
+        "skill_id": "phantom_step",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "death_blossom",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "phantom_step",
+          "shadow_finish"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "venom_blade": [
+      {
+        "skill_id": "venom_cascade",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "toxin_execution",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "venom_cascade",
+          "poison_blade"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "high_priest": [
+      {
+        "skill_id": "sanctuary",
+        "cost": 0,
+        "tier": 5,
+        "auto_learn": true,
+        "x": 1,
+        "y": 5
+      },
+      {
+        "skill_id": "miracle",
+        "cost": 2,
+        "tier": 6,
+        "prerequisites": [
+          "sanctuary",
+          "divine_aegis"
+        ],
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "inquisitor": [
+      {
+        "skill_id": "judgement_mark",
+        "cost": 0,
+        "tier": 5,
+        "auto_learn": true,
+        "x": 1,
+        "y": 5
+      },
+      {
+        "skill_id": "purifying_flame",
+        "cost": 2,
+        "tier": 6,
+        "prerequisites": [
+          "judgement_mark",
+          "smite_undead"
+        ],
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "elementalist": [
+      {
+        "skill_id": "elemental_overload",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "stormfall",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "elemental_overload",
+          "meteor_shower"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "hex_scholar": [
+      {
+        "skill_id": "hex_bind",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "doom_ritual",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "hex_bind",
+          "curse_of_fragility"
+        ],
+        "x": 1,
+        "y": 5
+      }
     ]
-  }
+  },
+  "skill_ai": {
+    "cleric": [
+      {
+        "skill": "mass_cleanse",
+        "when": "party_status_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "cleanse",
+        "when": "party_status_count_gte",
+        "threshold": 1
+      },
+      {
+        "skill": "group_heal",
+        "when": "party_low_count_gte",
+        "hp_below": 0.62,
+        "threshold": 2
+      },
+      {
+        "skill": "heal",
+        "when": "lowest_ally_hp_below",
+        "hp_below": 0.5
+      },
+      {
+        "skill": "divine_aegis",
+        "when": "party_low_count_gte",
+        "hp_below": 0.78,
+        "threshold": 2
+      },
+      {
+        "skill": "sacred_ward",
+        "when": "setup"
+      },
+      {
+        "skill": "smite_undead",
+        "when": "enemy_tags_any",
+        "tags": [
+          "undead",
+          "boss"
+        ]
+      }
+    ],
+    "warrior": [
+      {
+        "skill": "guard",
+        "when": "ally_backline_hp_below",
+        "hp_below": 0.78
+      },
+      {
+        "skill": "shield_bash",
+        "when": "dangerous_enemy_unstunned"
+      },
+      {
+        "skill": "battle_focus",
+        "when": "self_without_status",
+        "status": "focus"
+      },
+      {
+        "skill": "cleave",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "execute",
+        "when": "enemy_hp_below",
+        "hp_below": 0.4
+      },
+      {
+        "skill": "power_strike",
+        "when": "always"
+      }
+    ],
+    "guardian": [
+      {
+        "skill": "guard",
+        "when": "ally_backline_hp_below",
+        "hp_below": 0.78
+      },
+      {
+        "skill": "shield_wall",
+        "when": "self_hp_below",
+        "hp_below": 0.7
+      },
+      {
+        "skill": "taunting_roar",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "bulwark_aura",
+        "when": "party_low_count_gte",
+        "hp_below": 0.72,
+        "threshold": 2
+      },
+      {
+        "skill": "iron_vow",
+        "when": "party_low_count_gte",
+        "hp_below": 0.8,
+        "threshold": 2
+      },
+      {
+        "skill": "shield_bash",
+        "when": "dangerous_enemy_unstunned"
+      },
+      {
+        "skill": "power_strike",
+        "when": "always"
+      }
+    ],
+    "ranger": [
+      {
+        "skill": "hunter_mark",
+        "when": "priority_enemy_without_status",
+        "status": "marked"
+      },
+      {
+        "skill": "rain_of_arrows",
+        "when": "enemies_count_gte",
+        "threshold": 4
+      },
+      {
+        "skill": "volley",
+        "when": "enemies_count_gte",
+        "threshold": 3
+      },
+      {
+        "skill": "piercing_shot",
+        "when": "enemy_defense_gte",
+        "defense_gte": 8
+      },
+      {
+        "skill": "pinning_shot",
+        "when": "priority_enemy_without_status",
+        "status": "slow"
+      },
+      {
+        "skill": "aimed_shot",
+        "when": "always"
+      }
+    ],
+    "rogue": [
+      {
+        "skill": "smoke_step",
+        "when": "self_hp_below_without_status",
+        "hp_below": 0.55,
+        "status": "evasion_up"
+      },
+      {
+        "skill": "armor_break",
+        "when": "armored_enemy_without_status",
+        "defense_gte": 7,
+        "status": "armor_break"
+      },
+      {
+        "skill": "kidney_shot",
+        "when": "dangerous_enemy_unstunned"
+      },
+      {
+        "skill": "poison_blade",
+        "when": "enemy_without_status_hp_above",
+        "status": "poison",
+        "hp_above": 0.45
+      },
+      {
+        "skill": "shadow_finish",
+        "when": "enemy_hp_below",
+        "hp_below": 0.35
+      },
+      {
+        "skill": "backstab",
+        "when": "always"
+      }
+    ],
+    "mage": [
+      {
+        "skill": "arcane_barrier",
+        "when": "party_low_count_gte",
+        "hp_below": 0.55,
+        "threshold": 1
+      },
+      {
+        "skill": "curse_of_fragility",
+        "when": "enemy_defense_gte_without_status",
+        "defense_gte": 8,
+        "status": "vulnerable"
+      },
+      {
+        "skill": "meteor_shower",
+        "when": "enemies_count_gte",
+        "threshold": 4
+      },
+      {
+        "skill": "chain_lightning",
+        "when": "enemies_count_gte",
+        "threshold": 3
+      },
+      {
+        "skill": "fireball",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "ignite",
+        "when": "enemy_without_status",
+        "status": "burn"
+      },
+      {
+        "skill": "arcane_bolt",
+        "when": "always"
+      }
+    ],
+    "berserker": [
+      {
+        "skill": "blood_frenzy",
+        "when": "self_without_status",
+        "status": "might"
+      },
+      {
+        "skill": "whirlwind_execution",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      }
+    ],
+    "sword_commander": [
+      {
+        "skill": "rallying_banner",
+        "when": "setup"
+      },
+      {
+        "skill": "commanding_strike",
+        "when": "priority_enemy_without_status",
+        "status": "marked"
+      }
+    ],
+    "sacred_guardian": [
+      {
+        "skill": "last_bastion",
+        "when": "party_low_count_gte",
+        "hp_below": 0.72,
+        "threshold": 2
+      },
+      {
+        "skill": "sanctified_guard",
+        "when": "setup"
+      }
+    ],
+    "fortress_commander": [
+      {
+        "skill": "fortress_order",
+        "when": "setup"
+      },
+      {
+        "skill": "counter_charge",
+        "when": "dangerous_enemy_unstunned"
+      }
+    ],
+    "sharpshooter": [
+      {
+        "skill": "deadeye_focus",
+        "when": "self_without_status",
+        "status": "focus"
+      },
+      {
+        "skill": "sniper_killshot",
+        "when": "enemy_hp_below",
+        "hp_below": 0.5
+      }
+    ],
+    "wild_hunter": [
+      {
+        "skill": "barbed_trap",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "pack_hunt",
+        "when": "enemy_without_status",
+        "status": "marked"
+      }
+    ],
+    "shadow_dancer": [
+      {
+        "skill": "phantom_step",
+        "when": "self_without_status",
+        "status": "evasion_up"
+      },
+      {
+        "skill": "death_blossom",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      }
+    ],
+    "venom_blade": [
+      {
+        "skill": "venom_cascade",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "toxin_execution",
+        "when": "enemy_hp_below",
+        "hp_below": 0.45
+      }
+    ],
+    "high_priest": [
+      {
+        "skill": "miracle",
+        "when": "lowest_ally_hp_below",
+        "hp_below": 0.38
+      },
+      {
+        "skill": "sanctuary",
+        "when": "party_low_count_gte",
+        "hp_below": 0.8,
+        "threshold": 2
+      }
+    ],
+    "inquisitor": [
+      {
+        "skill": "judgement_mark",
+        "when": "priority_enemy_without_status",
+        "status": "marked"
+      },
+      {
+        "skill": "purifying_flame",
+        "when": "enemy_without_status",
+        "status": "burn"
+      }
+    ],
+    "elementalist": [
+      {
+        "skill": "elemental_overload",
+        "when": "self_without_status",
+        "status": "focus"
+      },
+      {
+        "skill": "stormfall",
+        "when": "enemies_count_gte",
+        "threshold": 3
+      }
+    ],
+    "hex_scholar": [
+      {
+        "skill": "hex_bind",
+        "when": "dangerous_enemy_unstunned"
+      },
+      {
+        "skill": "doom_ritual",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      }
+    ]
+  },
+  "recruit_pool": [
+    "warrior",
+    "ranger",
+    "cleric",
+    "rogue",
+    "mage",
+    "guardian"
+  ],
+  "recruit_names": [
+    "伊芙",
+    "莱恩",
+    "卡洛",
+    "薇拉",
+    "塔克",
+    "米娜",
+    "洛特",
+    "珂赛"
+  ],
+  "starter_roster": [
+    {
+      "class_id": "warrior",
+      "name": "艾丹"
+    },
+    {
+      "class_id": "cleric",
+      "name": "莉亚"
+    },
+    {
+      "class_id": "ranger",
+      "name": "希尔"
+    },
+    {
+      "class_id": "rogue",
+      "name": "诺克"
+    },
+    {
+      "class_id": "guardian",
+      "name": "布朗"
+    },
+    {
+      "class_id": "mage",
+      "name": "玛琳"
+    }
+  ],
+  "starter_formations": {
+    "team_1": {
+      "r0c1": "ch_1",
+      "r1c1": "ch_2",
+      "r2c0": "ch_3",
+      "r2c2": "ch_4"
+    },
+    "team_2": {
+      "r0c1": "ch_5",
+      "r2c1": "ch_6"
+    }
+  },
+  "starter_equipment": [
+    {
+      "owner": "ch_1",
+      "equipment_id": "iron_sword"
+    },
+    {
+      "owner": "ch_1",
+      "equipment_id": "chainmail"
+    },
+    {
+      "owner": "ch_2",
+      "equipment_id": "oak_staff"
+    },
+    {
+      "owner": "ch_2",
+      "equipment_id": "leather_armor"
+    },
+    {
+      "owner": "ch_3",
+      "equipment_id": "hunting_bow"
+    },
+    {
+      "owner": "ch_3",
+      "equipment_id": "leather_armor"
+    },
+    {
+      "owner": "ch_4",
+      "equipment_id": "balanced_dagger"
+    },
+    {
+      "owner": "ch_4",
+      "equipment_id": "leather_armor"
+    },
+    {
+      "owner": "ch_5",
+      "equipment_id": "heavy_shield"
+    },
+    {
+      "owner": "ch_6",
+      "equipment_id": "fire_wand"
+    },
+    {
+      "owner": null,
+      "equipment_id": "poison_ring"
+    },
+    {
+      "owner": null,
+      "equipment_id": "eagle_eye"
+    }
+  ]
 }

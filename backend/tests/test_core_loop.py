@@ -74,6 +74,75 @@ def test_skills_use_tree_points_instead_of_level_unlocks():
         pass
 
 
+def test_skill_essence_upgrades_skill_levels_and_milestones():
+    state = engine.default_state(seed=9)
+    warrior = next(ch for ch in state["characters"] if ch["class_id"] == "warrior")
+    assert state["materials"][engine.SKILL_ESSENCE_KEY] == engine.STARTING_SKILL_ESSENCE
+
+    base = engine.upgraded_skill_for_character(warrior, "power_strike")
+    assert base["power"] == 9
+
+    engine.upgrade_skill(state, warrior["id"], "power_strike")
+    assert state["materials"][engine.SKILL_ESSENCE_KEY] == engine.STARTING_SKILL_ESSENCE - 4
+    upgraded = engine.upgraded_skill_for_character(warrior, "power_strike")
+    assert upgraded["upgrade_level"] == 2
+    assert upgraded["power"] == 11
+
+    state["materials"][engine.SKILL_ESSENCE_KEY] += 10
+    try:
+        engine.upgrade_skill(state, warrior["id"], "power_strike")
+        assert False, "level 3 should require a milestone choice"
+    except ValueError:
+        pass
+
+    engine.upgrade_skill(state, warrior["id"], "power_strike", "force")
+    milestone = engine.upgraded_skill_for_character(warrior, "power_strike")
+    assert milestone["upgrade_level"] == 3
+    assert milestone["power"] == 17
+    summary = next(s for s in engine.skill_public_summary(warrior, state) if s["id"] == "power_strike")
+    assert summary["skill_selected_upgrade_choices"] == {"3": "force"}
+    assert summary["skill_selected_upgrade_choice_names"] == {"3": "威力强化"}
+
+
+def test_challenge_rewards_skill_essence():
+    state = engine.default_state(seed=123)
+    before = state["materials"][engine.SKILL_ESSENCE_KEY]
+    dungeon_id = engine.dungeon_list_view(state)[0]["dungeon_id"]
+    engine.add_plan_action(state, "challenge", dungeon_id)
+    result = engine.end_day(state)
+    report = result["reports"][0]
+    gained = report["rewards"]["materials"].get(engine.SKILL_ESSENCE_KEY, 0)
+    assert gained > 0
+    assert state["materials"][engine.SKILL_ESSENCE_KEY] == before + gained
+
+
+def test_character_can_promote_into_advanced_class_branch():
+    state = engine.default_state(seed=9)
+    warrior = next(ch for ch in state["characters"] if ch["class_id"] == "warrior")
+    locked = engine.promotion_options_for_character(state, warrior)
+    assert {row["class_id"] for row in locked} == {"berserker", "sword_commander"}
+    assert not any(row["can_promote"] for row in locked)
+
+    while warrior["level"] < 6:
+        engine.level_up_character(warrior)
+    engine.upgrade_skill(state, warrior["id"], "power_strike")
+    before_attack = int(warrior["base_stats"]["attack"])
+
+    promoted = engine.promote_character(state, warrior["id"], "berserker")
+    assert promoted["class_id"] == "berserker"
+    assert promoted["base_class_id"] == "warrior"
+    assert promoted["class_path"] == ["warrior", "berserker"]
+    assert state["materials"][engine.PROMOTION_BADGE_KEY] == engine.STARTING_PROMOTION_BADGES - 1
+    assert "power_strike" in promoted["skills"]
+    assert "blood_frenzy" in promoted["learned_skills"]
+    assert promoted["skill_upgrades"]["power_strike"]["level"] == 2
+    assert engine.character_promotion_summary(state, promoted)["promoted"]
+    engine.equip_item(state, promoted["id"], promoted["equipment"]["weapon"])
+
+    engine.level_up_character(promoted)
+    assert int(promoted["base_stats"]["attack"]) == before_attack + 2
+
+
 def test_attack_and_defense_skill_taxonomy():
     data = engine.load_data()
     attack_types = set(engine.ATTACK_TYPES)

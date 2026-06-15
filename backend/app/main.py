@@ -118,6 +118,16 @@ def learn_skill(payload: dict[str, Any] = Body(...)):
     return call(game_service.learn_skill, payload)
 
 
+@app.post("/party/skills/upgrade")
+def upgrade_skill(payload: dict[str, Any] = Body(...)):
+    return call(game_service.upgrade_skill, payload)
+
+
+@app.post("/party/promote")
+def promote_character(payload: dict[str, Any] = Body(...)):
+    return call(game_service.promote_character, payload)
+
+
 @app.post("/party/tactic-schemes")
 def save_tactic_scheme(payload: dict[str, Any] = Body(default_factory=dict)):
     return call(game_service.save_tactic_scheme, payload)

@@ -90,6 +90,184 @@
       ],
       "default_skill_priority": [],
       "default_defense_skill_by_type": {}
+    },
+    "berserker": {
+      "default_defense_skill_by_type": {},
+      "icon": "🩸",
+      "accent": "#ef5350",
+      "role_short": "狂战",
+      "position": "front",
+      "default_target_priority": "lowest_hp",
+      "default_opening_skill_priority": [
+        "blood_frenzy"
+      ],
+      "default_skill_priority": [
+        "whirlwind_execution"
+      ]
+    },
+    "sword_commander": {
+      "default_defense_skill_by_type": {},
+      "icon": "🚩",
+      "accent": "#ffb74d",
+      "role_short": "统领",
+      "position": "front",
+      "default_target_priority": "elite",
+      "default_opening_skill_priority": [
+        "rallying_banner"
+      ],
+      "default_skill_priority": [
+        "commanding_strike"
+      ]
+    },
+    "sacred_guardian": {
+      "default_defense_skill_by_type": {
+        "melee": "last_bastion",
+        "ranged": "sanctified_guard",
+        "magic": "sanctified_guard",
+        "mental": "sanctified_guard",
+        "special": "sanctified_guard"
+      },
+      "icon": "🔆",
+      "accent": "#ffd54f",
+      "role_short": "圣盾",
+      "position": "front",
+      "default_target_priority": "front",
+      "default_opening_skill_priority": [
+        "sanctified_guard"
+      ],
+      "default_skill_priority": [
+        "last_bastion"
+      ]
+    },
+    "fortress_commander": {
+      "default_defense_skill_by_type": {
+        "melee": "fortress_order",
+        "ranged": "fortress_order",
+        "special": "fortress_order"
+      },
+      "icon": "🏰",
+      "accent": "#90a4ae",
+      "role_short": "堡垒",
+      "position": "front",
+      "default_target_priority": "highest_attack",
+      "default_opening_skill_priority": [
+        "fortress_order"
+      ],
+      "default_skill_priority": [
+        "counter_charge"
+      ]
+    },
+    "sharpshooter": {
+      "default_defense_skill_by_type": {},
+      "icon": "🎯",
+      "accent": "#81c784",
+      "role_short": "神射",
+      "position": "back",
+      "default_target_priority": "rear",
+      "default_opening_skill_priority": [
+        "deadeye_focus"
+      ],
+      "default_skill_priority": [
+        "sniper_killshot"
+      ]
+    },
+    "wild_hunter": {
+      "default_defense_skill_by_type": {},
+      "icon": "🌲",
+      "accent": "#66bb6a",
+      "role_short": "猎手",
+      "position": "back",
+      "default_target_priority": "elite",
+      "default_opening_skill_priority": [
+        "barbed_trap"
+      ],
+      "default_skill_priority": [
+        "pack_hunt"
+      ]
+    },
+    "shadow_dancer": {
+      "default_defense_skill_by_type": {},
+      "icon": "🌘",
+      "accent": "#4dd0e1",
+      "role_short": "影舞",
+      "position": "back",
+      "default_target_priority": "rear",
+      "default_opening_skill_priority": [
+        "phantom_step"
+      ],
+      "default_skill_priority": [
+        "death_blossom"
+      ]
+    },
+    "venom_blade": {
+      "default_defense_skill_by_type": {},
+      "icon": "☠️",
+      "accent": "#9ccc65",
+      "role_short": "毒刃",
+      "position": "back",
+      "default_target_priority": "highest_defense",
+      "default_opening_skill_priority": [
+        "venom_cascade"
+      ],
+      "default_skill_priority": [
+        "toxin_execution"
+      ]
+    },
+    "high_priest": {
+      "default_defense_skill_by_type": {},
+      "icon": "✨",
+      "accent": "#fff176",
+      "role_short": "大祭司",
+      "position": "mid",
+      "default_target_priority": "lowest_hp",
+      "default_opening_skill_priority": [
+        "sanctuary"
+      ],
+      "default_skill_priority": [
+        "miracle"
+      ]
+    },
+    "inquisitor": {
+      "default_defense_skill_by_type": {},
+      "icon": "🔥",
+      "accent": "#ff8a65",
+      "role_short": "审判",
+      "position": "mid",
+      "default_target_priority": "elite",
+      "default_opening_skill_priority": [
+        "judgement_mark"
+      ],
+      "default_skill_priority": [
+        "purifying_flame"
+      ]
+    },
+    "elementalist": {
+      "default_defense_skill_by_type": {},
+      "icon": "🌩️",
+      "accent": "#5c9cff",
+      "role_short": "元素",
+      "position": "back",
+      "default_target_priority": "lowest_hp",
+      "default_opening_skill_priority": [
+        "elemental_overload"
+      ],
+      "default_skill_priority": [
+        "stormfall"
+      ]
+    },
+    "hex_scholar": {
+      "default_defense_skill_by_type": {},
+      "icon": "🜏",
+      "accent": "#b388ff",
+      "role_short": "咒文",
+      "position": "back",
+      "default_target_priority": "highest_attack",
+      "default_opening_skill_priority": [
+        "hex_bind"
+      ],
+      "default_skill_priority": [
+        "doom_ritual"
+      ]
     }
   },
   "starter_roster": [
@@ -408,70 +586,907 @@
         "skill": "arcane_bolt",
         "when": "always"
       }
+    ],
+    "berserker": [
+      {
+        "skill": "blood_frenzy",
+        "when": "self_without_status",
+        "status": "might"
+      },
+      {
+        "skill": "whirlwind_execution",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      }
+    ],
+    "sword_commander": [
+      {
+        "skill": "rallying_banner",
+        "when": "setup"
+      },
+      {
+        "skill": "commanding_strike",
+        "when": "priority_enemy_without_status",
+        "status": "marked"
+      }
+    ],
+    "sacred_guardian": [
+      {
+        "skill": "last_bastion",
+        "when": "party_low_count_gte",
+        "hp_below": 0.72,
+        "threshold": 2
+      },
+      {
+        "skill": "sanctified_guard",
+        "when": "setup"
+      }
+    ],
+    "fortress_commander": [
+      {
+        "skill": "fortress_order",
+        "when": "setup"
+      },
+      {
+        "skill": "counter_charge",
+        "when": "dangerous_enemy_unstunned"
+      }
+    ],
+    "sharpshooter": [
+      {
+        "skill": "deadeye_focus",
+        "when": "self_without_status",
+        "status": "focus"
+      },
+      {
+        "skill": "sniper_killshot",
+        "when": "enemy_hp_below",
+        "hp_below": 0.5
+      }
+    ],
+    "wild_hunter": [
+      {
+        "skill": "barbed_trap",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "pack_hunt",
+        "when": "enemy_without_status",
+        "status": "marked"
+      }
+    ],
+    "shadow_dancer": [
+      {
+        "skill": "phantom_step",
+        "when": "self_without_status",
+        "status": "evasion_up"
+      },
+      {
+        "skill": "death_blossom",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      }
+    ],
+    "venom_blade": [
+      {
+        "skill": "venom_cascade",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "toxin_execution",
+        "when": "enemy_hp_below",
+        "hp_below": 0.45
+      }
+    ],
+    "high_priest": [
+      {
+        "skill": "miracle",
+        "when": "lowest_ally_hp_below",
+        "hp_below": 0.38
+      },
+      {
+        "skill": "sanctuary",
+        "when": "party_low_count_gte",
+        "hp_below": 0.8,
+        "threshold": 2
+      }
+    ],
+    "inquisitor": [
+      {
+        "skill": "judgement_mark",
+        "when": "priority_enemy_without_status",
+        "status": "marked"
+      },
+      {
+        "skill": "purifying_flame",
+        "when": "enemy_without_status",
+        "status": "burn"
+      }
+    ],
+    "elementalist": [
+      {
+        "skill": "elemental_overload",
+        "when": "self_without_status",
+        "status": "focus"
+      },
+      {
+        "skill": "stormfall",
+        "when": "enemies_count_gte",
+        "threshold": 3
+      }
+    ],
+    "hex_scholar": [
+      {
+        "skill": "hex_bind",
+        "when": "dangerous_enemy_unstunned"
+      },
+      {
+        "skill": "doom_ritual",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      }
     ]
   },
   "skill_tree": {
     "warrior": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "battle_readiness", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "guard", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_readiness"], "x": 0, "y": 1 },
-      { "skill_id": "power_strike", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_readiness"], "x": 2, "y": 1 },
-      { "skill_id": "shield_bash", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 0, "y": 2 },
-      { "skill_id": "battle_focus", "cost": 1, "tier": 2, "prerequisites": ["battle_readiness"], "x": 1, "y": 2 },
-      { "skill_id": "cleave", "cost": 1, "tier": 2, "prerequisites": ["power_strike"], "x": 2, "y": 2 },
-      { "skill_id": "execute", "cost": 2, "tier": 3, "prerequisites": ["cleave", "battle_focus"], "x": 2, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "battle_readiness",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "guard",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "battle_readiness"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "power_strike",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "battle_readiness"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "shield_bash",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "guard"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "battle_focus",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "battle_readiness"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "cleave",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "power_strike"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "execute",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "cleave",
+          "battle_focus"
+        ],
+        "x": 2,
+        "y": 3
+      }
     ],
     "ranger": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "quick_draw", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "aimed_shot", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["quick_draw"], "x": 0, "y": 1 },
-      { "skill_id": "volley", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["quick_draw"], "x": 2, "y": 1 },
-      { "skill_id": "hunter_mark", "cost": 1, "tier": 2, "prerequisites": ["aimed_shot"], "x": 0, "y": 2 },
-      { "skill_id": "piercing_shot", "cost": 1, "tier": 2, "prerequisites": ["aimed_shot"], "x": 1, "y": 2 },
-      { "skill_id": "pinning_shot", "cost": 1, "tier": 3, "prerequisites": ["hunter_mark"], "x": 0, "y": 3 },
-      { "skill_id": "rain_of_arrows", "cost": 2, "tier": 3, "prerequisites": ["volley", "piercing_shot"], "x": 2, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "quick_draw",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "aimed_shot",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "quick_draw"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "volley",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "quick_draw"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "hunter_mark",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "aimed_shot"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "piercing_shot",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "aimed_shot"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "pinning_shot",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "hunter_mark"
+        ],
+        "x": 0,
+        "y": 3
+      },
+      {
+        "skill_id": "rain_of_arrows",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "volley",
+          "piercing_shot"
+        ],
+        "x": 2,
+        "y": 3
+      }
     ],
     "cleric": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "battle_prayer", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "heal", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_prayer"], "x": 0, "y": 1 },
-      { "skill_id": "cleanse", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_prayer"], "x": 2, "y": 1 },
-      { "skill_id": "sacred_ward", "cost": 1, "tier": 2, "prerequisites": ["heal"], "x": 0, "y": 2 },
-      { "skill_id": "smite_undead", "cost": 1, "tier": 2, "prerequisites": ["cleanse"], "x": 2, "y": 2 },
-      { "skill_id": "group_heal", "cost": 1, "tier": 3, "prerequisites": ["heal"], "x": 0, "y": 3 },
-      { "skill_id": "mass_cleanse", "cost": 1, "tier": 3, "prerequisites": ["cleanse"], "x": 2, "y": 3 },
-      { "skill_id": "divine_aegis", "cost": 2, "tier": 4, "prerequisites": ["sacred_ward", "group_heal"], "x": 1, "y": 4 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "battle_prayer",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "heal",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "battle_prayer"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "cleanse",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "battle_prayer"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "sacred_ward",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "heal"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "smite_undead",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "cleanse"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "group_heal",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "heal"
+        ],
+        "x": 0,
+        "y": 3
+      },
+      {
+        "skill_id": "mass_cleanse",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "cleanse"
+        ],
+        "x": 2,
+        "y": 3
+      },
+      {
+        "skill_id": "divine_aegis",
+        "cost": 2,
+        "tier": 4,
+        "prerequisites": [
+          "sacred_ward",
+          "group_heal"
+        ],
+        "x": 1,
+        "y": 4
+      }
     ],
     "rogue": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "shadow_reflex", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "backstab", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shadow_reflex"], "x": 0, "y": 1 },
-      { "skill_id": "armor_break", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shadow_reflex"], "x": 2, "y": 1 },
-      { "skill_id": "smoke_step", "cost": 1, "tier": 2, "prerequisites": ["backstab"], "x": 1, "y": 2 },
-      { "skill_id": "poison_blade", "cost": 1, "tier": 2, "prerequisites": ["armor_break"], "x": 2, "y": 2 },
-      { "skill_id": "kidney_shot", "cost": 1, "tier": 3, "prerequisites": ["armor_break"], "x": 2, "y": 3 },
-      { "skill_id": "shadow_finish", "cost": 2, "tier": 3, "prerequisites": ["backstab", "poison_blade"], "x": 0, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "shadow_reflex",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "backstab",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "shadow_reflex"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "armor_break",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "shadow_reflex"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "smoke_step",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "backstab"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "poison_blade",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "armor_break"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "kidney_shot",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "armor_break"
+        ],
+        "x": 2,
+        "y": 3
+      },
+      {
+        "skill_id": "shadow_finish",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "backstab",
+          "poison_blade"
+        ],
+        "x": 0,
+        "y": 3
+      }
     ],
     "mage": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "arcane_preparation", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "arcane_bolt", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["arcane_preparation"], "x": 0, "y": 1 },
-      { "skill_id": "fireball", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["arcane_preparation"], "x": 2, "y": 1 },
-      { "skill_id": "chain_lightning", "cost": 1, "tier": 2, "prerequisites": ["arcane_bolt"], "x": 0, "y": 2 },
-      { "skill_id": "arcane_barrier", "cost": 1, "tier": 2, "prerequisites": ["arcane_preparation"], "x": 1, "y": 2 },
-      { "skill_id": "ignite", "cost": 1, "tier": 2, "prerequisites": ["fireball"], "x": 2, "y": 2 },
-      { "skill_id": "curse_of_fragility", "cost": 1, "tier": 3, "prerequisites": ["arcane_barrier"], "x": 1, "y": 3 },
-      { "skill_id": "meteor_shower", "cost": 2, "tier": 3, "prerequisites": ["fireball", "chain_lightning"], "x": 2, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "arcane_preparation",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "arcane_bolt",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "arcane_preparation"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "fireball",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "arcane_preparation"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "chain_lightning",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "arcane_bolt"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "arcane_barrier",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "arcane_preparation"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "ignite",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "fireball"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "curse_of_fragility",
+        "cost": 1,
+        "tier": 3,
+        "prerequisites": [
+          "arcane_barrier"
+        ],
+        "x": 1,
+        "y": 3
+      },
+      {
+        "skill_id": "meteor_shower",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "fireball",
+          "chain_lightning"
+        ],
+        "x": 2,
+        "y": 3
+      }
     ],
     "guardian": [
-      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
-      { "skill_id": "shield_readiness", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
-      { "skill_id": "guard", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shield_readiness"], "x": 0, "y": 1 },
-      { "skill_id": "shield_wall", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shield_readiness"], "x": 2, "y": 1 },
-      { "skill_id": "shield_bash", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 0, "y": 2 },
-      { "skill_id": "taunting_roar", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 1, "y": 2 },
-      { "skill_id": "iron_vow", "cost": 1, "tier": 2, "prerequisites": ["shield_wall"], "x": 2, "y": 2 },
-      { "skill_id": "bulwark_aura", "cost": 2, "tier": 3, "prerequisites": ["iron_vow", "guard"], "x": 1, "y": 3 }
+      {
+        "skill_id": "basic_attack",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "skill_id": "shield_readiness",
+        "cost": 0,
+        "tier": 0,
+        "auto_learn": true,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "skill_id": "guard",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "shield_readiness"
+        ],
+        "x": 0,
+        "y": 1
+      },
+      {
+        "skill_id": "shield_wall",
+        "cost": 0,
+        "tier": 1,
+        "auto_learn": true,
+        "prerequisites": [
+          "shield_readiness"
+        ],
+        "x": 2,
+        "y": 1
+      },
+      {
+        "skill_id": "shield_bash",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "guard"
+        ],
+        "x": 0,
+        "y": 2
+      },
+      {
+        "skill_id": "taunting_roar",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "guard"
+        ],
+        "x": 1,
+        "y": 2
+      },
+      {
+        "skill_id": "iron_vow",
+        "cost": 1,
+        "tier": 2,
+        "prerequisites": [
+          "shield_wall"
+        ],
+        "x": 2,
+        "y": 2
+      },
+      {
+        "skill_id": "bulwark_aura",
+        "cost": 2,
+        "tier": 3,
+        "prerequisites": [
+          "iron_vow",
+          "guard"
+        ],
+        "x": 1,
+        "y": 3
+      }
+    ],
+    "berserker": [
+      {
+        "skill_id": "blood_frenzy",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "whirlwind_execution",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "blood_frenzy",
+          "execute"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "sword_commander": [
+      {
+        "skill_id": "commanding_strike",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "rallying_banner",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "commanding_strike",
+          "battle_focus"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "sacred_guardian": [
+      {
+        "skill_id": "sanctified_guard",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "last_bastion",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "sanctified_guard",
+          "bulwark_aura"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "fortress_commander": [
+      {
+        "skill_id": "fortress_order",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "counter_charge",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "fortress_order",
+          "taunting_roar"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "sharpshooter": [
+      {
+        "skill_id": "deadeye_focus",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "sniper_killshot",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "deadeye_focus",
+          "piercing_shot"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "wild_hunter": [
+      {
+        "skill_id": "barbed_trap",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "pack_hunt",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "barbed_trap",
+          "hunter_mark"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "shadow_dancer": [
+      {
+        "skill_id": "phantom_step",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "death_blossom",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "phantom_step",
+          "shadow_finish"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "venom_blade": [
+      {
+        "skill_id": "venom_cascade",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "toxin_execution",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "venom_cascade",
+          "poison_blade"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "high_priest": [
+      {
+        "skill_id": "sanctuary",
+        "cost": 0,
+        "tier": 5,
+        "auto_learn": true,
+        "x": 1,
+        "y": 5
+      },
+      {
+        "skill_id": "miracle",
+        "cost": 2,
+        "tier": 6,
+        "prerequisites": [
+          "sanctuary",
+          "divine_aegis"
+        ],
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "inquisitor": [
+      {
+        "skill_id": "judgement_mark",
+        "cost": 0,
+        "tier": 5,
+        "auto_learn": true,
+        "x": 1,
+        "y": 5
+      },
+      {
+        "skill_id": "purifying_flame",
+        "cost": 2,
+        "tier": 6,
+        "prerequisites": [
+          "judgement_mark",
+          "smite_undead"
+        ],
+        "x": 1,
+        "y": 6
+      }
+    ],
+    "elementalist": [
+      {
+        "skill_id": "elemental_overload",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "stormfall",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "elemental_overload",
+          "meteor_shower"
+        ],
+        "x": 1,
+        "y": 5
+      }
+    ],
+    "hex_scholar": [
+      {
+        "skill_id": "hex_bind",
+        "cost": 0,
+        "tier": 4,
+        "auto_learn": true,
+        "x": 1,
+        "y": 4
+      },
+      {
+        "skill_id": "doom_ritual",
+        "cost": 2,
+        "tier": 5,
+        "prerequisites": [
+          "hex_bind",
+          "curse_of_fragility"
+        ],
+        "x": 1,
+        "y": 5
+      }
     ]
   }
 }

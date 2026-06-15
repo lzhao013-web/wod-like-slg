@@ -312,5 +312,680 @@
       "iron_vow",
       "bulwark_aura"
     ]
+  },
+  {
+    "id": "berserker",
+    "name": "狂战士",
+    "role": "前排爆发 / 流血压制 / 低血收割",
+    "attributes": {
+      "strength": 15,
+      "constitution": 14,
+      "dexterity": 10,
+      "agility": 8,
+      "intelligence": 6,
+      "willpower": 10,
+      "perception": 8,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "strength": 2,
+      "constitution": 1,
+      "agility": 1
+    },
+    "stats": {
+      "max_hp": 76,
+      "attack": 10,
+      "defense": 8,
+      "speed": 5,
+      "accuracy": 72,
+      "evasion": 3,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 6,
+      "attack": 2,
+      "speed": 1
+    },
+    "resistances": {
+      "physical": 8,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 16
+    },
+    "skills": [
+      "blood_frenzy",
+      "whirlwind_execution"
+    ],
+    "is_advanced": true,
+    "base_class_id": "warrior",
+    "promotion": {
+      "order": 1,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "牺牲部分稳定性换取爆发、流血联动与斩杀窗口。"
+    }
+  },
+  {
+    "id": "sword_commander",
+    "name": "剑锋统领",
+    "role": "前排指挥 / 标记集火 / 稳定输出",
+    "attributes": {
+      "strength": 15,
+      "constitution": 14,
+      "dexterity": 10,
+      "agility": 8,
+      "intelligence": 6,
+      "willpower": 10,
+      "perception": 8,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "strength": 1,
+      "dexterity": 1,
+      "charisma": 1
+    },
+    "stats": {
+      "max_hp": 76,
+      "attack": 10,
+      "defense": 8,
+      "speed": 5,
+      "accuracy": 72,
+      "evasion": 3,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 5,
+      "attack": 1,
+      "defense": 1,
+      "accuracy": 1
+    },
+    "resistances": {
+      "physical": 8,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 10
+    },
+    "skills": [
+      "commanding_strike",
+      "rallying_banner"
+    ],
+    "is_advanced": true,
+    "base_class_id": "warrior",
+    "promotion": {
+      "order": 2,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "把战士从个人压制转向团队指挥，强化集火和队伍节奏。"
+    }
+  },
+  {
+    "id": "sacred_guardian",
+    "name": "圣盾守护者",
+    "role": "前排守护 / 圣佑抗性 / 濒危兜底",
+    "attributes": {
+      "strength": 12,
+      "constitution": 17,
+      "dexterity": 8,
+      "agility": 6,
+      "intelligence": 6,
+      "willpower": 13,
+      "perception": 8,
+      "charisma": 7
+    },
+    "attribute_growth": {
+      "constitution": 1,
+      "willpower": 2,
+      "charisma": 1
+    },
+    "stats": {
+      "max_hp": 90,
+      "attack": 7,
+      "defense": 10,
+      "speed": 4,
+      "accuracy": 70,
+      "evasion": 1,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 6,
+      "defense": 2
+    },
+    "resistances": {
+      "physical": 14,
+      "poison": 0,
+      "magic": 6,
+      "curse": 8,
+      "fire": 4,
+      "bleed": 14
+    },
+    "skills": [
+      "sanctified_guard",
+      "last_bastion"
+    ],
+    "is_advanced": true,
+    "base_class_id": "guardian",
+    "promotion": {
+      "order": 1,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "强化守卫的魔法、诅咒与毒火应对能力，适合高压 Boss 战。"
+    }
+  },
+  {
+    "id": "fortress_commander",
+    "name": "堡垒统领",
+    "role": "阵线统领 / 群体减伤 / 反冲控制",
+    "attributes": {
+      "strength": 12,
+      "constitution": 17,
+      "dexterity": 8,
+      "agility": 6,
+      "intelligence": 6,
+      "willpower": 13,
+      "perception": 8,
+      "charisma": 7
+    },
+    "attribute_growth": {
+      "constitution": 2,
+      "strength": 1,
+      "perception": 1
+    },
+    "stats": {
+      "max_hp": 90,
+      "attack": 7,
+      "defense": 10,
+      "speed": 4,
+      "accuracy": 70,
+      "evasion": 1,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 7,
+      "defense": 2,
+      "attack": 1
+    },
+    "resistances": {
+      "physical": 18,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 18
+    },
+    "skills": [
+      "fortress_order",
+      "counter_charge"
+    ],
+    "is_advanced": true,
+    "base_class_id": "guardian",
+    "promotion": {
+      "order": 2,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "把守卫扩展为队伍阵线核心，兼具保护、指挥和反击。"
+    }
+  },
+  {
+    "id": "sharpshooter",
+    "name": "神射手",
+    "role": "后排狙击 / 精英点杀 / 高命中暴击",
+    "attributes": {
+      "strength": 9,
+      "constitution": 9,
+      "dexterity": 15,
+      "agility": 14,
+      "intelligence": 8,
+      "willpower": 8,
+      "perception": 16,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "perception": 2,
+      "dexterity": 1,
+      "agility": 1
+    },
+    "stats": {
+      "max_hp": 52,
+      "attack": 10,
+      "defense": 3,
+      "speed": 8,
+      "accuracy": 78,
+      "evasion": 7,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 4,
+      "attack": 2,
+      "accuracy": 2
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      "deadeye_focus",
+      "sniper_killshot"
+    ],
+    "is_advanced": true,
+    "base_class_id": "ranger",
+    "promotion": {
+      "order": 1,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "极限强化单点命中、穿防和斩杀，对后排与精英威胁尤其稳定。"
+    }
+  },
+  {
+    "id": "wild_hunter",
+    "name": "荒野猎手",
+    "role": "陷阱控制 / 流血毒伤 / 多目标追猎",
+    "attributes": {
+      "strength": 9,
+      "constitution": 9,
+      "dexterity": 15,
+      "agility": 14,
+      "intelligence": 8,
+      "willpower": 8,
+      "perception": 16,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "perception": 1,
+      "agility": 1,
+      "constitution": 1,
+      "dexterity": 1
+    },
+    "stats": {
+      "max_hp": 52,
+      "attack": 10,
+      "defense": 3,
+      "speed": 8,
+      "accuracy": 78,
+      "evasion": 7,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 5,
+      "attack": 1,
+      "speed": 1,
+      "evasion": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 6,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      "barbed_trap",
+      "pack_hunt"
+    ],
+    "is_advanced": true,
+    "base_class_id": "ranger",
+    "promotion": {
+      "order": 2,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "用陷阱、流血和毒压制造持续收益，更适合复杂遭遇和多目标战。"
+    }
+  },
+  {
+    "id": "shadow_dancer",
+    "name": "影舞者",
+    "role": "高速闪避 / 后排爆发 / 连段收割",
+    "attributes": {
+      "strength": 10,
+      "constitution": 8,
+      "dexterity": 16,
+      "agility": 17,
+      "intelligence": 9,
+      "willpower": 7,
+      "perception": 12,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "agility": 2,
+      "dexterity": 1,
+      "perception": 1
+    },
+    "stats": {
+      "max_hp": 50,
+      "attack": 9,
+      "defense": 3,
+      "speed": 10,
+      "accuracy": 76,
+      "evasion": 10,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 4,
+      "attack": 1,
+      "speed": 2,
+      "evasion": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 8,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      "phantom_step",
+      "death_blossom"
+    ],
+    "is_advanced": true,
+    "base_class_id": "rogue",
+    "promotion": {
+      "order": 1,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "把盗贼推向更快、更难被命中的爆发路线。"
+    }
+  },
+  {
+    "id": "venom_blade",
+    "name": "毒刃客",
+    "role": "毒刃扩散 / 脆弱叠加 / 中毒斩杀",
+    "attributes": {
+      "strength": 10,
+      "constitution": 8,
+      "dexterity": 16,
+      "agility": 17,
+      "intelligence": 9,
+      "willpower": 7,
+      "perception": 12,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "dexterity": 2,
+      "agility": 1,
+      "intelligence": 1
+    },
+    "stats": {
+      "max_hp": 50,
+      "attack": 9,
+      "defense": 3,
+      "speed": 10,
+      "accuracy": 76,
+      "evasion": 10,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 4,
+      "attack": 2,
+      "accuracy": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 18,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      "venom_cascade",
+      "toxin_execution"
+    ],
+    "is_advanced": true,
+    "base_class_id": "rogue",
+    "promotion": {
+      "order": 2,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "专精毒伤和状态联动，适合磨穿高血量与高护甲目标。"
+    }
+  },
+  {
+    "id": "high_priest",
+    "name": "大祭司",
+    "role": "群体治疗 / 圣域防护 / 奇迹抬血",
+    "attributes": {
+      "strength": 7,
+      "constitution": 11,
+      "dexterity": 8,
+      "agility": 8,
+      "intelligence": 12,
+      "willpower": 16,
+      "perception": 10,
+      "charisma": 15
+    },
+    "attribute_growth": {
+      "charisma": 2,
+      "willpower": 1,
+      "constitution": 1
+    },
+    "stats": {
+      "max_hp": 58,
+      "attack": 6,
+      "defense": 4,
+      "speed": 6,
+      "accuracy": 72,
+      "evasion": 4,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 5,
+      "defense": 1,
+      "attack": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 10,
+      "magic": 14,
+      "curse": 22,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      "sanctuary",
+      "miracle"
+    ],
+    "is_advanced": true,
+    "base_class_id": "cleric",
+    "promotion": {
+      "order": 1,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "把牧师推向纯支援路线，提供更强群体防护和关键回合救场。"
+    }
+  },
+  {
+    "id": "inquisitor",
+    "name": "审判官",
+    "role": "信仰输出 / 异端标记 / 净焰处决",
+    "attributes": {
+      "strength": 7,
+      "constitution": 11,
+      "dexterity": 8,
+      "agility": 8,
+      "intelligence": 12,
+      "willpower": 16,
+      "perception": 10,
+      "charisma": 15
+    },
+    "attribute_growth": {
+      "willpower": 2,
+      "intelligence": 1,
+      "charisma": 1
+    },
+    "stats": {
+      "max_hp": 58,
+      "attack": 6,
+      "defense": 4,
+      "speed": 6,
+      "accuracy": 72,
+      "evasion": 4,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 4,
+      "attack": 2,
+      "accuracy": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 10,
+      "magic": 10,
+      "curse": 24,
+      "fire": 4,
+      "bleed": 0
+    },
+    "skills": [
+      "judgement_mark",
+      "purifying_flame"
+    ],
+    "is_advanced": true,
+    "base_class_id": "cleric",
+    "promotion": {
+      "order": 2,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "牺牲部分治疗专精，换取标记、脆弱与火焰/魔法输出。"
+    }
+  },
+  {
+    "id": "elementalist",
+    "name": "元素使",
+    "role": "元素爆发 / 群体压制 / 火焰连锁",
+    "attributes": {
+      "strength": 5,
+      "constitution": 8,
+      "dexterity": 8,
+      "agility": 9,
+      "intelligence": 17,
+      "willpower": 15,
+      "perception": 12,
+      "charisma": 9
+    },
+    "attribute_growth": {
+      "intelligence": 2,
+      "willpower": 1,
+      "perception": 1
+    },
+    "stats": {
+      "max_hp": 44,
+      "attack": 8,
+      "defense": 2,
+      "speed": 6,
+      "accuracy": 74,
+      "evasion": 3,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 3,
+      "attack": 2,
+      "accuracy": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 18,
+      "curse": 8,
+      "fire": 20,
+      "bleed": 0
+    },
+    "skills": [
+      "elemental_overload",
+      "stormfall"
+    ],
+    "is_advanced": true,
+    "base_class_id": "mage",
+    "promotion": {
+      "order": 1,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "专精火焰与奥术群体输出，适合在多层战斗中快速清场。"
+    }
+  },
+  {
+    "id": "hex_scholar",
+    "name": "咒文学者",
+    "role": "诅咒控制 / 脆弱放大 / 多目标削弱",
+    "attributes": {
+      "strength": 5,
+      "constitution": 8,
+      "dexterity": 8,
+      "agility": 9,
+      "intelligence": 17,
+      "willpower": 15,
+      "perception": 12,
+      "charisma": 9
+    },
+    "attribute_growth": {
+      "intelligence": 1,
+      "willpower": 2,
+      "perception": 1
+    },
+    "stats": {
+      "max_hp": 44,
+      "attack": 8,
+      "defense": 2,
+      "speed": 6,
+      "accuracy": 74,
+      "evasion": 3,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 4,
+      "attack": 1,
+      "accuracy": 2
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 18,
+      "curse": 18,
+      "fire": 12,
+      "bleed": 0
+    },
+    "skills": [
+      "hex_bind",
+      "doom_ritual"
+    ],
+    "is_advanced": true,
+    "base_class_id": "mage",
+    "promotion": {
+      "order": 2,
+      "level_required": 6,
+      "materials": {
+        "promotion_badge": 1
+      },
+      "description": "把法师转向诅咒、减速与脆弱控制，给队伍创造爆发窗口。"
+    }
   }
 ]

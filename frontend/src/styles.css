@@ -698,6 +698,8 @@ select { cursor: pointer; }
 .skillItem__body small { display: block; margin-top: 3px; font-size: 11px; line-height: 1.35; color: var(--ink-faint); }
 .skillPointBar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; padding: 8px 10px; border-radius: 11px; border: 1px solid rgba(255, 183, 77, 0.22); background: rgba(255, 183, 77, 0.08); color: var(--ink-dim); font-size: 12px; }
 .skillPointBar b { color: var(--accent-2); font-size: 18px; }
+.skillEssenceBar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 11px; border: 1px solid rgba(179, 136, 255, 0.28); background: rgba(179, 136, 255, 0.09); color: var(--ink-dim); font-size: 12px; }
+.skillEssenceBar b { color: var(--purple); font-size: 18px; }
 .skillItem__tree { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
 .skillItem__tree span { padding: 2px 6px; border-radius: 7px; border: 1px solid rgba(159, 177, 202, 0.14); background: rgba(159, 177, 202, 0.06); color: var(--ink-faint); font-size: 10.5px; cursor: help; }
 .skillItem__meta, .skillItem__effects { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
@@ -714,6 +716,23 @@ select { cursor: pointer; }
 .skillTreeSummary__stats b { color: var(--ink); margin-right: 3px; }
 .skillPreviewList { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .skillPreviewList span { padding: 4px 7px; border-radius: 999px; border: 1px solid rgba(92, 156, 255, 0.16); background: rgba(92, 156, 255, 0.07); color: var(--ink-dim); font-size: 11px; }
+.promotionPath { display: grid; gap: 3px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255, 193, 77, 0.24); background: linear-gradient(160deg, rgba(255, 193, 77, 0.10), rgba(13, 19, 30, 0.55)); }
+.promotionPath span { color: var(--ink-faint); font-size: 11px; }
+.promotionPath b { color: var(--ink); font-size: 14px; }
+.promotionPath em { color: var(--gold); font-style: normal; font-size: 11.5px; }
+.promotionGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.promotionCard { --promotion-accent: var(--accent); min-width: 0; display: grid; gap: 7px; align-content: start; padding: 10px; border: 1px solid color-mix(in srgb, var(--promotion-accent) 34%, rgba(159, 177, 202, 0.16)); border-radius: 12px; background: linear-gradient(160deg, color-mix(in srgb, var(--promotion-accent) 12%, rgba(13, 19, 30, 0.78)), rgba(13, 19, 30, 0.6)); color: var(--ink); text-align: left; cursor: pointer; }
+.promotionCard:hover:not(:disabled) { border-color: var(--promotion-accent); transform: translateY(-1px); }
+.promotionCard:disabled { opacity: .55; cursor: not-allowed; }
+.promotionCard__head { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.promotionCard__head span { font-size: 18px; }
+.promotionCard__head b { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.promotionCard small { min-height: 32px; color: var(--ink-dim); font-size: 11px; line-height: 1.45; }
+.promotionCard__costs, .promotionCard__skills { display: flex; flex-wrap: wrap; gap: 4px; }
+.promotionCard__costs span { padding: 2px 6px; border-radius: 7px; border: 1px solid rgba(255, 193, 77, 0.22); background: rgba(255, 193, 77, 0.08); color: var(--gold); font-size: 10.5px; }
+.promotionCard__skills span { padding: 2px 6px; border-radius: 7px; border: 1px solid rgba(92, 156, 255, 0.18); background: rgba(92, 156, 255, 0.07); color: var(--ink-dim); font-size: 10.5px; }
+.promotionCard em { align-self: end; color: var(--ink-faint); font-size: 11px; font-style: normal; }
+.promotionCard.is-ready em { color: var(--promotion-accent); font-weight: 700; }
 /* ============================================================
    Talent board (天赋盘)
    Circular nodes on a starfield, gold connectors node-center to node-center.
@@ -723,13 +742,15 @@ select { cursor: pointer; }
    ============================================================ */
 .talentLayer { position: fixed; inset: 0; z-index: 75; display: grid; place-items: center; padding: 22px; background: rgba(4, 7, 12, 0.74); backdrop-filter: blur(8px); }
 .talentModal { width: min(1100px, 100%); max-height: calc(100vh - 56px); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255, 193, 77, 0.22); border-radius: 20px; background: linear-gradient(180deg, rgba(17, 25, 38, 0.98), rgba(8, 12, 20, 0.99)); box-shadow: 0 24px 80px rgba(0,0,0,.5); }
-.talentModal__head { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255, 193, 77, 0.14); background: linear-gradient(160deg, rgba(255, 193, 77, 0.1), rgba(13, 19, 30, 0.92)); }
+.talentModal__head { display: grid; grid-template-columns: 1fr auto auto auto; gap: 14px; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255, 193, 77, 0.14); background: linear-gradient(160deg, rgba(255, 193, 77, 0.1), rgba(13, 19, 30, 0.92)); }
 .talentModal__head h2 { margin: 2px 0 3px; font-size: 20px; }
 .talentModal__head p { margin: 0; color: var(--ink-faint); font-size: 12px; }
 .talentModal__eyebrow { color: var(--gold); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
 .talentModal__points { min-width: 80px; padding: 7px 12px; border-radius: 13px; border: 1px solid rgba(255, 193, 77, 0.28); background: rgba(255, 193, 77, 0.09); text-align: center; }
 .talentModal__points span { display: block; color: var(--ink-faint); font-size: 11px; }
 .talentModal__points b { color: var(--gold); font-size: 22px; line-height: 1; }
+.talentModal__points--essence { border-color: rgba(179, 136, 255, 0.34); background: rgba(179, 136, 255, 0.1); }
+.talentModal__points--essence b { color: var(--purple); }
 
 .talentLegend { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; padding: 10px 20px; border-bottom: 1px solid rgba(255,255,255,.04); color: var(--ink-dim); font-size: 12px; }
 .talentLegend__dots { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -775,6 +796,7 @@ select { cursor: pointer; }
 .talentNode__icon { font-size: 25px; line-height: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
 .talentNode:hover .talentNode__orb { transform: scale(1.1); }
 .talentNode__check { position: absolute; top: -3px; right: -3px; width: 19px; height: 19px; display: grid; place-items: center; border-radius: 50%; background: var(--gold); color: #1a1305; font-size: 11px; font-style: normal; font-weight: 800; border: 2px solid #0d1218; }
+.talentNode__level { position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); padding: 1px 6px; border-radius: 999px; border: 1px solid rgba(179, 136, 255, 0.65); background: rgba(13, 19, 30, .96); color: #d8c5ff; font-size: 9.5px; font-style: normal; font-weight: 800; white-space: nowrap; z-index: 3; }
 .talentNode__cost { position: absolute; bottom: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; display: grid; place-items: center; border-radius: 10px; background: rgba(13, 19, 30, .96); border: 1px solid rgba(255, 193, 77, 0.55); color: var(--gold); font-size: 10.5px; font-style: normal; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,.5); z-index: 2; }
 .talentNode__label { font-size: 11px; color: var(--ink-dim); text-align: center; max-width: 92px; line-height: 1.25; }
 .talentNode.is-learned .talentNode__orb { border-color: var(--gold); background: radial-gradient(circle at 34% 28%, rgba(255, 215, 130, .55), rgba(60, 40, 10, .92)); box-shadow: inset 0 0 10px rgba(0,0,0,.45), 0 0 14px rgba(255, 193, 77, .28); }
@@ -788,7 +810,7 @@ select { cursor: pointer; }
 .talentNode.is-selected .talentNode__orb { border-color: var(--accent); box-shadow: inset 0 0 10px rgba(0,0,0,.45), 0 0 0 3px rgba(92, 156, 255, .5); }
 @keyframes talentPulse { 0%, 100% { opacity: .25; transform: scale(.94); } 50% { opacity: .85; transform: scale(1.2); } }
 
-.talentDetail { flex: 0 0 150px; padding: 13px 20px 15px; border-top: 1px solid rgba(255, 193, 77, 0.14); background: linear-gradient(180deg, rgba(13, 19, 30, 0.5), rgba(8, 12, 20, 0.75)); display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.talentDetail { flex: 0 0 auto; max-height: 290px; padding: 13px 20px 15px; border-top: 1px solid rgba(255, 193, 77, 0.14); background: linear-gradient(180deg, rgba(13, 19, 30, 0.5), rgba(8, 12, 20, 0.75)); display: flex; flex-direction: column; justify-content: flex-start; overflow: auto; }
 .talentDetail--empty { display: flex; align-items: center; justify-content: center; }
 .talentDetail__emptyCard { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px dashed rgba(255, 193, 77, 0.22); border-radius: 13px; background: rgba(255, 193, 77, 0.05); max-width: 520px; }
 .talentDetail__emptyIcon { font-size: 26px; color: var(--gold); filter: drop-shadow(0 0 10px rgba(255, 193, 77, 0.4)); }
@@ -810,6 +832,19 @@ select { cursor: pointer; }
 .talentDetail__tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
 .talentDetail__tags span { padding: 2px 7px; border-radius: 7px; border: 1px solid rgba(92, 156, 255, 0.16); background: rgba(92, 156, 255, 0.06); color: var(--ink-dim); font-size: 10.5px; }
 .talentDetail__tags span.is-dmg { border-color: currentColor; background: transparent; }
+.talentUpgrade { display: grid; grid-template-columns: minmax(180px, auto) 1fr auto; gap: 8px; align-items: center; margin-top: 9px; padding: 9px 11px; border: 1px solid rgba(179, 136, 255, 0.28); border-radius: 12px; background: rgba(179, 136, 255, 0.07); }
+.talentUpgrade__meta { display: flex; flex-direction: column; gap: 2px; color: var(--ink-dim); font-size: 11.5px; }
+.talentUpgrade__meta b { color: #d8c5ff; font-size: 12px; }
+.talentUpgrade__meta em { color: var(--ink-faint); font-style: normal; font-size: 10.5px; }
+.talentUpgrade__choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; min-width: 0; }
+.talentUpgradeChoice { min-width: 0; min-height: 46px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 7px 9px; border: 1px solid rgba(179, 136, 255, 0.32); border-radius: 10px; background: rgba(13, 19, 30, 0.62); color: var(--ink); cursor: pointer; text-align: left; }
+.talentUpgradeChoice:hover:not(:disabled) { border-color: var(--purple); background: rgba(179, 136, 255, 0.12); }
+.talentUpgradeChoice:disabled { opacity: .45; cursor: not-allowed; }
+.talentUpgradeChoice b { font-size: 12px; }
+.talentUpgradeChoice span { color: var(--ink-faint); font-size: 10.5px; line-height: 1.3; }
+.talentUpgrade__blocked { color: #ff9b99; font-size: 11px; justify-self: end; max-width: 230px; text-align: right; }
+.talentUpgrade__selected { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.talentUpgrade__selected span { padding: 2px 7px; border-radius: 999px; border: 1px solid rgba(179, 136, 255, 0.28); background: rgba(179, 136, 255, 0.08); color: #d8c5ff; font-size: 10.5px; }
 /* 前置链路：逐项显示已学/未学状态 */
 .talentDetail__prereqChain { margin-top: 8px; padding: 8px 11px; border: 1px solid rgba(255, 193, 77, 0.22); border-radius: 11px; background: rgba(255, 193, 77, 0.05); }
 .talentDetail__prereqHead { color: var(--gold); font-size: 11.5px; font-weight: 700; }
@@ -885,6 +920,7 @@ select { cursor: pointer; }
   .tacticsToolbar { grid-template-columns: 1fr; }
   .schemeBox__controls { grid-template-columns: 1fr 1fr; }
   .tacticsGrid { grid-template-columns: 1fr; }
+  .promotionGrid { grid-template-columns: 1fr; }
   .talentTier { grid-template-columns: 52px; gap: 8px; }
   .talentTier::before { left: 25px; }
   .talentTier__label { width: 52px; }
