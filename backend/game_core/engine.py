@@ -45,6 +45,11 @@ MAX_TEAM_SIZE = 4
 MAX_TACTIC_SCHEMES = 20
 MAX_TACTIC_LAYERS = 12
 SKILL_POINTS_PER_LEVEL = 1
+# Free attribute points granted each time a character levels up. Configurable per
+# preset via `preset.attribute_points_per_level`. A level-1 character has none.
+ATTRIBUTE_POINTS_PER_LEVEL = 5
+# Hard cap so previews/derived stats stay sane even if a save is edited by hand.
+MAX_ATTRIBUTE_VALUE = 99
 SKILL_ESSENCE_KEY = "skill_essence"
 PROMOTION_BADGE_KEY = "promotion_badge"
 STARTING_SKILL_ESSENCE = 10
@@ -537,6 +542,50 @@ def attribute_block_for_class(class_row: dict[str, Any], level: int = 1) -> dict
             if k in base:
                 base[k] += int(v)
     return base
+
+
+def attribute_points_per_level() -> int:
+    """Free attribute points granted per level. Configurable via the active preset."""
+    preset = load_data().get("preset", {})
+    if not isinstance(preset, dict):
+        preset = {}
+    raw = preset.get("attribute_points_per_level")
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        value = ATTRIBUTE_POINTS_PER_LEVEL
+    return max(0, value)
+
+
+def attribute_points_earned_for_level(level: int) -> int:
+    """Total free points a character has earned from leveling (level 1 => 0)."""
+    return max(0, int(level) - 1) * attribute_points_per_level()
+
+
+def attribute_points_spent(ch: dict[str, Any], class_row: dict[str, Any] | None = None) -> int:
+    """How many free points are currently invested above the class baseline.
+
+    `attribute_block_for_class` returns what the attributes would be with only
+    level growth applied; the positive surplus on each attribute is a spent point.
+    """
+    if class_row is None:
+        class_row = load_data().get("class_by_id", {}).get(ch.get("class_id"), {}) or {}
+    level = int(ch.get("level", 1))
+    expected = attribute_block_for_class(class_row, level)
+    current = ch.get("attributes", {})
+    total = 0
+    for key in ATTRIBUTE_KEYS:
+        surplus = int(current.get(key, 0)) - int(expected.get(key, 0))
+        if surplus > 0:
+            total += surplus
+    return total
+
+
+def attribute_points_available(ch: dict[str, Any], class_row: dict[str, Any] | None = None) -> int:
+    """Free attribute points a character may still assign right now."""
+    class_row = class_row if class_row is not None else load_data().get("class_by_id", {}).get(ch.get("class_id"), {})
+    earned = attribute_points_earned_for_level(int(ch.get("level", 1)))
+    return max(0, earned - attribute_points_spent(ch, class_row))
 
 
 def stat_block_for_class(class_row: dict[str, Any], level: int = 1) -> dict[str, int]:
@@ -1100,15 +1149,16 @@ def attribute_breakdown_for_character(ch: dict[str, Any], class_row: dict[str, A
         base = int(class_row.get("attributes", {}).get(key, 8))
         expected_value = int(expected.get(key, base))
         final = int(current.get(key, expected_value))
-        growth_per_level = int(class_row.get("attribute_growth", {}).get(key, 0))
+        spent = max(0, final - expected_value)
         out[key] = {
             "base": base,
             "level_growth": expected_value - base,
             "raw": expected_value,
             "bonus": final - expected_value,
             "final": final,
-            "growth_per_level": growth_per_level,
-            "growth_text": f"+{growth_per_level}/级" if growth_per_level else "—",
+            "spent": spent,
+            "growth_per_level": int(class_row.get("attribute_growth", {}).get(key, 0)),
+            "growth_text": f"+{int(class_row.get('attribute_growth', {}).get(key, 0))}/级" if int(class_row.get("attribute_growth", {}).get(key, 0)) else "—",
         }
     return out
 
@@ -2749,6 +2799,76 @@ def promote_character(state: dict[str, Any], character_id: str, target_class_id:
     return ch
 
 
+def _reapply_attribute_limits(ch: dict[str, Any], derived: dict[str, int]) -> None:
+    """Refresh derived pools (max_hp/max_mana) after attribute changes and clamp current values."""
+    ch["max_hp"] = int(ch.get("base_stats", {}).get("max_hp", ch.get("max_hp", 1))) + int(derived.get("hp_bonus", 0))
+    ch["max_mana"] = int(derived.get("mana", 0))
+    ch["hp"] = min(ch["max_hp"], int(ch.get("hp", ch["max_hp"])))
+    ch["mana"] = max(0, min(ch["max_mana"], int(ch.get("mana", ch["max_mana"]))))
+
+
+def allocate_attributes(state: dict[str, Any], character_id: str, allocations: dict[str, Any] | None) -> dict[str, Any]:
+    """Spend free attribute points on the WOD eight attributes.
+
+    `allocations` maps attribute keys to the number of points to add (>= 0). The
+    total must not exceed the character's available points. Derived pools (max_hp
+    / max_mana) are recomputed and current hp/mana clamped into range.
+    """
+    ch = get_character(state, character_id)
+    if not ch:
+        raise ValueError("角色不存在")
+    normalize_character(ch)
+    data = load_data()
+    class_row = data.get("class_by_id", {}).get(ch.get("class_id"), {})
+    available = attribute_points_available(ch, class_row)
+    if not isinstance(allocations, dict) or not allocations:
+        raise ValueError("未指定要分配的属性点")
+    deltas: dict[str, int] = {}
+    total = 0
+    for key, value in allocations.items():
+        if key not in ATTRIBUTE_KEYS:
+            raise ValueError(f"未知属性：{key}")
+        try:
+            amount = int(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"属性点数量无效：{value}")
+        if amount < 0:
+            raise ValueError("属性点数量不能为负")
+        deltas[key] = amount
+        total += amount
+    if total <= 0:
+        raise ValueError("未指定要分配的属性点")
+    if total > available:
+        raise ValueError(f"属性点不足：需要 {total}，可用 {available}")
+    current = ch.get("attributes", {})
+    for key, amount in deltas.items():
+        new_value = int(current.get(key, 0)) + amount
+        if new_value > MAX_ATTRIBUTE_VALUE:
+            raise ValueError(f"{ATTRIBUTE_NAMES.get(key, key)}将超过上限 {MAX_ATTRIBUTE_VALUE}")
+        current[key] = new_value
+    ch["attributes"] = current
+    normalize_character(ch)
+    derived = attribute_derived_stats(ch["attributes"])
+    _reapply_attribute_limits(ch, derived)
+    return ch
+
+
+def reset_attributes(state: dict[str, Any], character_id: str) -> dict[str, Any]:
+    """Return all eight attributes to the class baseline (clears invested points)."""
+    ch = get_character(state, character_id)
+    if not ch:
+        raise ValueError("角色不存在")
+    normalize_character(ch)
+    data = load_data()
+    class_row = data.get("class_by_id", {}).get(ch.get("class_id"), {})
+    baseline = attribute_block_for_class(class_row, int(ch.get("level", 1)))
+    ch["attributes"] = baseline
+    normalize_character(ch)
+    derived = attribute_derived_stats(ch["attributes"])
+    _reapply_attribute_limits(ch, derived)
+    return ch
+
+
 def buy_shop_item(state: dict[str, Any], shop_id: str) -> dict[str, Any]:
     item = next((i for i in state["shop"]["items"] if i["shop_id"] == shop_id), None)
     if not item:
@@ -2898,6 +3018,8 @@ def party_summary(state: dict[str, Any]) -> dict[str, Any]:
         normalize_character(ch)
         stats = effective_stats(state, ch)
         class_row = load_data()["class_by_id"].get(ch.get("class_id"), {})
+        earned_attr = attribute_points_earned_for_level(int(ch.get("level", 1)))
+        spent_attr = attribute_points_spent(ch, class_row)
         members.append({
             "id": ch["id"],
             "name": ch["name"],
@@ -2924,6 +3046,10 @@ def party_summary(state: dict[str, Any]) -> dict[str, Any]:
             "attributes": copy.deepcopy(ch.get("attributes", {})),
             "attribute_names": ATTRIBUTE_NAMES,
             "attribute_icons": ATTRIBUTE_ICONS,
+            "attribute_points": max(0, earned_attr - spent_attr),
+            "attribute_points_per_level": attribute_points_per_level(),
+            "attribute_points_earned": earned_attr,
+            "attribute_points_spent": spent_attr,
             "derived_stats": copy.deepcopy(stats.get("derived", {})),
             "base_stats": copy.deepcopy(ch.get("base_stats", {})),
             "stat_growth": copy.deepcopy(class_row.get("stat_growth", {})),

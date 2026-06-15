@@ -7,6 +7,7 @@ import { Chip, ResistChip, StatusChip } from './Chips'
 import { Paperdoll } from './Paperdoll'
 import { classMeta, STATS, ATTRIBUTES, ELEMENTS, FOCUS_META, elementMeta, skillsForClass, SKILL_ICON, statusMeta, focusLabel, focusCompositionLabel, focusScoreKey, targetRuleLabel, rangeLabel, attackTypeLabel, attackTypeDescription } from '../theme'
 import { cx } from '../lib/format'
+import { deriveStatsFromAttributes } from '../lib/attributes'
 
 export function CharacterSheet(props: {
   ch: CharacterView
@@ -16,6 +17,8 @@ export function CharacterSheet(props: {
   onLearnSkill?: (characterId: string, skillId: string) => void
   onUpgradeSkill?: (characterId: string, skillId: string, choiceId?: string) => void
   onPromote?: (characterId: string, targetClassId: string) => void
+  onAllocateAttributes?: (characterId: string, allocations: Record<string, number>) => void
+  onResetAttributes?: (characterId: string) => void
   onClose: () => void
 }) {
   const ch = props.ch
@@ -112,6 +115,15 @@ export function CharacterSheet(props: {
                 )
               })}
             </div>
+            <AttributeAllocationPanel
+              ch={ch}
+              attrs={attrs}
+              currentDerived={derived}
+              baseStats={ch.base_stats ?? {}}
+              busy={props.busy}
+              onAllocate={props.onAllocateAttributes}
+              onReset={props.onResetAttributes}
+            />
             <h3 className="sub">🎯 技能焦点</h3>
             <p className="hintText">属性焦点不是第九种属性，而是技能调用八维属性的组合评分。</p>
             <div className="focusGrid">
@@ -183,6 +195,148 @@ export function CharacterSheet(props: {
           onClose={() => setSkillTreeOpen(false)}
         />
       )}
+    </div>
+  )
+}
+
+function AttributeAllocationPanel(props: {
+  ch: CharacterView
+  attrs: Record<string, number>
+  currentDerived: Record<string, number>
+  baseStats: Record<string, number>
+  busy?: boolean
+  onAllocate?: (characterId: string, allocations: Record<string, number>) => void
+  onReset?: (characterId: string) => void
+}) {
+  const { ch, attrs, currentDerived, baseStats } = props
+  // deltas maps attribute key -> points staged this session (only positive entries kept).
+  const [deltas, setDeltas] = useState<Record<string, number>>({})
+  const available = Math.max(0, ch.attribute_points ?? 0)
+  const perLevel = ch.attribute_points_per_level ?? 5
+  const earned = ch.attribute_points_earned ?? 0
+  const spent = ch.attribute_points_spent ?? 0
+
+  const stagedTotal = Object.values(deltas).reduce((a, b) => a + (b || 0), 0)
+  const remaining = Math.max(0, available - stagedTotal)
+
+  const setDelta = (key: string, next: number) => {
+    const clamped = Math.max(0, Math.min(remaining + (deltas[key] || 0), Math.floor(next)))
+    setDeltas(prev => {
+      const copy = { ...prev }
+      if (clamped <= 0) delete copy[key]
+      else copy[key] = clamped
+      return copy
+    })
+  }
+  const bump = (key: string, dir: 1 | -1) => setDelta(key, (deltas[key] || 0) + dir)
+  const clearStaged = () => setDeltas({})
+
+  // Build the preview attribute map (current + staged) and re-derive locally.
+  const previewAttrs: Record<string, number> = { ...attrs }
+  for (const a of ATTRIBUTES) previewAttrs[a.key] = (previewAttrs[a.key] ?? 0) + (deltas[a.key] || 0)
+  const previewDerived = deriveStatsFromAttributes(previewAttrs)
+
+  const previewMaxHp = Math.round((baseStats.max_hp ?? ch.max_hp) as number) + previewDerived.hp_bonus
+  const currentMaxHp = Math.round((baseStats.max_hp ?? ch.max_hp) as number) + (currentDerived.hp_bonus ?? 0)
+
+  const canAllocate = !!props.onAllocate && stagedTotal > 0 && !props.busy
+  const onAllocate = () => {
+    if (!canAllocate || !props.onAllocate) return
+    const allocations: Record<string, number> = {}
+    for (const [k, v] of Object.entries(deltas)) if (v && v > 0) allocations[k] = v
+    props.onAllocate(ch.id, allocations)
+    clearStaged()
+  }
+  const onReset = () => {
+    if (!props.onReset || props.busy || earned <= 0) return
+    if (!window.confirm('确定要重置所有已分配的属性点吗？已花费的点数将全部返还。')) return
+    props.onReset(ch.id)
+    clearStaged()
+  }
+
+  // Derived preview rows: label, current value, preview value.
+  const previewRows: Array<{ label: string; icon: string; cur: number; next: number }> = [
+    { label: '生命上限', icon: '❤️', cur: currentMaxHp, next: previewMaxHp },
+    { label: '法力上限', icon: '🔮', cur: currentDerived.mana ?? 0, next: previewDerived.mana },
+    { label: '攻击', icon: '⚔️', cur: (baseStats.attack ?? 0) + (currentDerived.attack_bonus ?? 0), next: (baseStats.attack ?? 0) + previewDerived.attack_bonus },
+    { label: '防御', icon: '🛡️', cur: (baseStats.defense ?? 0) + (currentDerived.defense_bonus ?? 0), next: (baseStats.defense ?? 0) + previewDerived.defense_bonus },
+    { label: '速度', icon: '💨', cur: (baseStats.speed ?? 0) + (currentDerived.speed_bonus ?? 0), next: (baseStats.speed ?? 0) + previewDerived.speed_bonus },
+    { label: '命中', icon: '🎯', cur: (baseStats.accuracy ?? 0) + (currentDerived.accuracy_bonus ?? 0), next: (baseStats.accuracy ?? 0) + previewDerived.accuracy_bonus },
+    { label: '闪避', icon: '🌫️', cur: (baseStats.evasion ?? 0) + (currentDerived.evasion_bonus ?? 0), next: (baseStats.evasion ?? 0) + previewDerived.evasion_bonus },
+  ]
+
+  return (
+    <div className="attrAlloc" title={`每升 1 级获得 ${perLevel} 个自由属性点；可随时重置。`}>
+      <div className="attrAlloc__header">
+        <div className="attrAlloc__points">
+          <span className="attrAlloc__pointsMain">
+            可分配 <b>{remaining}</b><em>/{available}</em>
+          </span>
+          <span className="attrAlloc__pointsMeta">已得 {earned} · 已用 {spent} · 每级 +{perLevel}</span>
+        </div>
+        {props.onReset && (
+          <button className="btn btn--sm btn--ghost" disabled={props.busy || earned <= 0} onClick={onReset} title="返还所有已分配点数">
+            ↺ 重置全部
+          </button>
+        )}
+      </div>
+
+      <div className="attrAlloc__rows">
+        {ATTRIBUTES.map(a => {
+          const d = deltas[a.key] || 0
+          const projected = (attrs[a.key] ?? 0) + d
+          const hasChange = d > 0
+          const plusDisabled = remaining <= 0 || props.busy
+          const minusDisabled = d <= 0 || props.busy
+          return (
+            <div className={cx('attrAllocRow', hasChange && 'attrAllocRow--active')} key={a.key} title={a.desc}>
+              <span className="attrAllocRow__label">{a.icon} {a.label}</span>
+              <span className="attrAllocRow__value">
+                <b>{attrs[a.key] ?? 0}</b>
+                {hasChange && <span className="attrAllocRow__delta">→ {projected}</span>}
+              </span>
+              <span className="attrAllocRow__stepper">
+                <button className="iconBtn iconBtn--sm" disabled={minusDisabled} onClick={() => bump(a.key, -1)}>−</button>
+                <b className="attrAllocRow__staged">{d || 0}</b>
+                <button className="iconBtn iconBtn--sm" disabled={plusDisabled} onClick={() => bump(a.key, 1)}>+</button>
+              </span>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="attrAlloc__preview">
+        <p className="hintText">加点预览：基于暂定点数即时推算的派生属性变化。</p>
+        <div className="attrAlloc__previewGrid">
+          {previewRows.map(r => <PreviewStat key={r.label} {...r} />)}
+        </div>
+        <div className="attrAlloc__previewGrid attrAlloc__previewGrid--focus">
+          {FOCUS_META.map(f => (
+            <PreviewStat key={f.label} icon="✨" label={`${f.label}焦点`} cur={currentDerived[f.scoreKey] ?? 0} next={previewDerived[f.scoreKey as keyof typeof previewDerived] ?? 0} small />
+          ))}
+        </div>
+      </div>
+
+      <div className="attrAlloc__actions">
+        <button className="btn btn--sm btn--ghost" disabled={props.busy || stagedTotal <= 0} onClick={clearStaged}>清除暂定</button>
+        <button className="btn btn--sm btn--accent" disabled={!canAllocate} onClick={onAllocate}>
+          确认加点{stagedTotal > 0 ? `（${stagedTotal}）` : ''}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function PreviewStat(props: { icon: string; label: string; cur: number; next: number; small?: boolean }) {
+  const diff = props.next - props.cur
+  const tone = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat'
+  return (
+    <div className={cx('previewStat', props.small && 'previewStat--sm', `previewStat--${tone}`)} title={`${props.label}：${props.cur} → ${props.next}`}>
+      <span className="previewStat__label">{props.icon} {props.label}</span>
+      <span className="previewStat__value">
+        <b>{props.next}</b>
+        {diff !== 0 && <em className={cx('previewStat__delta', tone)}>{diff > 0 ? `+${diff}` : diff}</em>}
+      </span>
     </div>
   )
 }

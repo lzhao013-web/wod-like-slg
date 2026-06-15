@@ -133,6 +133,16 @@ class GameService:
         save_state(self.state)
         return self.party() | {"character": ch, "state": self.get_state()}
 
+    def allocate_attributes(self, payload: dict[str, Any]) -> dict[str, Any]:
+        ch = engine.allocate_attributes(self.state, payload.get("character_id"), payload.get("allocations"))
+        save_state(self.state)
+        return self.party() | {"character": ch, "state": self.get_state()}
+
+    def reset_attributes(self, payload: dict[str, Any]) -> dict[str, Any]:
+        ch = engine.reset_attributes(self.state, payload.get("character_id"))
+        save_state(self.state)
+        return self.party() | {"character": ch, "state": self.get_state()}
+
     def save_tactic_scheme(self, payload: dict[str, Any]) -> dict[str, Any]:
         scheme = engine.save_tactic_scheme(self.state, payload)
         save_state(self.state)

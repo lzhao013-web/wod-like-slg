@@ -88,6 +88,10 @@ export interface CharacterView {
   attribute_breakdown?: Record<string, StatBreakdown>
   attribute_names?: Record<string, string>
   attribute_icons?: Record<string, string>
+  attribute_points?: number
+  attribute_points_per_level?: number
+  attribute_points_earned?: number
+  attribute_points_spent?: number
   derived_stats?: Record<string, number>
   skill_summary?: SkillSummary[]
   promotion?: CharacterPromotion
@@ -111,6 +115,7 @@ export interface StatBreakdown {
   raw_adjustment?: number
   bonus: number
   final: number
+  spent?: number
   growth_per_level?: number
   growth_text?: string
 }

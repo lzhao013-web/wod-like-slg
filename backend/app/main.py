@@ -128,6 +128,16 @@ def promote_character(payload: dict[str, Any] = Body(...)):
     return call(game_service.promote_character, payload)
 
 
+@app.post("/party/attributes/allocate")
+def allocate_attributes(payload: dict[str, Any] = Body(...)):
+    return call(game_service.allocate_attributes, payload)
+
+
+@app.post("/party/attributes/reset")
+def reset_attributes(payload: dict[str, Any] = Body(...)):
+    return call(game_service.reset_attributes, payload)
+
+
 @app.post("/party/tactic-schemes")
 def save_tactic_scheme(payload: dict[str, Any] = Body(default_factory=dict)):
     return call(game_service.save_tactic_scheme, payload)

@@ -363,3 +363,96 @@ def test_day_25_unlocks_final_boss():
     state["active_dungeons"] = []
     engine.world_refresh(state)
     assert any(d.get("is_final") for d in state["active_dungeons"])
+
+
+def test_attribute_allocation_grants_points_per_level():
+    state = engine.default_state(seed=42)
+    ch = state["characters"][0]
+    engine.normalize_character(ch)
+    data = engine.load_data()
+    class_row = data["class_by_id"][ch["class_id"]]
+
+    # Level 1: no points earned yet.
+    assert engine.attribute_points_earned_for_level(1) == 0
+    assert engine.attribute_points_available(ch, class_row) == 0
+
+    # Each level grants the configured amount.
+    per_level = engine.attribute_points_per_level()
+    for _ in range(4):
+        engine.level_up_character(ch)
+    earned = engine.attribute_points_earned_for_level(ch["level"])
+    assert earned == 4 * per_level
+    assert engine.attribute_points_available(ch, class_row) == earned
+    assert engine.attribute_points_spent(ch, class_row) == 0
+
+
+def test_allocate_attributes_consumes_points_and_updates_derived():
+    state = engine.default_state(seed=42)
+    ch = state["characters"][0]
+    for _ in range(3):
+        engine.level_up_character(ch)
+    data = engine.load_data()
+    class_row = data["class_by_id"][ch["class_id"]]
+    available = engine.attribute_points_available(ch, class_row)
+    assert available == engine.attribute_points_per_level() * 3
+
+    baseline = engine.attribute_block_for_class(class_row, ch["level"])
+    before_str = ch["attributes"]["strength"]
+    before_hp = ch["max_hp"]
+
+    engine.allocate_attributes(state, ch["id"], {"strength": 2, "constitution": 1})
+    assert ch["attributes"]["strength"] == before_str + 2
+    assert ch["attributes"]["constitution"] == baseline["constitution"] + 1
+    # constitution boosts hp_bonus; max_hp should rise accordingly.
+    assert ch["max_hp"] > before_hp
+    assert engine.attribute_points_spent(ch, class_row) == 3
+    assert engine.attribute_points_available(ch, class_row) == available - 3
+
+    # Overspending is rejected.
+    try:
+        engine.allocate_attributes(state, ch["id"], {"agility": available})
+        assert False, "should reject spending more than available"
+    except ValueError:
+        pass
+
+    # Unknown attribute keys are rejected.
+    try:
+        engine.allocate_attributes(state, ch["id"], {"not_a_real_attr": 1})
+        assert False, "should reject unknown attribute key"
+    except ValueError:
+        pass
+
+
+def test_reset_attributes_returns_to_class_baseline():
+    state = engine.default_state(seed=42)
+    ch = state["characters"][0]
+    for _ in range(3):
+        engine.level_up_character(ch)
+    data = engine.load_data()
+    class_row = data["class_by_id"][ch["class_id"]]
+
+    engine.allocate_attributes(state, ch["id"], {"strength": 2, "willpower": 3})
+    assert engine.attribute_points_spent(ch, class_row) == 5
+
+    engine.reset_attributes(state, ch["id"])
+    baseline = engine.attribute_block_for_class(class_row, ch["level"])
+    for key in engine.ATTRIBUTE_KEYS:
+        assert ch["attributes"][key] == baseline[key]
+    assert engine.attribute_points_spent(ch, class_row) == 0
+    earned = engine.attribute_points_earned_for_level(ch["level"])
+    assert engine.attribute_points_available(ch, class_row) == earned
+
+
+def test_party_summary_exposes_attribute_point_fields():
+    state = engine.default_state(seed=42)
+    ch = state["characters"][0]
+    for _ in range(2):
+        engine.level_up_character(ch)
+    summary = engine.party_summary(state)
+    member = next(m for m in summary["members"] if m["id"] == ch["id"])
+    assert member["attribute_points_per_level"] == engine.attribute_points_per_level()
+    assert member["attribute_points_earned"] == engine.attribute_points_earned_for_level(ch["level"])
+    assert member["attribute_points"] == member["attribute_points_earned"]
+    assert member["attribute_points_spent"] == 0
+    # Each attribute breakdown carries its invested points (none yet).
+    assert member["attribute_breakdown"]["strength"]["spent"] == 0

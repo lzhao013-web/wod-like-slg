@@ -157,6 +157,8 @@ export default function App() {
           onLearnSkill={(cid, sid) => game.act(() => apiLearnSkill(cid, sid), { toast: () => ({ tone: 'success', text: '技能已学习。' } as any) })}
           onUpgradeSkill={(cid, sid, choiceId) => game.act(() => apiUpgradeSkill(cid, sid, choiceId), { toast: () => ({ tone: 'success', text: '技能已精进。' } as any) })}
           onPromote={(cid, targetClassId) => game.act(() => apiPromoteCharacter(cid, targetClassId), { toast: () => ({ tone: 'success', text: '转职完成。' } as any) })}
+          onAllocateAttributes={(cid, allocations) => game.act(() => apiAllocateAttributes(cid, allocations), { toast: () => ({ tone: 'success', text: '属性点已分配。' } as any) })}
+          onResetAttributes={(cid) => game.act(() => apiResetAttributes(cid), { toast: () => ({ tone: 'info', text: '属性点已重置。' } as any) })}
           onClose={() => setSheetChar(null)}
         />
       )}
@@ -176,6 +178,8 @@ const apiTactics = (p: any) => api.tactics(p)
 const apiLearnSkill = (cid: string, sid: string) => api.learnSkill(cid, sid)
 const apiUpgradeSkill = (cid: string, sid: string, choiceId?: string) => api.upgradeSkill(cid, sid, choiceId)
 const apiPromoteCharacter = (cid: string, targetClassId: string) => api.promoteCharacter(cid, targetClassId)
+const apiAllocateAttributes = (cid: string, allocations: Record<string, number>) => api.allocateAttributes(cid, allocations)
+const apiResetAttributes = (cid: string) => api.resetAttributes(cid)
 const apiSaveTacticScheme = (p: any) => apiJson('/party/tactic-schemes', { method: 'POST', body: JSON.stringify(p) })
 const apiLoadTacticScheme = (id: string) => apiJson(`/party/tactic-schemes/${id}/load`, { method: 'POST' })
 const apiDeleteTacticScheme = (id: string) => apiJson(`/party/tactic-schemes/${id}`, { method: 'DELETE' })
