@@ -1,3 +1,5 @@
+import random
+
 from backend.game_core import engine
 
 
@@ -7,6 +9,56 @@ def test_new_game_has_core_loop_state():
     assert len(state["characters"]) >= 6
     assert len(state["active_dungeons"]) >= 3
     assert len(state["formation"]) <= 4
+
+
+def test_equipment_generation_supports_affixes_and_fixed_specials():
+    rare_sword = engine.instance_equipment("iron_sword", rng=random.Random(1), level=5, rarity="rare")
+    assert rare_sword["rarity"] == "rare"
+    assert len(rare_sword["affixes"]) == 2
+    assert rare_sword["name"] != rare_sword["base_name"]
+    assert rare_sword["item_kind"] == "base"
+
+    special = engine.instance_equipment("poison_ring", rng=random.Random(1), level=5, rarity="legendary")
+    assert special["rarity"] == "uncommon"
+    assert special["affixes"] == []
+    assert special["item_kind"] == "special"
+
+
+def test_shop_preserves_random_equipment_preview_when_bought():
+    state = engine.default_state(seed=42)
+    state["day"] = 12
+    engine.refresh_shop(state)
+    item = next(i for i in state["shop"]["items"] if i["kind"] == "equipment" and i.get("equipment"))
+    preview = item["equipment"]
+    state["gold"] = max(state["gold"], item["cost"])
+
+    acquired = engine.buy_shop_item(state, item["shop_id"])
+    bought = acquired["item"]
+    assert bought["instance_id"] == preview["instance_id"]
+    assert bought["name"] == preview["name"]
+    assert bought.get("affixes", []) == preview.get("affixes", [])
+    assert bought in state["inventory"]
+
+
+def test_expanded_equipment_slots_support_two_hands_and_duplicate_slots():
+    state = engine.default_state(seed=42)
+    ranger = next(ch for ch in state["characters"] if ch["class_id"] == "ranger")
+    bow_id = ranger["equipment"]["main_hand"]
+    assert bow_id
+    assert ranger["equipment"]["off_hand"] == bow_id
+
+    rogue = next(ch for ch in state["characters"] if ch["class_id"] == "rogue")
+    ring_one = engine.instance_equipment("poison_ring")
+    ring_two = engine.instance_equipment("poison_ring")
+    state["inventory"].extend([ring_one, ring_two])
+    engine.equip_item(state, rogue["id"], ring_one["instance_id"])
+    engine.equip_item(state, rogue["id"], ring_two["instance_id"])
+    assert rogue["equipment"]["ring_1"] == ring_one["instance_id"]
+    assert rogue["equipment"]["ring_2"] == ring_two["instance_id"]
+
+    engine.equip_item(state, ranger["id"], None, "off_hand")
+    assert ranger["equipment"]["main_hand"] is None
+    assert ranger["equipment"]["off_hand"] is None
 
 
 def test_scout_and_challenge_advance_day_and_generate_reports():
@@ -137,7 +189,7 @@ def test_character_can_promote_into_advanced_class_branch():
     assert "blood_frenzy" in promoted["learned_skills"]
     assert promoted["skill_upgrades"]["power_strike"]["level"] == 2
     assert engine.character_promotion_summary(state, promoted)["promoted"]
-    engine.equip_item(state, promoted["id"], promoted["equipment"]["weapon"])
+    engine.equip_item(state, promoted["id"], promoted["equipment"]["main_hand"])
 
     engine.level_up_character(promoted)
     assert int(promoted["base_stats"]["attack"]) == before_attack + 2

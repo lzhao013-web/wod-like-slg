@@ -2,8 +2,12 @@
   {
     "id": "iron_sword",
     "name": "铁剑",
-    "slot": "weapon",
+    "slot": "main_hand",
+    "item_kind": "base",
+    "tier": 1,
     "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "rare",
     "cost": 60,
     "stats": {
       "attack": 5
@@ -11,6 +15,11 @@
     "resistances": {},
     "special_effects": [],
     "durability": 36,
+    "affix_tags": [
+      "weapon",
+      "martial",
+      "melee"
+    ],
     "class_restriction": [
       "warrior",
       "guardian"
@@ -19,8 +28,12 @@
   {
     "id": "hunting_bow",
     "name": "猎弓",
-    "slot": "weapon",
+    "slot": "two_hand",
+    "item_kind": "base",
+    "tier": 1,
     "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "rare",
     "cost": 65,
     "stats": {
       "attack": 4,
@@ -29,6 +42,10 @@
     "resistances": {},
     "special_effects": [],
     "durability": 32,
+    "affix_tags": [
+      "weapon",
+      "ranged"
+    ],
     "class_restriction": [
       "ranger"
     ]
@@ -36,8 +53,12 @@
   {
     "id": "balanced_dagger",
     "name": "平衡匕首",
-    "slot": "weapon",
+    "slot": "main_hand",
+    "item_kind": "base",
+    "tier": 1,
     "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "rare",
     "cost": 55,
     "stats": {
       "attack": 4,
@@ -47,6 +68,11 @@
     "resistances": {},
     "special_effects": [],
     "durability": 32,
+    "affix_tags": [
+      "weapon",
+      "finesse",
+      "melee"
+    ],
     "class_restriction": [
       "rogue"
     ]
@@ -54,8 +80,12 @@
   {
     "id": "oak_staff",
     "name": "橡木法杖",
-    "slot": "weapon",
-    "rarity": "common",
+    "slot": "two_hand",
+    "item_kind": "special_base",
+    "tier": 1,
+    "rarity": "uncommon",
+    "base_rarity": "uncommon",
+    "max_rarity": "epic",
     "cost": 50,
     "stats": {
       "attack": 3,
@@ -68,16 +98,77 @@
       "healing_bonus_minor"
     ],
     "durability": 34,
+    "affix_tags": [
+      "weapon",
+      "magic",
+      "faith",
+      "healing"
+    ],
     "class_restriction": [
       "cleric",
       "mage"
     ]
   },
   {
+    "id": "steel_sword",
+    "name": "钢剑",
+    "slot": "main_hand",
+    "item_kind": "base",
+    "tier": 3,
+    "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "epic",
+    "cost": 105,
+    "stats": {
+      "attack": 8
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 42,
+    "affix_tags": [
+      "weapon",
+      "martial",
+      "melee"
+    ],
+    "class_restriction": [
+      "warrior",
+      "guardian"
+    ]
+  },
+  {
+    "id": "war_bow",
+    "name": "战弓",
+    "slot": "two_hand",
+    "item_kind": "base",
+    "tier": 3,
+    "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "epic",
+    "cost": 110,
+    "stats": {
+      "attack": 7,
+      "accuracy": 10
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 38,
+    "affix_tags": [
+      "weapon",
+      "ranged"
+    ],
+    "class_restriction": [
+      "ranger"
+    ]
+  },
+  {
     "id": "fire_wand",
     "name": "火纹短杖",
-    "slot": "weapon",
+    "slot": "main_hand",
+    "item_kind": "special_base",
+    "tier": 3,
     "rarity": "uncommon",
+    "base_rarity": "uncommon",
+    "max_rarity": "legendary",
     "cost": 95,
     "stats": {
       "attack": 6,
@@ -90,6 +181,12 @@
       "fire_bonus_minor"
     ],
     "durability": 30,
+    "affix_tags": [
+      "weapon",
+      "magic",
+      "faith",
+      "fire"
+    ],
     "class_restriction": [
       "mage",
       "cleric"
@@ -98,8 +195,12 @@
   {
     "id": "leather_armor",
     "name": "皮甲",
-    "slot": "armor",
+    "slot": "body",
+    "item_kind": "base",
+    "tier": 1,
     "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "rare",
     "cost": 45,
     "stats": {
       "defense": 2,
@@ -110,13 +211,21 @@
     },
     "special_effects": [],
     "durability": 40,
+    "affix_tags": [
+      "armor",
+      "light"
+    ],
     "class_restriction": []
   },
   {
     "id": "chainmail",
     "name": "锁子甲",
-    "slot": "armor",
+    "slot": "body",
+    "item_kind": "base",
+    "tier": 2,
     "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "epic",
     "cost": 75,
     "stats": {
       "defense": 5,
@@ -127,6 +236,9 @@
     },
     "special_effects": [],
     "durability": 44,
+    "affix_tags": [
+      "armor"
+    ],
     "class_restriction": [
       "warrior",
       "guardian",
@@ -134,121 +246,14 @@
     ]
   },
   {
-    "id": "heavy_shield",
-    "name": "厚重盾牌",
-    "slot": "trinket",
-    "rarity": "uncommon",
-    "cost": 85,
-    "stats": {
-      "defense": 5,
-      "speed": -2
-    },
-    "resistances": {
-      "physical": 6
-    },
-    "special_effects": [
-      "guard_bonus"
-    ],
-    "durability": 46,
-    "class_restriction": [
-      "warrior",
-      "guardian"
-    ]
-  },
-  {
-    "id": "poison_ring",
-    "name": "毒抗戒指",
-    "slot": "trinket",
-    "rarity": "uncommon",
-    "cost": 70,
-    "stats": {},
-    "resistances": {
-      "poison": 18
-    },
-    "special_effects": [],
-    "durability": 30,
-    "class_restriction": []
-  },
-  {
-    "id": "holy_emblem",
-    "name": "圣徽",
-    "slot": "trinket",
-    "rarity": "uncommon",
-    "cost": 80,
-    "stats": {},
-    "resistances": {
-      "curse": 15,
-      "magic": 5
-    },
-    "special_effects": [
-      "healing_bonus_minor"
-    ],
-    "durability": 30,
-    "class_restriction": []
-  },
-  {
-    "id": "eagle_eye",
-    "name": "鹰眼护符",
-    "slot": "trinket",
-    "rarity": "uncommon",
-    "cost": 75,
-    "stats": {
-      "accuracy": 10
-    },
-    "resistances": {},
-    "special_effects": [],
-    "durability": 30,
-    "class_restriction": []
-  },
-  {
-    "id": "fire_charm",
-    "name": "火蜥护符",
-    "slot": "trinket",
-    "rarity": "uncommon",
-    "cost": 80,
-    "stats": {},
-    "resistances": {
-      "fire": 18
-    },
-    "special_effects": [],
-    "durability": 30,
-    "class_restriction": []
-  },
-  {
-    "id": "blood_stitch",
-    "name": "止血缝针包",
-    "slot": "trinket",
-    "rarity": "uncommon",
-    "cost": 70,
-    "stats": {
-      "max_hp": 8
-    },
-    "resistances": {
-      "bleed": 16
-    },
-    "special_effects": [],
-    "durability": 24,
-    "class_restriction": []
-  },
-  {
-    "id": "curse_ward",
-    "name": "祛咒护符",
-    "slot": "trinket",
-    "rarity": "uncommon",
-    "cost": 80,
-    "stats": {},
-    "resistances": {
-      "curse": 18
-    },
-    "special_effects": [],
-    "durability": 30,
-    "class_restriction": []
-  },
-  {
     "id": "reinforced_plate",
     "name": "加固胸甲",
-    "slot": "armor",
+    "slot": "body",
+    "item_kind": "special_base",
+    "tier": 4,
     "rarity": "rare",
+    "base_rarity": "rare",
+    "max_rarity": "legendary",
     "cost": 130,
     "stats": {
       "defense": 8,
@@ -261,9 +266,330 @@
     },
     "special_effects": [],
     "durability": 54,
+    "affix_tags": [
+      "armor",
+      "shield",
+      "ward"
+    ],
     "class_restriction": [
       "warrior",
       "guardian"
     ]
+  },
+  {
+    "id": "runed_robe",
+    "name": "符文长袍",
+    "slot": "body",
+    "item_kind": "base",
+    "tier": 4,
+    "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "legendary",
+    "cost": 115,
+    "stats": {
+      "defense": 4,
+      "max_mana": 10
+    },
+    "resistances": {
+      "magic": 8,
+      "curse": 5
+    },
+    "special_effects": [],
+    "durability": 36,
+    "affix_tags": [
+      "armor",
+      "magic",
+      "faith",
+      "ward"
+    ],
+    "class_restriction": [
+      "mage",
+      "cleric"
+    ]
+  },
+  {
+    "id": "iron_helm",
+    "name": "铁盔",
+    "slot": "head",
+    "item_kind": "base",
+    "tier": 2,
+    "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "epic",
+    "cost": 65,
+    "stats": {
+      "defense": 3,
+      "max_hp": 6
+    },
+    "resistances": {
+      "physical": 3
+    },
+    "special_effects": [],
+    "durability": 36,
+    "affix_tags": [
+      "armor",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "leather_gloves",
+    "name": "皮手套",
+    "slot": "hands",
+    "item_kind": "base",
+    "tier": 1,
+    "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "rare",
+    "cost": 38,
+    "stats": {
+      "accuracy": 4,
+      "evasion": 1
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 28,
+    "affix_tags": [
+      "armor",
+      "light",
+      "finesse"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "traveler_boots",
+    "name": "旅靴",
+    "slot": "feet",
+    "item_kind": "base",
+    "tier": 1,
+    "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "rare",
+    "cost": 42,
+    "stats": {
+      "speed": 1,
+      "evasion": 2
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 30,
+    "affix_tags": [
+      "armor",
+      "light",
+      "finesse"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "utility_belt",
+    "name": "工具腰带",
+    "slot": "waist",
+    "item_kind": "base",
+    "tier": 1,
+    "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "rare",
+    "cost": 40,
+    "stats": {
+      "max_hp": 6
+    },
+    "resistances": {
+      "bleed": 4
+    },
+    "special_effects": [],
+    "durability": 32,
+    "affix_tags": [
+      "armor",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "field_pack",
+    "name": "行囊",
+    "slot": "backpack",
+    "item_kind": "base",
+    "tier": 1,
+    "rarity": "common",
+    "base_rarity": "common",
+    "max_rarity": "rare",
+    "cost": 35,
+    "stats": {
+      "max_hp": 4
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 26,
+    "affix_tags": [
+      "trinket",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "heavy_shield",
+    "name": "厚重盾牌",
+    "slot": "off_hand",
+    "item_kind": "special_base",
+    "tier": 2,
+    "rarity": "uncommon",
+    "base_rarity": "uncommon",
+    "max_rarity": "epic",
+    "cost": 85,
+    "stats": {
+      "defense": 5,
+      "speed": -2
+    },
+    "resistances": {
+      "physical": 6
+    },
+    "special_effects": [
+      "guard_bonus"
+    ],
+    "durability": 46,
+    "affix_tags": [
+      "trinket",
+      "shield",
+      "ward"
+    ],
+    "class_restriction": [
+      "warrior",
+      "guardian"
+    ]
+  },
+  {
+    "id": "poison_ring",
+    "name": "毒抗戒指",
+    "slot": "ring",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 1,
+    "rarity": "uncommon",
+    "cost": 70,
+    "stats": {},
+    "resistances": {
+      "poison": 18
+    },
+    "special_effects": [],
+    "durability": 30,
+    "affix_tags": [
+      "trinket",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "holy_emblem",
+    "name": "圣徽",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 2,
+    "rarity": "rare",
+    "cost": 80,
+    "stats": {},
+    "resistances": {
+      "curse": 15,
+      "magic": 5
+    },
+    "special_effects": [
+      "healing_bonus_minor"
+    ],
+    "durability": 30,
+    "affix_tags": [
+      "trinket",
+      "faith",
+      "healing",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "eagle_eye",
+    "name": "鹰眼护符",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 1,
+    "rarity": "uncommon",
+    "cost": 75,
+    "stats": {
+      "accuracy": 10
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 30,
+    "affix_tags": [
+      "trinket",
+      "ranged",
+      "finesse"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "fire_charm",
+    "name": "火蜥护符",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 2,
+    "rarity": "uncommon",
+    "cost": 80,
+    "stats": {},
+    "resistances": {
+      "fire": 18
+    },
+    "special_effects": [],
+    "durability": 30,
+    "affix_tags": [
+      "trinket",
+      "fire",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "blood_stitch",
+    "name": "止血缝针包",
+    "slot": "backpack",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 2,
+    "rarity": "uncommon",
+    "cost": 70,
+    "stats": {
+      "max_hp": 8
+    },
+    "resistances": {
+      "bleed": 16
+    },
+    "special_effects": [],
+    "durability": 24,
+    "affix_tags": [
+      "trinket",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "curse_ward",
+    "name": "祛咒护符",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 2,
+    "rarity": "uncommon",
+    "cost": 80,
+    "stats": {},
+    "resistances": {
+      "curse": 18
+    },
+    "special_effects": [],
+    "durability": 30,
+    "affix_tags": [
+      "trinket",
+      "ward"
+    ],
+    "class_restriction": []
   }
 ]

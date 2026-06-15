@@ -86,6 +86,121 @@ SPECIAL_EFFECT_NAMES = {
     "guard_bonus": "护卫加成",
 }
 
+EQUIPMENT_RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "artifact"]
+EQUIPMENT_RARITY_LABELS = {
+    "common": "普通",
+    "uncommon": "优秀",
+    "rare": "精良",
+    "epic": "史诗",
+    "legendary": "传说",
+    "artifact": "神器",
+}
+EQUIPMENT_RARITY_AFFIX_COUNTS = {
+    "common": 0,
+    "uncommon": 1,
+    "rare": 2,
+    "epic": 3,
+    "legendary": 4,
+    "artifact": 5,
+}
+EQUIPMENT_RARITY_COST_MULTIPLIER = {
+    "common": 1.0,
+    "uncommon": 1.35,
+    "rare": 1.9,
+    "epic": 2.8,
+    "legendary": 4.2,
+    "artifact": 6.0,
+}
+EQUIPMENT_KIND_LABELS = {
+    "base": "基础装备",
+    "special": "特殊装备",
+    "special_base": "特别装备",
+}
+CHARACTER_EQUIPMENT_SLOTS = [
+    "head",
+    "body",
+    "hands",
+    "feet",
+    "waist",
+    "ring_1",
+    "ring_2",
+    "necklace",
+    "backpack_1",
+    "backpack_2",
+    "backpack_3",
+    "backpack_4",
+    "main_hand",
+    "off_hand",
+]
+EQUIPMENT_SLOT_LABELS = {
+    "head": "头盔",
+    "body": "身体",
+    "hands": "手套",
+    "feet": "鞋子",
+    "waist": "腰带",
+    "ring": "戒指",
+    "ring_1": "戒指 1",
+    "ring_2": "戒指 2",
+    "necklace": "项链",
+    "backpack": "背包",
+    "backpack_1": "背包 1",
+    "backpack_2": "背包 2",
+    "backpack_3": "背包 3",
+    "backpack_4": "背包 4",
+    "main_hand": "主手",
+    "off_hand": "副手",
+    "two_hand": "双手",
+}
+LEGACY_EQUIPMENT_SLOT_MAP = {
+    "weapon": "main_hand",
+    "armor": "body",
+    "trinket": "ring",
+}
+EQUIPMENT_COMPATIBLE_SLOTS = {
+    "head": ["head"],
+    "body": ["body"],
+    "hands": ["hands"],
+    "feet": ["feet"],
+    "waist": ["waist"],
+    "ring": ["ring_1", "ring_2"],
+    "necklace": ["necklace"],
+    "backpack": ["backpack_1", "backpack_2", "backpack_3", "backpack_4"],
+    "main_hand": ["main_hand"],
+    "off_hand": ["off_hand"],
+    "two_hand": ["main_hand"],
+}
+EQUIPMENT_SLOT_FAMILIES = {
+    "head": {"armor"},
+    "body": {"armor"},
+    "hands": {"armor"},
+    "feet": {"armor"},
+    "waist": {"armor"},
+    "ring": {"trinket"},
+    "necklace": {"trinket"},
+    "backpack": {"trinket"},
+    "main_hand": {"weapon", "hand"},
+    "off_hand": {"trinket", "shield", "hand"},
+    "two_hand": {"weapon", "hand"},
+}
+DEFAULT_EQUIPMENT_AFFIXES = [
+    {"id": "sharp", "name": "锐利", "position": "prefix", "slots": ["weapon"], "tags": ["martial", "melee", "weapon"], "rarity_min": "uncommon", "stats": {"attack": 2}, "weight": 16},
+    {"id": "accurate", "name": "精准", "position": "prefix", "slots": ["weapon", "trinket"], "tags": ["ranged", "finesse", "weapon", "trinket"], "rarity_min": "uncommon", "stats": {"accuracy": 6}, "weight": 14},
+    {"id": "quick", "name": "迅捷", "position": "prefix", "slots": ["weapon", "armor", "trinket"], "tags": ["finesse", "light", "ranged", "trinket"], "rarity_min": "uncommon", "stats": {"speed": 1}, "weight": 12},
+    {"id": "stout", "name": "坚韧", "position": "prefix", "slots": ["armor", "trinket"], "tags": ["armor", "shield", "ward", "trinket"], "rarity_min": "uncommon", "stats": {"defense": 2, "max_hp": 6}, "weight": 15},
+    {"id": "vital", "name": "活力", "position": "prefix", "slots": ["armor", "trinket"], "tags": ["armor", "ward", "trinket"], "rarity_min": "uncommon", "stats": {"max_hp": 10}, "weight": 12},
+    {"id": "warded", "name": "护法", "position": "suffix", "slots": ["armor", "trinket"], "tags": ["ward", "armor", "trinket"], "rarity_min": "uncommon", "resistances": {"magic": 6, "curse": 6}, "weight": 10},
+    {"id": "venomward", "name": "避毒", "position": "suffix", "slots": ["armor", "trinket"], "tags": ["ward", "trinket", "light"], "rarity_min": "uncommon", "resistances": {"poison": 10}, "weight": 10},
+    {"id": "flameward", "name": "抗焰", "position": "suffix", "slots": ["armor", "trinket"], "tags": ["ward", "trinket", "armor", "fire"], "rarity_min": "uncommon", "resistances": {"fire": 10}, "weight": 10},
+    {"id": "bleedward", "name": "止血", "position": "suffix", "slots": ["armor", "trinket"], "tags": ["ward", "trinket", "light"], "rarity_min": "uncommon", "resistances": {"bleed": 10}, "weight": 9},
+    {"id": "durable", "name": "耐用", "position": "prefix", "slots": ["weapon", "armor", "trinket"], "tags": [], "rarity_min": "uncommon", "durability_bonus": 8, "weight": 9},
+    {"id": "ember", "name": "余烬", "position": "suffix", "slots": ["weapon", "trinket"], "tags": ["fire", "magic", "weapon"], "rarity_min": "rare", "stats": {"attack": 1}, "resistances": {"fire": 6}, "special_effects": ["fire_bonus_minor"], "weight": 6, "group": "elemental_bonus"},
+    {"id": "mender", "name": "抚愈", "position": "suffix", "slots": ["weapon", "trinket"], "tags": ["healing", "faith", "magic", "trinket"], "rarity_min": "rare", "stats": {"max_mana": 4}, "special_effects": ["healing_bonus_minor"], "weight": 6, "group": "support_bonus"},
+    {"id": "guardian", "name": "守护", "position": "suffix", "slots": ["armor", "trinket"], "tags": ["shield", "armor", "ward"], "rarity_min": "rare", "stats": {"defense": 3}, "special_effects": ["guard_bonus"], "weight": 5, "group": "support_bonus"},
+    {"id": "predator", "name": "猎杀", "position": "suffix", "slots": ["weapon", "trinket"], "tags": ["ranged", "finesse", "melee"], "rarity_min": "rare", "stats": {"attack": 2, "accuracy": 4}, "weight": 7},
+    {"id": "arcane", "name": "秘法", "position": "prefix", "slots": ["weapon", "trinket"], "tags": ["magic", "faith", "healing"], "rarity_min": "rare", "stats": {"attack": 2, "max_mana": 6}, "resistances": {"magic": 4}, "weight": 7},
+    {"id": "heroic", "name": "英勇", "position": "prefix", "slots": ["weapon", "armor", "trinket"], "tags": [], "rarity_min": "epic", "stats": {"attack": 2, "defense": 2, "max_hp": 8}, "weight": 3, "group": "major"},
+]
+
 RETREAT_THRESHOLDS = {
     "conservative": 0.35,
     "standard": 0.20,
@@ -178,20 +293,231 @@ def weighted_choice(rng: random.Random, rows: list[dict[str, Any]], weight_fn) -
     return copy.deepcopy(rng.choices(rows, weights=weights, k=1)[0])
 
 
-def instance_equipment(template_id: str, instance_id: str | None = None) -> dict[str, Any]:
+def rarity_index(rarity: str | None) -> int:
+    try:
+        return EQUIPMENT_RARITIES.index(str(rarity or "common"))
+    except ValueError:
+        return 0
+
+
+def rarity_at_least(rarity: str | None, minimum: str | None) -> bool:
+    return rarity_index(rarity) >= rarity_index(minimum)
+
+
+def equipment_affix_pool() -> list[dict[str, Any]]:
+    preset = load_data().get("preset", {})
+    rows = preset.get("equipment_affixes") if isinstance(preset.get("equipment_affixes"), list) else DEFAULT_EQUIPMENT_AFFIXES
+    return [copy.deepcopy(row) for row in rows if isinstance(row, dict) and row.get("id")]
+
+
+def equipment_kind(tpl: dict[str, Any]) -> str:
+    return str(tpl.get("item_kind") or tpl.get("kind") or ("special" if tpl.get("fixed_rarity") else "base"))
+
+
+def canonical_item_slot(slot: str | None) -> str:
+    raw = str(slot or "")
+    return LEGACY_EQUIPMENT_SLOT_MAP.get(raw, raw or "backpack")
+
+
+def compatible_equipment_slots(item_slot: str | None) -> list[str]:
+    canonical = canonical_item_slot(item_slot)
+    return list(EQUIPMENT_COMPATIBLE_SLOTS.get(canonical, [canonical] if canonical in CHARACTER_EQUIPMENT_SLOTS else []))
+
+
+def equipment_slot_tokens(item_slot: str | None) -> set[str]:
+    canonical = canonical_item_slot(item_slot)
+    return {canonical, *EQUIPMENT_SLOT_FAMILIES.get(canonical, set())}
+
+
+def equipment_slot_matches_token(item_slot: str | None, token: str) -> bool:
+    token = canonical_item_slot(token)
+    return token in equipment_slot_tokens(item_slot)
+
+
+def equipment_item_occupies_slots(item: dict[str, Any], target_slot: str | None = None) -> list[str]:
+    item_slot = canonical_item_slot(item.get("slot"))
+    if item_slot == "two_hand":
+        return ["main_hand", "off_hand"]
+    if target_slot:
+        slot = canonical_item_slot(target_slot)
+        if slot in compatible_equipment_slots(item_slot):
+            return [slot]
+    slots = compatible_equipment_slots(item_slot)
+    return [slots[0]] if slots else []
+
+
+def default_character_equipment() -> dict[str, str | None]:
+    return {slot: None for slot in CHARACTER_EQUIPMENT_SLOTS}
+
+
+def equipment_level_from_danger(danger_level: int | None = None, day: int | None = None) -> int:
+    value = 1
+    if danger_level is not None:
+        value = max(value, int(danger_level))
+    if day is not None:
+        value = max(value, int(day) // 4 + 1)
+    return max(1, min(8, value))
+
+
+def equipment_templates_for_level(level: int, *, include_special: bool = True) -> list[dict[str, Any]]:
+    data = load_data()
+    rows: list[dict[str, Any]] = []
+    for tpl in data["equipment"]:
+        tier = int(tpl.get("tier", tpl.get("min_level", 1)))
+        if tier > level:
+            continue
+        if not include_special and equipment_kind(tpl) == "special":
+            continue
+        rows.append(copy.deepcopy(tpl))
+    return rows
+
+
+def roll_equipment_rarity(rng: random.Random, level: int, base_rarity: str = "common", max_rarity: str | None = None) -> str:
+    weights = {
+        "common": 60,
+        "uncommon": 26 + level * 2,
+        "rare": max(4, level * 4),
+        "epic": max(0, (level - 2) * 2),
+        "legendary": max(0, level - 4),
+        "artifact": 1 if level >= 7 else 0,
+    }
+    min_idx = rarity_index(base_rarity)
+    max_idx = rarity_index(max_rarity or "artifact")
+    rows = [r for r in EQUIPMENT_RARITIES[min_idx:max_idx + 1] if weights.get(r, 0) > 0]
+    if not rows:
+        return base_rarity if base_rarity in EQUIPMENT_RARITIES else "common"
+    return rng.choices(rows, weights=[weights[r] for r in rows], k=1)[0]
+
+
+def affix_matches_template(affix: dict[str, Any], tpl: dict[str, Any], rarity: str) -> bool:
+    if not rarity_at_least(rarity, affix.get("rarity_min", "uncommon")):
+        return False
+    slots = affix.get("slots") or []
+    if slots and not any(equipment_slot_matches_token(tpl.get("slot"), str(slot)) for slot in slots):
+        return False
+    allowed_tags = set(map(str, tpl.get("affix_tags", [])))
+    affix_tags = set(map(str, affix.get("tags", [])))
+    if affix_tags and allowed_tags and affix_tags.isdisjoint(allowed_tags):
+        return False
+    excluded = set(map(str, tpl.get("exclude_affixes", [])))
+    if affix.get("id") in excluded:
+        return False
+    return True
+
+
+def choose_equipment_affixes(tpl: dict[str, Any], rarity: str, rng: random.Random) -> list[dict[str, Any]]:
+    count = int(tpl.get("affix_count", EQUIPMENT_RARITY_AFFIX_COUNTS.get(rarity, 0)))
+    if count <= 0 or tpl.get("fixed_rarity") or equipment_kind(tpl) == "special":
+        return []
+    candidates = [a for a in equipment_affix_pool() if affix_matches_template(a, tpl, rarity)]
+    chosen: list[dict[str, Any]] = []
+    used_ids: set[str] = set()
+    used_groups: set[str] = set()
+    while candidates and len(chosen) < count:
+        affix = weighted_choice(rng, candidates, lambda row: row.get("weight", 1))
+        chosen.append(affix)
+        used_ids.add(str(affix.get("id")))
+        if affix.get("group"):
+            used_groups.add(str(affix["group"]))
+        candidates = [
+            row for row in candidates
+            if row.get("id") not in used_ids and (not row.get("group") or str(row["group"]) not in used_groups)
+        ]
+    return chosen
+
+
+def add_number_maps(target: dict[str, int], source: dict[str, Any], multiplier: float = 1.0) -> None:
+    for key, value in source.items():
+        target[key] = int(target.get(key, 0) + round(float(value) * multiplier))
+
+
+def unique_text_list(values: Iterable[Any]) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        key = str(value)
+        if key and key not in seen:
+            out.append(key)
+            seen.add(key)
+    return out
+
+
+def format_equipment_name(base_name: str, affixes: list[dict[str, Any]]) -> str:
+    prefixes = [a["name"] for a in affixes if a.get("position") == "prefix" and a.get("name")]
+    suffixes = [a["name"] for a in affixes if a.get("position") != "prefix" and a.get("name")]
+    name = base_name
+    if prefixes:
+        name = "".join(prefixes[:2]) + name
+    if suffixes:
+        name = f"{name}·{suffixes[0]}"
+    return name
+
+
+def affix_public_view(affix: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": affix["id"],
+        "name": affix.get("name", affix["id"]),
+        "stats": copy.deepcopy(affix.get("stats", {})),
+        "resistances": copy.deepcopy(affix.get("resistances", {})),
+        "special_effects": copy.deepcopy(affix.get("special_effects", [])),
+        "durability_bonus": int(affix.get("durability_bonus", 0)),
+    }
+
+
+def instance_equipment(
+    template_id: str,
+    instance_id: str | None = None,
+    *,
+    rng: random.Random | None = None,
+    level: int = 1,
+    rarity: str | None = None,
+) -> dict[str, Any]:
     tpl = template_copy("equipment", template_id)
+    kind = equipment_kind(tpl)
+    if kind == "special":
+        final_rarity = str(tpl.get("rarity", "rare"))
+        affixes: list[dict[str, Any]] = []
+    else:
+        final_rarity = rarity or (
+            str(tpl.get("rarity", "common")) if rng is None else roll_equipment_rarity(
+                rng,
+                level,
+                str(tpl.get("base_rarity", tpl.get("rarity", "common"))),
+                tpl.get("max_rarity"),
+            )
+        )
+        affixes = choose_equipment_affixes(tpl, final_rarity, rng or random.Random(stable_seed(template_id, instance_id or "preview")))
+
+    stats = copy.deepcopy(tpl.get("stats", {}))
+    resistances = copy.deepcopy(tpl.get("resistances", {}))
+    special_effects = list(tpl.get("special_effects", []))
+    durability = int(tpl.get("durability", 30))
+    for affix in affixes:
+        add_number_maps(stats, affix.get("stats", {}))
+        add_number_maps(resistances, affix.get("resistances", {}))
+        special_effects.extend(affix.get("special_effects", []))
+        durability += int(affix.get("durability_bonus", 0))
+
+    cost = int(round(float(tpl.get("cost", 0)) * EQUIPMENT_RARITY_COST_MULTIPLIER.get(final_rarity, 1.0)))
+    affix_views = [affix_public_view(a) for a in affixes]
     return {
         "instance_id": instance_id or make_id("eq"),
         "template_id": tpl["id"],
-        "name": tpl["name"],
-        "slot": tpl["slot"],
-        "rarity": tpl.get("rarity", "common"),
-        "cost": tpl.get("cost", 0),
-        "stats": copy.deepcopy(tpl.get("stats", {})),
-        "resistances": copy.deepcopy(tpl.get("resistances", {})),
-        "special_effects": copy.deepcopy(tpl.get("special_effects", [])),
-        "durability": int(tpl.get("durability", 30)),
-        "max_durability": int(tpl.get("durability", 30)),
+        "base_name": tpl["name"],
+        "name": format_equipment_name(tpl["name"], affixes),
+        "slot": canonical_item_slot(tpl["slot"]),
+        "rarity": final_rarity,
+        "rarity_label": EQUIPMENT_RARITY_LABELS.get(final_rarity, final_rarity),
+        "item_kind": kind,
+        "item_kind_label": EQUIPMENT_KIND_LABELS.get(kind, kind),
+        "item_level": int(tpl.get("tier", level)),
+        "cost": cost,
+        "stats": {k: v for k, v in stats.items() if v},
+        "resistances": {k: v for k, v in resistances.items() if v},
+        "special_effects": unique_text_list(special_effects),
+        "affixes": affix_views,
+        "durability": durability,
+        "max_durability": durability,
         "class_restriction": copy.deepcopy(tpl.get("class_restriction", [])),
         "equipped_by": None,
     }
@@ -957,7 +1283,20 @@ def normalize_character(ch: dict[str, Any]) -> dict[str, Any]:
     ch["learned_skills"] = clean_learned_skill_ids(ch.get("class_id"), ch.get("learned_skills"))
     ch["skill_points"] = max(0, int(ch.get("skill_points", 0)))
     normalize_skill_upgrades(ch)
-    ch.setdefault("equipment", {"weapon": None, "armor": None, "trinket": None})
+    old_equipment = ch.get("equipment", {})
+    if not isinstance(old_equipment, dict):
+        old_equipment = {}
+    equipment = default_character_equipment()
+    for slot, item_id in old_equipment.items():
+        if slot in CHARACTER_EQUIPMENT_SLOTS:
+            equipment[slot] = item_id
+        elif slot == "weapon":
+            equipment["main_hand"] = item_id
+        elif slot == "armor":
+            equipment["body"] = item_id
+        elif slot == "trinket":
+            equipment["ring_1"] = item_id
+    ch["equipment"] = equipment
     ch.setdefault("status_effects", [])
     ch.setdefault("injury_state", "healthy")
     ch.setdefault("available", True)
@@ -1260,7 +1599,7 @@ def create_character(class_id: str, name: str, char_id: str | None = None) -> di
         "learned_skills": clean_learned_skill_ids(class_id, class_auto_learn_skill_ids(class_id)),
         "skill_points": 0,
         "skill_upgrades": {},
-        "equipment": {"weapon": None, "armor": None, "trinket": None},
+        "equipment": default_character_equipment(),
         "status_effects": [],
         "injury_state": "healthy",
         "available": True,
@@ -1376,6 +1715,33 @@ def get_item(state: dict[str, Any], item_id: str) -> dict[str, Any] | None:
     return next((i for i in state["inventory"] if i["instance_id"] == item_id), None)
 
 
+def normalize_equipment_item(item: dict[str, Any]) -> dict[str, Any]:
+    tpl = load_data().get("equipment_by_id", {}).get(item.get("template_id"), {})
+    rarity = str(item.get("rarity") or tpl.get("rarity", "common"))
+    kind = str(item.get("item_kind") or equipment_kind(tpl or item))
+    item["slot"] = canonical_item_slot(tpl.get("slot", item.get("slot")))
+    item.setdefault("base_name", tpl.get("name", item.get("name", "")))
+    item["rarity"] = rarity
+    item.setdefault("rarity_label", EQUIPMENT_RARITY_LABELS.get(rarity, rarity))
+    item.setdefault("item_kind", kind)
+    item.setdefault("item_kind_label", EQUIPMENT_KIND_LABELS.get(kind, kind))
+    item.setdefault("item_level", int(tpl.get("tier", 1)) if tpl else 1)
+    item.setdefault("affixes", [])
+    item.setdefault("stats", {})
+    item.setdefault("resistances", {})
+    item.setdefault("special_effects", [])
+    item.setdefault("class_restriction", copy.deepcopy(tpl.get("class_restriction", [])))
+    item.setdefault("max_durability", int(item.get("durability", tpl.get("durability", 30))))
+    item.setdefault("durability", int(item.get("max_durability", tpl.get("durability", 30))))
+    item.setdefault("equipped_by", None)
+    return item
+
+
+def equipment_drop_level(state: dict[str, Any], dungeon: dict[str, Any] | None = None) -> int:
+    danger = int(dungeon.get("danger_level", 1)) if dungeon else None
+    return equipment_level_from_danger(danger, int(state.get("day", 1)))
+
+
 def get_dungeon(state: dict[str, Any], dungeon_id: str) -> dict[str, Any] | None:
     return next((d for d in state["active_dungeons"] if d["id"] == dungeon_id and not d.get("expired")), None)
 
@@ -1485,7 +1851,7 @@ def effective_stats(state: dict[str, Any], char: dict[str, Any]) -> dict[str, An
     stats["evasion"] = int(stats.get("evasion", 0)) + derived["evasion_bonus"]
     resistances = {k: int(v) for k, v in char.get("base_resistances", {}).items()}
     special_effects: list[str] = []
-    for item_id in char.get("equipment", {}).values():
+    for item_id in dict.fromkeys(x for x in char.get("equipment", {}).values() if x):
         if not item_id:
             continue
         item = get_item(state, item_id)
@@ -1516,24 +1882,53 @@ def effective_stats(state: dict[str, Any], char: dict[str, Any]) -> dict[str, An
     return stats
 
 
+def clear_equipped_item(state: dict[str, Any], char: dict[str, Any], item_id: str | None) -> None:
+    if not item_id:
+        return
+    for s, equipped_id in list(char.get("equipment", {}).items()):
+        if equipped_id == item_id:
+            char["equipment"][s] = None
+    if item := get_item(state, item_id):
+        item["equipped_by"] = None
+
+
+def unequip_slot(state: dict[str, Any], char: dict[str, Any], slot: str) -> None:
+    old_id = char.get("equipment", {}).get(slot)
+    clear_equipped_item(state, char, old_id)
+
+
+def pick_equipment_slot(char: dict[str, Any], item: dict[str, Any], requested_slot: str | None = None) -> str:
+    item_slot = canonical_item_slot(item.get("slot"))
+    compatible = compatible_equipment_slots(item_slot)
+    if not compatible:
+        raise ValueError("装备槽位不支持")
+    if requested_slot:
+        slot = canonical_item_slot(requested_slot)
+        if slot not in compatible:
+            raise ValueError("装备槽位不匹配")
+        return slot
+    for slot in compatible:
+        if not char.get("equipment", {}).get(slot):
+            return slot
+    return compatible[0]
+
+
 def equip_item(state: dict[str, Any], char_id: str, item_id: str | None, slot: str | None = None, validate_class: bool = True) -> None:
     char = get_character(state, char_id)
     if not char:
         raise ValueError("角色不存在")
+    normalize_character(char)
     if item_id is None:
         if not slot:
             raise ValueError("卸下装备需要提供 slot")
-        old = char["equipment"].get(slot)
-        if old and (old_item := get_item(state, old)):
-            old_item["equipped_by"] = None
-        char["equipment"][slot] = None
+        unequip_slot(state, char, canonical_item_slot(slot))
         return
     item = get_item(state, item_id)
     if not item:
         raise ValueError("装备不存在")
-    slot = slot or item["slot"]
-    if slot != item["slot"]:
-        raise ValueError("装备槽位不匹配")
+    normalize_equipment_item(item)
+    target_slot = pick_equipment_slot(char, item, slot)
+    occupy_slots = equipment_item_occupies_slots(item, target_slot)
     if validate_class:
         restriction = item.get("class_restriction") or []
         if not class_matches_restriction(char.get("class_id"), restriction):
@@ -1541,35 +1936,75 @@ def equip_item(state: dict[str, Any], char_id: str, item_id: str | None, slot: s
     if item.get("equipped_by") and item["equipped_by"] != char_id:
         other = get_character(state, item["equipped_by"])
         if other:
-            other["equipment"][slot] = None
-    old_id = char["equipment"].get(slot)
-    if old_id and (old := get_item(state, old_id)):
-        old["equipped_by"] = None
-    char["equipment"][slot] = item_id
+            normalize_character(other)
+            clear_equipped_item(state, other, item_id)
+    clear_equipped_item(state, char, item_id)
+    for occupy_slot in occupy_slots:
+        unequip_slot(state, char, occupy_slot)
+    for occupy_slot in occupy_slots:
+        char["equipment"][occupy_slot] = item_id
     item["equipped_by"] = char_id
 
 
+def normalize_character_equipment_occupancy(state: dict[str, Any], char: dict[str, Any]) -> None:
+    normalize_character(char)
+    current = copy.deepcopy(char.get("equipment", {}))
+    new_equipment = default_character_equipment()
+    item_ids = list(dict.fromkeys(item_id for item_id in current.values() if item_id))
+    for item_id in item_ids:
+        item = get_item(state, item_id)
+        if not item:
+            continue
+        normalize_equipment_item(item)
+        compatible = compatible_equipment_slots(item.get("slot"))
+        preferred = next((slot for slot, equipped_id in current.items() if equipped_id == item_id and slot in compatible), None)
+        target = preferred or (compatible[0] if compatible else None)
+        occupy_slots = equipment_item_occupies_slots(item, target)
+        if not occupy_slots:
+            continue
+        for occupy_slot in occupy_slots:
+            old_id = new_equipment.get(occupy_slot)
+            if old_id and old_id != item_id and (old := get_item(state, old_id)):
+                old["equipped_by"] = None
+                for s, equipped_id in list(new_equipment.items()):
+                    if equipped_id == old_id:
+                        new_equipment[s] = None
+        for occupy_slot in occupy_slots:
+            new_equipment[occupy_slot] = item_id
+        item["equipped_by"] = char["id"]
+    char["equipment"] = new_equipment
+
+
 def refresh_shop(state: dict[str, Any]) -> None:
-    data = load_data()
     rng = random.Random(stable_seed(state["run_seed"], "shop", state["day"]))
-    equipment_pool = data["equipment"]
-    weighted = []
-    for e in equipment_pool:
-        tier = 1
-        if e.get("rarity") == "uncommon":
-            tier = 4
-        if e.get("rarity") == "rare":
-            tier = 8
-        if tier <= max(2, state["day"] // 4 + 1):
-            weighted.append(e)
+    level = equipment_level_from_danger(day=state["day"])
+    equipment_pool = equipment_templates_for_level(level)
     items = []
-    for e in rng.sample(weighted, k=min(5, len(weighted))):
-        items.append({"shop_id": make_id("shop"), "kind": "equipment", "template_id": e["id"], "name": e["name"], "slot": e["slot"], "cost": int(e.get("cost", 50) * (0.9 + rng.random() * 0.25)), "summary": format_equipment_summary(e)})
+    for _ in range(min(5, len(equipment_pool))):
+        tpl = weighted_choice(
+            rng,
+            equipment_pool,
+            lambda e: max(1, 12 - abs(int(e.get("tier", 1)) - level) * 2) * (0.45 if equipment_kind(e) == "special" else 1.0),
+        )
+        eq = instance_equipment(tpl["id"], rng=rng, level=level)
+        eq["cost"] = int(eq.get("cost", 50) * (0.9 + rng.random() * 0.25))
+        items.append({
+            "shop_id": make_id("shop"),
+            "kind": "equipment",
+            "template_id": eq["template_id"],
+            "name": eq["name"],
+            "slot": eq["slot"],
+            "rarity": eq["rarity"],
+            "cost": eq["cost"],
+            "summary": format_equipment_summary(eq),
+            "equipment": copy.deepcopy(eq),
+        })
     consumables = [
         {"shop_id": make_id("shop"), "kind": "consumable", "template_id": "healing_potion", "name": "治疗药水", "cost": 25, "summary": "挑战中低血量时自动回复少量 HP（MVP 简化为库存资源）"},
         {"shop_id": make_id("shop"), "kind": "consumable", "template_id": "antidote", "name": "解毒剂", "cost": 18, "summary": "用于补充解毒准备（MVP 简化为库存资源）"},
     ]
     items.extend(consumables)
+    data = load_data()
     preset = data.get("preset", {})
     recruit_classes = preset.get("recruit_pool") or [c["id"] for c in data["classes"]]
     recruits = []
@@ -1598,6 +2033,11 @@ def format_equipment_summary(e: dict[str, Any]) -> str:
         parts.append(f"{DAMAGE_TYPE_NAMES.get(k, k)}抗 {v:+}")
     for effect in e.get("special_effects", []):
         parts.append(SPECIAL_EFFECT_NAMES.get(effect, effect.replace("_", " ")))
+    for affix in e.get("affixes", []):
+        if affix.get("name"):
+            parts.append(f"词缀：{affix['name']}")
+        if affix.get("durability_bonus"):
+            parts.append(f"耐久 {int(affix['durability_bonus']):+}")
     return "，".join(parts) or "基础装备"
 
 
@@ -2317,7 +2757,10 @@ def buy_shop_item(state: dict[str, Any], shop_id: str) -> dict[str, Any]:
         raise ValueError("金币不足")
     state["gold"] -= item["cost"]
     if item["kind"] == "equipment":
-        eq = instance_equipment(item["template_id"])
+        eq = copy.deepcopy(item.get("equipment")) if isinstance(item.get("equipment"), dict) else instance_equipment(item["template_id"])
+        eq["instance_id"] = eq.get("instance_id") or make_id("eq")
+        eq["equipped_by"] = None
+        normalize_equipment_item(eq)
         state["inventory"].append(eq)
         acquired = {"type": "equipment", "item": eq}
     else:
@@ -2422,6 +2865,9 @@ def migrate_state(state: dict[str, Any]) -> dict[str, Any]:
         state["materials"][PROMOTION_BADGE_KEY] = STARTING_PROMOTION_BADGES
     else:
         state["materials"][PROMOTION_BADGE_KEY] = max(0, int(state["materials"].get(PROMOTION_BADGE_KEY, 0)))
+    for item in state.get("inventory", []):
+        if isinstance(item, dict):
+            normalize_equipment_item(item)
     for ch in state.get("characters", []):
         if rebuild_level_scaled_sheet:
             class_row = load_data()["class_by_id"].get(ch.get("class_id"))
@@ -2430,6 +2876,7 @@ def migrate_state(state: dict[str, Any]) -> dict[str, Any]:
                 ch["base_resistances"] = copy.deepcopy(class_row.get("resistances", {}))
                 ch["attributes"] = attribute_block_for_class(class_row, int(ch.get("level", 1)))
         normalize_character(ch)
+        normalize_character_equipment_occupancy(state, ch)
         stats = effective_stats(state, ch)
         ch["max_hp"] = int(stats.get("max_hp", ch.get("max_hp", 1)))
         ch["hp"] = min(int(ch.get("hp", ch["max_hp"])), ch["max_hp"])
@@ -3895,7 +4342,7 @@ def apply_equipment_durability_loss(state: dict[str, Any], party: list[Combatant
         ch = get_character(state, unit["id"])
         if not ch:
             continue
-        for item_id in ch.get("equipment", {}).values():
+        for item_id in dict.fromkeys(x for x in ch.get("equipment", {}).values() if x):
             item = get_item(state, item_id) if item_id else None
             if not item:
                 continue
@@ -3941,7 +4388,7 @@ def apply_rewards_for_report(state: dict[str, Any], dungeon: dict[str, Any], tem
             gain_exp(ch, exp)
     if success and base.get("equipment_pool") and dungeon.get("reward_charges", 0) > 0 and rng.random() < 0.75:
         eq_id = rng.choice(base["equipment_pool"])
-        eq = instance_equipment(eq_id)
+        eq = instance_equipment(eq_id, rng=rng, level=equipment_drop_level(state, dungeon))
         state["inventory"].append(eq)
         report["rewards"]["equipment"].append(eq["name"])
     if success:

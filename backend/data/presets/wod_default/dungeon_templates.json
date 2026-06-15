@@ -45,7 +45,9 @@
       },
       "equipment_pool": [
         "poison_ring",
-        "leather_armor"
+        "leather_armor",
+        "leather_gloves",
+        "field_pack"
       ]
     },
     "layers": [
@@ -134,8 +136,10 @@
       "equipment_pool": [
         "eagle_eye",
         "hunting_bow",
+        "war_bow",
         "balanced_dagger",
-        "leather_armor"
+        "leather_armor",
+        "traveler_boots"
       ]
     },
     "layers": [
@@ -221,7 +225,10 @@
       "equipment_pool": [
         "chainmail",
         "heavy_shield",
-        "iron_sword"
+        "iron_sword",
+        "steel_sword",
+        "iron_helm",
+        "utility_belt"
       ]
     },
     "layers": [
@@ -384,7 +391,8 @@
         "holy_emblem",
         "curse_ward",
         "oak_staff",
-        "fire_wand"
+        "fire_wand",
+        "runed_robe"
       ]
     },
     "layers": [
