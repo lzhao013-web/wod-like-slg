@@ -3,8 +3,9 @@ import type { CSSProperties } from 'react'
 import type { CharacterView, PartyView, PromotionOption, SkillSummary, StatBreakdown } from '../types/game'
 import { Bar } from './Bar'
 import { CharacterAvatar } from './CharacterAvatar'
-import { Chip, ResistChip, StatusChip, RarityTag } from './Chips'
-import { classMeta, STATS, ATTRIBUTES, ELEMENTS, EQUIPMENT_SLOT_ORDER, FOCUS_META, SLOT_ICON, SLOT_LABEL, elementMeta, skillsForClass, SKILL_ICON, statusMeta, focusLabel, focusCompositionLabel, focusScoreKey, targetRuleLabel, rangeLabel, statLabel, specialEffectLabel, attackTypeLabel, attackTypeDescription } from '../theme'
+import { Chip, ResistChip, StatusChip } from './Chips'
+import { Paperdoll } from './Paperdoll'
+import { classMeta, STATS, ATTRIBUTES, ELEMENTS, FOCUS_META, elementMeta, skillsForClass, SKILL_ICON, statusMeta, focusLabel, focusCompositionLabel, focusScoreKey, targetRuleLabel, rangeLabel, attackTypeLabel, attackTypeDescription } from '../theme'
 import { cx } from '../lib/format'
 
 export function CharacterSheet(props: {
@@ -131,34 +132,6 @@ export function CharacterSheet(props: {
           </div>
 
           <div className="sheet__col">
-            <h3 className="sub">⚔️ 装备</h3>
-            <div className="sheetEquip">
-              {EQUIPMENT_SLOT_ORDER.map(slot => {
-                const item = itemById(ch.equipment?.[slot] ?? null)
-                return (
-                  <div className="sheetEquip__slot" key={slot}>
-                    <div className="sheetEquip__label"><span>{SLOT_ICON[slot]}</span><b>{SLOT_LABEL[slot]}</b></div>
-                    {item ? (
-                      <div className="sheetEquip__item">
-                        <div className="sheetEquip__nameRow"><RarityTag rarity={item.rarity} /><b>{item.name}</b></div>
-                        <div className="sheetEquip__stats">
-                          {Object.entries(item.stats ?? {}).map(([k, v]) => <span key={k}>+{v} {statLabel(k)}</span>)}
-                          {Object.entries(item.resistances ?? {}).filter(([, v]) => v).map(([k, v]) => (
-                            <span key={k} style={{ color: (ELEMENTS as any)[k]?.color }}>{(ELEMENTS as any)[k]?.icon} +{v}</span>
-                          ))}
-                          {(item.special_effects ?? []).map(e => <span key={e}>✦ {specialEffectLabel(e)}</span>)}
-                          {(item.affixes ?? []).map(a => <span key={a.id}>◆ {a.name}</span>)}
-                        </div>
-                        <span className="muted">耐久 {item.durability}/{item.max_durability}</span>
-                      </div>
-                    ) : (
-                      <span className="muted">— 未装备 —</span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
             {(ch.promotion?.promoted || (ch.promotion?.options?.length ?? 0) > 0) && (
               <>
                 <h3 className="sub">🧭 职业路径</h3>
@@ -189,6 +162,11 @@ export function CharacterSheet(props: {
               {learnedSkills.length > 6 && <span>+{learnedSkills.length - 6}</span>}
             </div>
           </div>
+        </div>
+
+        <div className="sheet__equipSection">
+          <h3 className="sub">⚔️ 装备</h3>
+          <Paperdoll member={ch} party={props.party} readOnly />
         </div>
       </div>
       {skillTreeOpen && (

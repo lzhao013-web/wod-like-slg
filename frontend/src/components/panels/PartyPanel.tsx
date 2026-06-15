@@ -4,8 +4,8 @@ import type { CharacterView, PartyView } from '../../types/game'
 import { CharacterAvatar } from '../CharacterAvatar'
 import { Bar } from '../Bar'
 import { Chip, StatusChip } from '../Chips'
-import { EquipmentCard } from '../EquipmentCard'
-import { ATTRIBUTES, classMeta, compatibleEquipmentSlots, EQUIPMENT_SLOT_ORDER, itemFitsEquipmentSlot, STATS, SLOT_ICON, SLOT_LABEL } from '../../theme'
+import { Paperdoll } from '../Paperdoll'
+import { ATTRIBUTES, classMeta, STATS } from '../../theme'
 import { CELL_LABEL, FRONT_CELLS, MID_CELLS, BACK_CELLS } from '../../state/useGame'
 import { cx } from '../../lib/format'
 
@@ -169,7 +169,7 @@ export function PartyPanel(props: {
           ))}
         </div>
         {editingEquipFor ? (
-          <EquipEditor member={memberById[editingEquipFor]} party={party} onEquip={props.onEquip} busy={props.busy} />
+          <Paperdoll member={memberById[editingEquipFor]} party={party} onEquip={props.onEquip} busy={props.busy} />
         ) : (
           <p className="muted equipEmpty">点击上方角色以更换其武器 / 护甲 / 饰品。</p>
         )}
@@ -328,50 +328,6 @@ function MemberChip(props: { m: CharacterView; selected: boolean; locked?: boole
       <span>{props.m.name}</span>
       {props.locked && <span className="muted">{props.m.team_name}</span>}
       <button className="iconBtn" onClick={(e) => { e.stopPropagation(); props.onInspect() }}>📋</button>
-    </div>
-  )
-}
-
-function EquipEditor(props: { member: CharacterView; party: PartyView; onEquip: (id: string, item: string | null, slot?: string) => void; busy: boolean }) {
-  const m = props.member
-  return (
-    <div className="equipEditor">
-      <div className="equipEditor__head">
-        <CharacterAvatar ch={m} size={40} />
-        <div><b>{m.name}</b><span className="muted">{m.class_name}</span></div>
-      </div>
-      {EQUIPMENT_SLOT_ORDER.map(slot => {
-        const equippedId = m.equipment?.[slot] ?? null
-        const options = props.party.inventory.filter(i => itemFitsEquipmentSlot(i.slot, slot) && (!i.equipped_by || i.equipped_by === m.id))
-        const occupiedByTwoHand = slot === 'off_hand' && equippedId && props.party.inventory.find(i => i.instance_id === equippedId)?.slot === 'two_hand'
-        return (
-          <div className="equipSlot" key={slot}>
-            <div className="equipSlot__label">
-              <span className="equipSlot__icon">{SLOT_ICON[slot]}</span>
-              <b>{SLOT_LABEL[slot]}</b>
-              {occupiedByTwoHand && <span className="muted">双手占用</span>}
-            </div>
-            {equippedId ? (
-              <EquipmentCard item={props.party.inventory.find(i => i.instance_id === equippedId)!} compact
-                actionLabel="卸下" actionIcon="↩" onClick={() => props.onEquip(m.id, null, slot)} />
-            ) : (
-              <div className="equipSlot__empty">未装备</div>
-            )}
-            {options.length > 0 && (
-              <div className="equipSlot__options">
-                <span className="muted">可替换：</span>
-                <div className="equipSlot__grid">
-                  {options.filter(i => i.instance_id !== equippedId).map(i => (
-                    <EquipmentCard key={i.instance_id} item={i} compact selected={equippedId === i.instance_id}
-                      actionLabel="装备" actionIcon="⬆"
-                      onClick={() => props.onEquip(m.id, i.instance_id, compatibleEquipmentSlots(i.slot).includes(slot) ? slot : undefined)} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )
-      })}
     </div>
   )
 }
