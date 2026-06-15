@@ -1,0 +1,618 @@
+[
+  {
+    "id": "spider_nest",
+    "name": "蜘蛛巢穴",
+    "theme": "毒、小怪、持续消耗",
+    "recommended_level": [
+      1,
+      3
+    ],
+    "base_danger": 2,
+    "life_days": 3,
+    "layer_count": 4,
+    "main_rewards": [
+      "皮革",
+      "毒囊",
+      "毒抗饰品"
+    ],
+    "public_threats": [
+      "大量小型敌人",
+      "存在持续性伤害",
+      "疑似毒性威胁"
+    ],
+    "scout_lines": [
+      "第 2 层开始出现毒蛛。",
+      "敌人主要造成物理 + 毒伤害。",
+      "Boss 会使用群体毒液，队伍缺少解毒时层间损耗会放大。",
+      "火焰伤害对蜘蛛类敌人较有效。"
+    ],
+    "post_battle_lines": [
+      "毒伤会在层间持续消耗 HP。",
+      "蛛后的群体毒液会迅速耗尽解毒次数。"
+    ],
+    "possible_affixes": [
+      "toxic_fog",
+      "elite_lair",
+      "exposed_treasure",
+      "time_pressure"
+    ],
+    "rewards": {
+      "gold": 45,
+      "exp": 55,
+      "materials": {
+        "leather": 3,
+        "venom_sac": 2
+      },
+      "equipment_pool": [
+        "poison_ring",
+        "leather_armor"
+      ]
+    },
+    "layers": [
+      {
+        "name": "小蜘蛛群",
+        "type": "battle",
+        "enemies": [
+          "small_spider",
+          "small_spider",
+          "small_spider"
+        ]
+      },
+      {
+        "name": "毒蛛加入",
+        "type": "battle",
+        "enemies": [
+          "small_spider",
+          "venom_spider",
+          "small_spider"
+        ]
+      },
+      {
+        "name": "蛛网陷阱",
+        "type": "trap",
+        "effect": "web",
+        "then_enemies": [
+          "venom_spider",
+          "small_spider"
+        ]
+      },
+      {
+        "name": "蛛后巢室",
+        "type": "battle",
+        "enemies": [
+          "spider_queen",
+          "small_spider",
+          "small_spider"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bandit_camp",
+    "name": "盗贼营地",
+    "theme": "后排威胁、闪避、命中",
+    "recommended_level": [
+      2,
+      5
+    ],
+    "base_danger": 3,
+    "life_days": 3,
+    "layer_count": 4,
+    "main_rewards": [
+      "金币",
+      "轻甲",
+      "弓弩",
+      "命中装备"
+    ],
+    "public_threats": [
+      "人形敌人机动性高",
+      "后排可能不安全",
+      "敌人闪避较高"
+    ],
+    "scout_lines": [
+      "第 2 层开始出现弓手。",
+      "刺客头目会绕过前排攻击后排。",
+      "提高命中和保护后排能显著降低损失。"
+    ],
+    "post_battle_lines": [
+      "后排承伤过高通常意味着站位或保护不足。",
+      "高闪避目标需要命中装备或瞄准技能。"
+    ],
+    "possible_affixes": [
+      "ambush_routes",
+      "elite_lair",
+      "exposed_treasure",
+      "time_pressure"
+    ],
+    "rewards": {
+      "gold": 80,
+      "exp": 70,
+      "materials": {
+        "cloth": 2,
+        "leather": 2
+      },
+      "equipment_pool": [
+        "eagle_eye",
+        "hunting_bow",
+        "balanced_dagger",
+        "leather_armor"
+      ]
+    },
+    "layers": [
+      {
+        "name": "外围盗贼",
+        "type": "battle",
+        "enemies": [
+          "bandit",
+          "bandit"
+        ]
+      },
+      {
+        "name": "弓手哨塔",
+        "type": "battle",
+        "enemies": [
+          "bandit",
+          "archer",
+          "archer"
+        ]
+      },
+      {
+        "name": "伏击小径",
+        "type": "trap",
+        "effect": "ambush",
+        "then_enemies": [
+          "bandit",
+          "archer"
+        ]
+      },
+      {
+        "name": "刺客头目",
+        "type": "battle",
+        "enemies": [
+          "assassin_leader",
+          "bandit",
+          "archer"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "abandoned_mine",
+    "name": "废弃矿洞",
+    "theme": "高护甲、物理压力、矿石收益",
+    "recommended_level": [
+      1,
+      4
+    ],
+    "base_danger": 2,
+    "life_days": 3,
+    "layer_count": 3,
+    "main_rewards": [
+      "矿石",
+      "重甲材料",
+      "盾牌材料"
+    ],
+    "public_threats": [
+      "敌人护甲厚",
+      "前排会持续承压",
+      "矿石收益稳定"
+    ],
+    "scout_lines": [
+      "石肤怪拥有很高防御。",
+      "破甲或魔法伤害可以更快处理高护甲敌人。",
+      "前排防御不足时容易在第 3 层崩盘。"
+    ],
+    "post_battle_lines": [
+      "高护甲敌人会显著降低纯物理输出效率。",
+      "盗贼破甲能提高队伍总输出。"
+    ],
+    "possible_affixes": [
+      "armored_enemies",
+      "elite_lair",
+      "time_pressure"
+    ],
+    "rewards": {
+      "gold": 50,
+      "exp": 55,
+      "materials": {
+        "ore": 4,
+        "shield_parts": 2
+      },
+      "equipment_pool": [
+        "chainmail",
+        "heavy_shield",
+        "iron_sword"
+      ]
+    },
+    "layers": [
+      {
+        "name": "矿洞鼠群",
+        "type": "battle",
+        "enemies": [
+          "mine_rat",
+          "mine_rat",
+          "rock_beetle"
+        ]
+      },
+      {
+        "name": "岩甲虫巢",
+        "type": "battle",
+        "enemies": [
+          "rock_beetle",
+          "rock_beetle"
+        ]
+      },
+      {
+        "name": "石肤怪",
+        "type": "battle",
+        "enemies": [
+          "stone_skin",
+          "rock_beetle"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "beast_den",
+    "name": "野兽巢穴",
+    "theme": "流血、爆发、前排压力",
+    "recommended_level": [
+      3,
+      6
+    ],
+    "base_danger": 4,
+    "life_days": 3,
+    "layer_count": 4,
+    "main_rewards": [
+      "皮革",
+      "野兽牙",
+      "流血抗性资源"
+    ],
+    "public_threats": [
+      "野兽爆发较高",
+      "前排容易流血",
+      "需要快速减员"
+    ],
+    "scout_lines": [
+      "狼群会制造流血。",
+      "巨熊可能眩晕前排。",
+      "Boss 会扑杀后排，单前排阵型风险较大。"
+    ],
+    "post_battle_lines": [
+      "流血会放大多层副本的资源压力。",
+      "快速击杀狼群可以减少长期损耗。"
+    ],
+    "possible_affixes": [
+      "ambush_routes",
+      "elite_lair",
+      "exposed_treasure"
+    ],
+    "rewards": {
+      "gold": 70,
+      "exp": 85,
+      "materials": {
+        "leather": 4,
+        "beast_fang": 2
+      },
+      "equipment_pool": [
+        "blood_stitch",
+        "leather_armor",
+        "balanced_dagger"
+      ]
+    },
+    "layers": [
+      {
+        "name": "狼群巡逻",
+        "type": "battle",
+        "enemies": [
+          "wolf",
+          "wolf",
+          "wolf"
+        ]
+      },
+      {
+        "name": "巨熊洞口",
+        "type": "battle",
+        "enemies": [
+          "bear",
+          "wolf"
+        ]
+      },
+      {
+        "name": "兽群合围",
+        "type": "battle",
+        "enemies": [
+          "wolf",
+          "wolf",
+          "bear"
+        ]
+      },
+      {
+        "name": "狂暴兽王",
+        "type": "battle",
+        "enemies": [
+          "beast_king",
+          "wolf",
+          "wolf"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ancient_tomb",
+    "name": "古代墓穴",
+    "theme": "诅咒、魔法抗性、持久战",
+    "recommended_level": [
+      4,
+      7
+    ],
+    "base_danger": 5,
+    "life_days": 3,
+    "layer_count": 5,
+    "main_rewards": [
+      "法术材料",
+      "抗诅咒饰品",
+      "魔法装备"
+    ],
+    "public_threats": [
+      "魔法与诅咒威胁",
+      "敌人不吃毒和流血",
+      "战斗可能拖长"
+    ],
+    "scout_lines": [
+      "幽灵会攻击低 HP 成员并施加诅咒。",
+      "墓穴祭司拥有群体诅咒。",
+      "圣徽和净化能显著提高稳定性。"
+    ],
+    "post_battle_lines": [
+      "诅咒会降低命中与治疗效率。",
+      "不死敌人免疫毒和流血。"
+    ],
+    "possible_affixes": [
+      "elite_lair",
+      "exposed_treasure",
+      "time_pressure"
+    ],
+    "rewards": {
+      "gold": 90,
+      "exp": 105,
+      "materials": {
+        "arcane_dust": 4,
+        "relic": 2
+      },
+      "equipment_pool": [
+        "holy_emblem",
+        "curse_ward",
+        "oak_staff",
+        "fire_wand"
+      ]
+    },
+    "layers": [
+      {
+        "name": "墓道骷髅",
+        "type": "battle",
+        "enemies": [
+          "skeleton",
+          "skeleton"
+        ]
+      },
+      {
+        "name": "幽灵游荡",
+        "type": "battle",
+        "enemies": [
+          "ghost",
+          "skeleton",
+          "ghost"
+        ]
+      },
+      {
+        "name": "诅咒墓碑",
+        "type": "trap",
+        "effect": "curse",
+        "then_enemies": [
+          "ghost",
+          "skeleton"
+        ]
+      },
+      {
+        "name": "不死护卫",
+        "type": "battle",
+        "enemies": [
+          "skeleton",
+          "skeleton",
+          "ghost"
+        ]
+      },
+      {
+        "name": "墓穴祭司",
+        "type": "battle",
+        "enemies": [
+          "tomb_priest",
+          "skeleton",
+          "ghost"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "lava_rift",
+    "name": "熔岩裂谷",
+    "theme": "火焰持续伤害、装备耐久、资源压力",
+    "recommended_level": [
+      5,
+      8
+    ],
+    "base_danger": 6,
+    "life_days": 2,
+    "layer_count": 5,
+    "main_rewards": [
+      "火焰材料",
+      "火抗装备",
+      "耐久强化材料"
+    ],
+    "public_threats": [
+      "火焰持续伤害",
+      "装备耐久压力",
+      "敌人火抗很高"
+    ],
+    "scout_lines": [
+      "火蜥蜴会造成燃烧。",
+      "熔岩元素几乎免疫火焰。",
+      "火抗与修理准备比盲目提高攻击更重要。"
+    ],
+    "post_battle_lines": [
+      "燃烧会额外损耗装备耐久。",
+      "火抗装备能显著降低熔岩裂谷损失。"
+    ],
+    "possible_affixes": [
+      "burning_ground",
+      "elite_lair",
+      "exposed_treasure"
+    ],
+    "rewards": {
+      "gold": 110,
+      "exp": 130,
+      "materials": {
+        "fire_core": 4,
+        "ore": 3
+      },
+      "equipment_pool": [
+        "fire_charm",
+        "fire_wand",
+        "reinforced_plate"
+      ]
+    },
+    "layers": [
+      {
+        "name": "灼热坡道",
+        "type": "trap",
+        "effect": "burn",
+        "then_enemies": [
+          "fire_lizard",
+          "fire_lizard"
+        ]
+      },
+      {
+        "name": "火蜥蜴群",
+        "type": "battle",
+        "enemies": [
+          "fire_lizard",
+          "fire_lizard",
+          "fire_lizard"
+        ]
+      },
+      {
+        "name": "熔岩元素",
+        "type": "battle",
+        "enemies": [
+          "lava_elemental",
+          "fire_lizard"
+        ]
+      },
+      {
+        "name": "裂谷深处",
+        "type": "trap",
+        "effect": "durability",
+        "then_enemies": [
+          "lava_elemental",
+          "fire_lizard"
+        ]
+      },
+      {
+        "name": "火焰守卫",
+        "type": "battle",
+        "enemies": [
+          "flame_guardian",
+          "lava_elemental"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "final_bastion",
+    "name": "深渊堡垒",
+    "theme": "最终 Boss：混合毒、诅咒、后排压力与资源检验",
+    "recommended_level": [
+      7,
+      10
+    ],
+    "base_danger": 8,
+    "life_days": 99,
+    "layer_count": 5,
+    "is_final": true,
+    "main_rewards": [
+      "通关胜利"
+    ],
+    "public_threats": [
+      "最终挑战",
+      "混合伤害类型",
+      "必须在第 30 天前攻克"
+    ],
+    "scout_lines": [
+      "深渊督军会交替使用群体诅咒、后排毒裂隙和低血量处决。",
+      "队伍需要前排承伤、后排保护、净化解毒和足够输出。",
+      "建议至少拥有毒抗或诅咒抗性装备。"
+    ],
+    "post_battle_lines": [
+      "最终 Boss 同时验证后排保护、净化资源和撤退策略。",
+      "若前 4 层消耗过高，Boss 层会迅速滚雪球。"
+    ],
+    "possible_affixes": [],
+    "rewards": {
+      "gold": 500,
+      "exp": 250,
+      "materials": {
+        "glory": 1
+      },
+      "equipment_pool": []
+    },
+    "layers": [
+      {
+        "name": "腐化前哨",
+        "type": "battle",
+        "enemies": [
+          "bandit",
+          "venom_spider",
+          "ghost"
+        ]
+      },
+      {
+        "name": "重甲守门",
+        "type": "battle",
+        "enemies": [
+          "stone_skin",
+          "archer",
+          "skeleton"
+        ]
+      },
+      {
+        "name": "深渊裂隙",
+        "type": "trap",
+        "effect": "curse",
+        "then_enemies": [
+          "ghost",
+          "venom_spider",
+          "wolf"
+        ]
+      },
+      {
+        "name": "禁卫合围",
+        "type": "battle",
+        "enemies": [
+          "bear",
+          "lava_elemental",
+          "archer"
+        ]
+      },
+      {
+        "name": "深渊督军",
+        "type": "battle",
+        "enemies": [
+          "abyss_warlord",
+          "ghost",
+          "venom_spider"
+        ]
+      }
+    ]
+  }
+]

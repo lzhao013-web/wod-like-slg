@@ -1,0 +1,477 @@
+{
+  "id": "wod_default",
+  "name": "WOD 默认职业技能预设",
+  "description": "把职业、技能、职业 UI、默认站位/战术、招募池和自动施法优先级集中封装到一个 preset 中，避免在引擎与前端散落写死。",
+  "files": {
+    "classes": "classes.json",
+    "skills": "skills.json",
+    "equipment": "equipment.json",
+    "enemies": "enemies.json",
+    "dungeon_templates": "dungeon_templates.json",
+    "affixes": "affixes.json"
+  },
+  "class_ui": {
+    "warrior": {
+      "icon": "⚔️",
+      "accent": "#e57373",
+      "role_short": "战士",
+      "position": "front",
+      "default_target_priority": "front",
+      "default_opening_skill_priority": [
+        "guard"
+      ],
+      "default_skill_priority": [],
+      "default_defense_skill_by_type": {
+        "melee": "guard",
+        "ranged": "guard"
+      }
+    },
+    "guardian": {
+      "icon": "🛡️",
+      "accent": "#90a4ae",
+      "role_short": "守卫",
+      "position": "front",
+      "default_target_priority": "front",
+      "default_opening_skill_priority": [
+        "guard",
+        "shield_wall"
+      ],
+      "default_skill_priority": [],
+      "default_defense_skill_by_type": {
+        "melee": "shield_wall",
+        "ranged": "guard",
+        "magic": "shield_wall",
+        "mental": "shield_wall",
+        "special": "shield_wall"
+      }
+    },
+    "cleric": {
+      "icon": "✝️",
+      "accent": "#fff176",
+      "role_short": "牧师",
+      "position": "mid",
+      "default_target_priority": "lowest_hp",
+      "default_opening_skill_priority": [],
+      "default_skill_priority": [],
+      "default_defense_skill_by_type": {}
+    },
+    "mage": {
+      "icon": "🔮",
+      "accent": "#ba68c8",
+      "role_short": "法师",
+      "position": "back",
+      "default_target_priority": "lowest_hp",
+      "default_opening_skill_priority": [
+        "fireball"
+      ],
+      "default_skill_priority": [],
+      "default_defense_skill_by_type": {}
+    },
+    "ranger": {
+      "icon": "🏹",
+      "accent": "#81c784",
+      "role_short": "游侠",
+      "position": "back",
+      "default_target_priority": "rear",
+      "default_opening_skill_priority": [
+        "volley"
+      ],
+      "default_skill_priority": [],
+      "default_defense_skill_by_type": {}
+    },
+    "rogue": {
+      "icon": "🗡️",
+      "accent": "#4dd0e1",
+      "role_short": "盗贼",
+      "position": "back",
+      "default_target_priority": "rear",
+      "default_opening_skill_priority": [
+        "armor_break"
+      ],
+      "default_skill_priority": [],
+      "default_defense_skill_by_type": {}
+    }
+  },
+  "starter_roster": [
+    {
+      "class_id": "warrior",
+      "name": "艾丹"
+    },
+    {
+      "class_id": "cleric",
+      "name": "莉亚"
+    },
+    {
+      "class_id": "ranger",
+      "name": "希尔"
+    },
+    {
+      "class_id": "rogue",
+      "name": "诺克"
+    },
+    {
+      "class_id": "guardian",
+      "name": "布朗"
+    },
+    {
+      "class_id": "mage",
+      "name": "玛琳"
+    }
+  ],
+  "starter_formations": {
+    "team_1": {
+      "r0c1": "ch_1",
+      "r1c1": "ch_2",
+      "r2c0": "ch_3",
+      "r2c2": "ch_4"
+    },
+    "team_2": {
+      "r0c1": "ch_5",
+      "r2c1": "ch_6"
+    }
+  },
+  "starter_equipment": [
+    {
+      "owner": "ch_1",
+      "equipment_id": "iron_sword"
+    },
+    {
+      "owner": "ch_1",
+      "equipment_id": "chainmail"
+    },
+    {
+      "owner": "ch_2",
+      "equipment_id": "oak_staff"
+    },
+    {
+      "owner": "ch_2",
+      "equipment_id": "leather_armor"
+    },
+    {
+      "owner": "ch_3",
+      "equipment_id": "hunting_bow"
+    },
+    {
+      "owner": "ch_3",
+      "equipment_id": "leather_armor"
+    },
+    {
+      "owner": "ch_4",
+      "equipment_id": "balanced_dagger"
+    },
+    {
+      "owner": "ch_4",
+      "equipment_id": "leather_armor"
+    },
+    {
+      "owner": "ch_5",
+      "equipment_id": "heavy_shield"
+    },
+    {
+      "owner": "ch_6",
+      "equipment_id": "fire_wand"
+    },
+    {
+      "owner": null,
+      "equipment_id": "poison_ring"
+    },
+    {
+      "owner": null,
+      "equipment_id": "eagle_eye"
+    }
+  ],
+  "recruit_pool": [
+    "warrior",
+    "ranger",
+    "cleric",
+    "rogue",
+    "mage",
+    "guardian"
+  ],
+  "recruit_names": [
+    "伊芙",
+    "莱恩",
+    "卡洛",
+    "薇拉",
+    "塔克",
+    "米娜",
+    "洛特",
+    "珂赛"
+  ],
+  "skill_ai": {
+    "cleric": [
+      {
+        "skill": "mass_cleanse",
+        "when": "party_status_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "cleanse",
+        "when": "party_status_count_gte",
+        "threshold": 1
+      },
+      {
+        "skill": "group_heal",
+        "when": "party_low_count_gte",
+        "hp_below": 0.62,
+        "threshold": 2
+      },
+      {
+        "skill": "heal",
+        "when": "lowest_ally_hp_below",
+        "hp_below": 0.5
+      },
+      {
+        "skill": "divine_aegis",
+        "when": "party_low_count_gte",
+        "hp_below": 0.78,
+        "threshold": 2
+      },
+      {
+        "skill": "sacred_ward",
+        "when": "setup"
+      },
+      {
+        "skill": "smite_undead",
+        "when": "enemy_tags_any",
+        "tags": [
+          "undead",
+          "boss"
+        ]
+      }
+    ],
+    "warrior": [
+      {
+        "skill": "guard",
+        "when": "ally_backline_hp_below",
+        "hp_below": 0.78
+      },
+      {
+        "skill": "shield_bash",
+        "when": "dangerous_enemy_unstunned"
+      },
+      {
+        "skill": "battle_focus",
+        "when": "self_without_status",
+        "status": "focus"
+      },
+      {
+        "skill": "cleave",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "execute",
+        "when": "enemy_hp_below",
+        "hp_below": 0.4
+      },
+      {
+        "skill": "power_strike",
+        "when": "always"
+      }
+    ],
+    "guardian": [
+      {
+        "skill": "guard",
+        "when": "ally_backline_hp_below",
+        "hp_below": 0.78
+      },
+      {
+        "skill": "shield_wall",
+        "when": "self_hp_below",
+        "hp_below": 0.7
+      },
+      {
+        "skill": "taunting_roar",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "bulwark_aura",
+        "when": "party_low_count_gte",
+        "hp_below": 0.72,
+        "threshold": 2
+      },
+      {
+        "skill": "iron_vow",
+        "when": "party_low_count_gte",
+        "hp_below": 0.8,
+        "threshold": 2
+      },
+      {
+        "skill": "shield_bash",
+        "when": "dangerous_enemy_unstunned"
+      },
+      {
+        "skill": "power_strike",
+        "when": "always"
+      }
+    ],
+    "ranger": [
+      {
+        "skill": "hunter_mark",
+        "when": "priority_enemy_without_status",
+        "status": "marked"
+      },
+      {
+        "skill": "rain_of_arrows",
+        "when": "enemies_count_gte",
+        "threshold": 4
+      },
+      {
+        "skill": "volley",
+        "when": "enemies_count_gte",
+        "threshold": 3
+      },
+      {
+        "skill": "piercing_shot",
+        "when": "enemy_defense_gte",
+        "defense_gte": 8
+      },
+      {
+        "skill": "pinning_shot",
+        "when": "priority_enemy_without_status",
+        "status": "slow"
+      },
+      {
+        "skill": "aimed_shot",
+        "when": "always"
+      }
+    ],
+    "rogue": [
+      {
+        "skill": "smoke_step",
+        "when": "self_hp_below_without_status",
+        "hp_below": 0.55,
+        "status": "evasion_up"
+      },
+      {
+        "skill": "armor_break",
+        "when": "armored_enemy_without_status",
+        "defense_gte": 7,
+        "status": "armor_break"
+      },
+      {
+        "skill": "kidney_shot",
+        "when": "dangerous_enemy_unstunned"
+      },
+      {
+        "skill": "poison_blade",
+        "when": "enemy_without_status_hp_above",
+        "status": "poison",
+        "hp_above": 0.45
+      },
+      {
+        "skill": "shadow_finish",
+        "when": "enemy_hp_below",
+        "hp_below": 0.35
+      },
+      {
+        "skill": "backstab",
+        "when": "always"
+      }
+    ],
+    "mage": [
+      {
+        "skill": "arcane_barrier",
+        "when": "party_low_count_gte",
+        "hp_below": 0.55,
+        "threshold": 1
+      },
+      {
+        "skill": "curse_of_fragility",
+        "when": "enemy_defense_gte_without_status",
+        "defense_gte": 8,
+        "status": "vulnerable"
+      },
+      {
+        "skill": "meteor_shower",
+        "when": "enemies_count_gte",
+        "threshold": 4
+      },
+      {
+        "skill": "chain_lightning",
+        "when": "enemies_count_gte",
+        "threshold": 3
+      },
+      {
+        "skill": "fireball",
+        "when": "enemies_count_gte",
+        "threshold": 2
+      },
+      {
+        "skill": "ignite",
+        "when": "enemy_without_status",
+        "status": "burn"
+      },
+      {
+        "skill": "arcane_bolt",
+        "when": "always"
+      }
+    ]
+  },
+  "skill_tree": {
+    "warrior": [
+      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
+      { "skill_id": "battle_readiness", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
+      { "skill_id": "guard", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_readiness"], "x": 0, "y": 1 },
+      { "skill_id": "power_strike", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_readiness"], "x": 2, "y": 1 },
+      { "skill_id": "shield_bash", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 0, "y": 2 },
+      { "skill_id": "battle_focus", "cost": 1, "tier": 2, "prerequisites": ["battle_readiness"], "x": 1, "y": 2 },
+      { "skill_id": "cleave", "cost": 1, "tier": 2, "prerequisites": ["power_strike"], "x": 2, "y": 2 },
+      { "skill_id": "execute", "cost": 2, "tier": 3, "prerequisites": ["cleave", "battle_focus"], "x": 2, "y": 3 }
+    ],
+    "ranger": [
+      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
+      { "skill_id": "quick_draw", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
+      { "skill_id": "aimed_shot", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["quick_draw"], "x": 0, "y": 1 },
+      { "skill_id": "volley", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["quick_draw"], "x": 2, "y": 1 },
+      { "skill_id": "hunter_mark", "cost": 1, "tier": 2, "prerequisites": ["aimed_shot"], "x": 0, "y": 2 },
+      { "skill_id": "piercing_shot", "cost": 1, "tier": 2, "prerequisites": ["aimed_shot"], "x": 1, "y": 2 },
+      { "skill_id": "pinning_shot", "cost": 1, "tier": 3, "prerequisites": ["hunter_mark"], "x": 0, "y": 3 },
+      { "skill_id": "rain_of_arrows", "cost": 2, "tier": 3, "prerequisites": ["volley", "piercing_shot"], "x": 2, "y": 3 }
+    ],
+    "cleric": [
+      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
+      { "skill_id": "battle_prayer", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
+      { "skill_id": "heal", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_prayer"], "x": 0, "y": 1 },
+      { "skill_id": "cleanse", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["battle_prayer"], "x": 2, "y": 1 },
+      { "skill_id": "sacred_ward", "cost": 1, "tier": 2, "prerequisites": ["heal"], "x": 0, "y": 2 },
+      { "skill_id": "smite_undead", "cost": 1, "tier": 2, "prerequisites": ["cleanse"], "x": 2, "y": 2 },
+      { "skill_id": "group_heal", "cost": 1, "tier": 3, "prerequisites": ["heal"], "x": 0, "y": 3 },
+      { "skill_id": "mass_cleanse", "cost": 1, "tier": 3, "prerequisites": ["cleanse"], "x": 2, "y": 3 },
+      { "skill_id": "divine_aegis", "cost": 2, "tier": 4, "prerequisites": ["sacred_ward", "group_heal"], "x": 1, "y": 4 }
+    ],
+    "rogue": [
+      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
+      { "skill_id": "shadow_reflex", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
+      { "skill_id": "backstab", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shadow_reflex"], "x": 0, "y": 1 },
+      { "skill_id": "armor_break", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shadow_reflex"], "x": 2, "y": 1 },
+      { "skill_id": "smoke_step", "cost": 1, "tier": 2, "prerequisites": ["backstab"], "x": 1, "y": 2 },
+      { "skill_id": "poison_blade", "cost": 1, "tier": 2, "prerequisites": ["armor_break"], "x": 2, "y": 2 },
+      { "skill_id": "kidney_shot", "cost": 1, "tier": 3, "prerequisites": ["armor_break"], "x": 2, "y": 3 },
+      { "skill_id": "shadow_finish", "cost": 2, "tier": 3, "prerequisites": ["backstab", "poison_blade"], "x": 0, "y": 3 }
+    ],
+    "mage": [
+      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
+      { "skill_id": "arcane_preparation", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
+      { "skill_id": "arcane_bolt", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["arcane_preparation"], "x": 0, "y": 1 },
+      { "skill_id": "fireball", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["arcane_preparation"], "x": 2, "y": 1 },
+      { "skill_id": "chain_lightning", "cost": 1, "tier": 2, "prerequisites": ["arcane_bolt"], "x": 0, "y": 2 },
+      { "skill_id": "arcane_barrier", "cost": 1, "tier": 2, "prerequisites": ["arcane_preparation"], "x": 1, "y": 2 },
+      { "skill_id": "ignite", "cost": 1, "tier": 2, "prerequisites": ["fireball"], "x": 2, "y": 2 },
+      { "skill_id": "curse_of_fragility", "cost": 1, "tier": 3, "prerequisites": ["arcane_barrier"], "x": 1, "y": 3 },
+      { "skill_id": "meteor_shower", "cost": 2, "tier": 3, "prerequisites": ["fireball", "chain_lightning"], "x": 2, "y": 3 }
+    ],
+    "guardian": [
+      { "skill_id": "basic_attack", "cost": 0, "tier": 0, "auto_learn": true, "x": 0, "y": 0 },
+      { "skill_id": "shield_readiness", "cost": 0, "tier": 0, "auto_learn": true, "x": 1, "y": 0 },
+      { "skill_id": "guard", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shield_readiness"], "x": 0, "y": 1 },
+      { "skill_id": "shield_wall", "cost": 0, "tier": 1, "auto_learn": true, "prerequisites": ["shield_readiness"], "x": 2, "y": 1 },
+      { "skill_id": "shield_bash", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 0, "y": 2 },
+      { "skill_id": "taunting_roar", "cost": 1, "tier": 2, "prerequisites": ["guard"], "x": 1, "y": 2 },
+      { "skill_id": "iron_vow", "cost": 1, "tier": 2, "prerequisites": ["shield_wall"], "x": 2, "y": 2 },
+      { "skill_id": "bulwark_aura", "cost": 2, "tier": 3, "prerequisites": ["iron_vow", "guard"], "x": 1, "y": 3 }
+    ]
+  }
+}

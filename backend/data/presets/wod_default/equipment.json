@@ -1,0 +1,269 @@
+[
+  {
+    "id": "iron_sword",
+    "name": "铁剑",
+    "slot": "weapon",
+    "rarity": "common",
+    "cost": 60,
+    "stats": {
+      "attack": 5
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 36,
+    "class_restriction": [
+      "warrior",
+      "guardian"
+    ]
+  },
+  {
+    "id": "hunting_bow",
+    "name": "猎弓",
+    "slot": "weapon",
+    "rarity": "common",
+    "cost": 65,
+    "stats": {
+      "attack": 4,
+      "accuracy": 8
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 32,
+    "class_restriction": [
+      "ranger"
+    ]
+  },
+  {
+    "id": "balanced_dagger",
+    "name": "平衡匕首",
+    "slot": "weapon",
+    "rarity": "common",
+    "cost": 55,
+    "stats": {
+      "attack": 4,
+      "speed": 1,
+      "evasion": 2
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 32,
+    "class_restriction": [
+      "rogue"
+    ]
+  },
+  {
+    "id": "oak_staff",
+    "name": "橡木法杖",
+    "slot": "weapon",
+    "rarity": "common",
+    "cost": 50,
+    "stats": {
+      "attack": 3,
+      "max_hp": 6
+    },
+    "resistances": {
+      "curse": 4
+    },
+    "special_effects": [
+      "healing_bonus_minor"
+    ],
+    "durability": 34,
+    "class_restriction": [
+      "cleric",
+      "mage"
+    ]
+  },
+  {
+    "id": "fire_wand",
+    "name": "火纹短杖",
+    "slot": "weapon",
+    "rarity": "uncommon",
+    "cost": 95,
+    "stats": {
+      "attack": 6,
+      "accuracy": 4
+    },
+    "resistances": {
+      "fire": 8
+    },
+    "special_effects": [
+      "fire_bonus_minor"
+    ],
+    "durability": 30,
+    "class_restriction": [
+      "mage",
+      "cleric"
+    ]
+  },
+  {
+    "id": "leather_armor",
+    "name": "皮甲",
+    "slot": "armor",
+    "rarity": "common",
+    "cost": 45,
+    "stats": {
+      "defense": 2,
+      "evasion": 2
+    },
+    "resistances": {
+      "bleed": 5
+    },
+    "special_effects": [],
+    "durability": 40,
+    "class_restriction": []
+  },
+  {
+    "id": "chainmail",
+    "name": "锁子甲",
+    "slot": "armor",
+    "rarity": "common",
+    "cost": 75,
+    "stats": {
+      "defense": 5,
+      "speed": -1
+    },
+    "resistances": {
+      "physical": 5
+    },
+    "special_effects": [],
+    "durability": 44,
+    "class_restriction": [
+      "warrior",
+      "guardian",
+      "cleric"
+    ]
+  },
+  {
+    "id": "heavy_shield",
+    "name": "厚重盾牌",
+    "slot": "trinket",
+    "rarity": "uncommon",
+    "cost": 85,
+    "stats": {
+      "defense": 5,
+      "speed": -2
+    },
+    "resistances": {
+      "physical": 6
+    },
+    "special_effects": [
+      "guard_bonus"
+    ],
+    "durability": 46,
+    "class_restriction": [
+      "warrior",
+      "guardian"
+    ]
+  },
+  {
+    "id": "poison_ring",
+    "name": "毒抗戒指",
+    "slot": "trinket",
+    "rarity": "uncommon",
+    "cost": 70,
+    "stats": {},
+    "resistances": {
+      "poison": 18
+    },
+    "special_effects": [],
+    "durability": 30,
+    "class_restriction": []
+  },
+  {
+    "id": "holy_emblem",
+    "name": "圣徽",
+    "slot": "trinket",
+    "rarity": "uncommon",
+    "cost": 80,
+    "stats": {},
+    "resistances": {
+      "curse": 15,
+      "magic": 5
+    },
+    "special_effects": [
+      "healing_bonus_minor"
+    ],
+    "durability": 30,
+    "class_restriction": []
+  },
+  {
+    "id": "eagle_eye",
+    "name": "鹰眼护符",
+    "slot": "trinket",
+    "rarity": "uncommon",
+    "cost": 75,
+    "stats": {
+      "accuracy": 10
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 30,
+    "class_restriction": []
+  },
+  {
+    "id": "fire_charm",
+    "name": "火蜥护符",
+    "slot": "trinket",
+    "rarity": "uncommon",
+    "cost": 80,
+    "stats": {},
+    "resistances": {
+      "fire": 18
+    },
+    "special_effects": [],
+    "durability": 30,
+    "class_restriction": []
+  },
+  {
+    "id": "blood_stitch",
+    "name": "止血缝针包",
+    "slot": "trinket",
+    "rarity": "uncommon",
+    "cost": 70,
+    "stats": {
+      "max_hp": 8
+    },
+    "resistances": {
+      "bleed": 16
+    },
+    "special_effects": [],
+    "durability": 24,
+    "class_restriction": []
+  },
+  {
+    "id": "curse_ward",
+    "name": "祛咒护符",
+    "slot": "trinket",
+    "rarity": "uncommon",
+    "cost": 80,
+    "stats": {},
+    "resistances": {
+      "curse": 18
+    },
+    "special_effects": [],
+    "durability": 30,
+    "class_restriction": []
+  },
+  {
+    "id": "reinforced_plate",
+    "name": "加固胸甲",
+    "slot": "armor",
+    "rarity": "rare",
+    "cost": 130,
+    "stats": {
+      "defense": 8,
+      "speed": -2,
+      "max_hp": 12
+    },
+    "resistances": {
+      "physical": 8,
+      "bleed": 8
+    },
+    "special_effects": [],
+    "durability": 54,
+    "class_restriction": [
+      "warrior",
+      "guardian"
+    ]
+  }
+]

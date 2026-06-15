@@ -1,0 +1,898 @@
+[
+  {
+    "id": "small_spider",
+    "name": "小蜘蛛",
+    "tags": [
+      "beast",
+      "small"
+    ],
+    "stats": {
+      "max_hp": 28,
+      "attack": 7,
+      "defense": 1,
+      "speed": 11,
+      "accuracy": 76,
+      "evasion": 10
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 30,
+      "magic": 0,
+      "curse": 0,
+      "fire": -12,
+      "bleed": 0
+    },
+    "skills": [
+      {
+        "name": "撕咬",
+        "power": 1,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "venom_spider",
+    "name": "毒蛛",
+    "tags": [
+      "beast",
+      "poison"
+    ],
+    "stats": {
+      "max_hp": 42,
+      "attack": 9,
+      "defense": 2,
+      "speed": 9,
+      "accuracy": 78,
+      "evasion": 8
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 45,
+      "magic": 0,
+      "curse": 0,
+      "fire": -15,
+      "bleed": 0
+    },
+    "skills": [
+      {
+        "name": "毒牙",
+        "power": 3,
+        "damage_types": [
+          "physical",
+          "poison"
+        ],
+        "accuracy_modifier": 2,
+        "target_rule": "front",
+        "status_effects": [
+          {
+            "type": "poison",
+            "duration": 3,
+            "potency": 5,
+            "chance": 0.55
+          }
+        ],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "spider_queen",
+    "name": "蛛后",
+    "tags": [
+      "boss",
+      "poison",
+      "elite"
+    ],
+    "stats": {
+      "max_hp": 122,
+      "attack": 14,
+      "defense": 4,
+      "speed": 7,
+      "accuracy": 82,
+      "evasion": 6
+    },
+    "resistances": {
+      "physical": 5,
+      "poison": 55,
+      "magic": 0,
+      "curse": 0,
+      "fire": -20,
+      "bleed": 0
+    },
+    "skills": [
+      {
+        "name": "剧毒喷吐",
+        "power": 7,
+        "damage_types": [
+          "poison"
+        ],
+        "accuracy_modifier": 5,
+        "target_rule": "all",
+        "status_effects": [
+          {
+            "type": "poison",
+            "duration": 3,
+            "potency": 7,
+            "chance": 0.5
+          }
+        ],
+        "attack_type": "special"
+      },
+      {
+        "name": "蛛后撕咬",
+        "power": 8,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "bandit",
+    "name": "盗贼",
+    "tags": [
+      "human"
+    ],
+    "stats": {
+      "max_hp": 46,
+      "attack": 10,
+      "defense": 3,
+      "speed": 10,
+      "accuracy": 80,
+      "evasion": 14
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      {
+        "name": "短刀突刺",
+        "power": 4,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "archer",
+    "name": "弓手",
+    "tags": [
+      "human",
+      "ranged"
+    ],
+    "stats": {
+      "max_hp": 38,
+      "attack": 12,
+      "defense": 1,
+      "speed": 11,
+      "accuracy": 88,
+      "evasion": 10
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      {
+        "name": "瞄准后排",
+        "power": 5,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 8,
+        "target_rule": "rear",
+        "status_effects": [],
+        "attack_type": "ranged"
+      }
+    ]
+  },
+  {
+    "id": "assassin_leader",
+    "name": "刺客头目",
+    "tags": [
+      "human",
+      "boss"
+    ],
+    "stats": {
+      "max_hp": 104,
+      "attack": 15,
+      "defense": 3,
+      "speed": 13,
+      "accuracy": 88,
+      "evasion": 20
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 5,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      {
+        "name": "影袭",
+        "power": 10,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 6,
+        "target_rule": "rear",
+        "status_effects": [
+          {
+            "type": "bleed",
+            "duration": 2,
+            "potency": 6,
+            "chance": 0.35
+          }
+        ],
+        "attack_type": "special"
+      },
+      {
+        "name": "烟雾斩",
+        "power": 7,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "lowest_hp",
+        "status_effects": [],
+        "attack_type": "special"
+      }
+    ]
+  },
+  {
+    "id": "rock_beetle",
+    "name": "岩甲虫",
+    "tags": [
+      "beast",
+      "armored"
+    ],
+    "stats": {
+      "max_hp": 50,
+      "attack": 9,
+      "defense": 8,
+      "speed": 5,
+      "accuracy": 76,
+      "evasion": 2
+    },
+    "resistances": {
+      "physical": 15,
+      "poison": 5,
+      "magic": -8,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 10
+    },
+    "skills": [
+      {
+        "name": "撞击",
+        "power": 4,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "mine_rat",
+    "name": "矿洞鼠",
+    "tags": [
+      "beast",
+      "small"
+    ],
+    "stats": {
+      "max_hp": 32,
+      "attack": 8,
+      "defense": 1,
+      "speed": 12,
+      "accuracy": 78,
+      "evasion": 16
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      {
+        "name": "撕咬脚踝",
+        "power": 3,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 4,
+        "target_rule": "lowest_hp",
+        "status_effects": [
+          {
+            "type": "bleed",
+            "duration": 2,
+            "potency": 3,
+            "chance": 0.25
+          }
+        ],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "stone_skin",
+    "name": "石肤怪",
+    "tags": [
+      "construct",
+      "armored",
+      "elite"
+    ],
+    "stats": {
+      "max_hp": 112,
+      "attack": 13,
+      "defense": 11,
+      "speed": 4,
+      "accuracy": 80,
+      "evasion": 0
+    },
+    "resistances": {
+      "physical": 25,
+      "poison": 100,
+      "magic": -10,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "岩拳",
+        "power": 8,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [
+          {
+            "type": "armor_break",
+            "duration": 2,
+            "potency": 4,
+            "chance": 0.35
+          }
+        ],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "wolf",
+    "name": "狼群",
+    "tags": [
+      "beast"
+    ],
+    "stats": {
+      "max_hp": 44,
+      "attack": 11,
+      "defense": 2,
+      "speed": 12,
+      "accuracy": 82,
+      "evasion": 12
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 5
+    },
+    "skills": [
+      {
+        "name": "撕裂",
+        "power": 5,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [
+          {
+            "type": "bleed",
+            "duration": 3,
+            "potency": 4,
+            "chance": 0.45
+          }
+        ],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "bear",
+    "name": "巨熊",
+    "tags": [
+      "beast",
+      "elite"
+    ],
+    "stats": {
+      "max_hp": 98,
+      "attack": 16,
+      "defense": 5,
+      "speed": 6,
+      "accuracy": 78,
+      "evasion": 2
+    },
+    "resistances": {
+      "physical": 5,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 10
+    },
+    "skills": [
+      {
+        "name": "拍击",
+        "power": 10,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": -2,
+        "target_rule": "front",
+        "status_effects": [
+          {
+            "type": "stun",
+            "duration": 1,
+            "potency": 1,
+            "chance": 0.2
+          }
+        ],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "beast_king",
+    "name": "狂暴兽王",
+    "tags": [
+      "beast",
+      "boss"
+    ],
+    "stats": {
+      "max_hp": 132,
+      "attack": 18,
+      "defense": 5,
+      "speed": 9,
+      "accuracy": 84,
+      "evasion": 7
+    },
+    "resistances": {
+      "physical": 8,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 15
+    },
+    "skills": [
+      {
+        "name": "血腥咆哮",
+        "power": 8,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 3,
+        "target_rule": "all_front",
+        "status_effects": [
+          {
+            "type": "bleed",
+            "duration": 3,
+            "potency": 5,
+            "chance": 0.4
+          }
+        ],
+        "attack_type": "mental"
+      },
+      {
+        "name": "扑杀后排",
+        "power": 10,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "rear",
+        "status_effects": [],
+        "attack_type": "special"
+      }
+    ]
+  },
+  {
+    "id": "skeleton",
+    "name": "骷髅兵",
+    "tags": [
+      "undead"
+    ],
+    "stats": {
+      "max_hp": 52,
+      "attack": 10,
+      "defense": 5,
+      "speed": 6,
+      "accuracy": 76,
+      "evasion": 2
+    },
+    "resistances": {
+      "physical": 8,
+      "poison": 100,
+      "magic": 0,
+      "curse": 40,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "锈剑",
+        "power": 4,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "ghost",
+    "name": "幽灵",
+    "tags": [
+      "undead",
+      "magic"
+    ],
+    "stats": {
+      "max_hp": 48,
+      "attack": 12,
+      "defense": 1,
+      "speed": 10,
+      "accuracy": 84,
+      "evasion": 18
+    },
+    "resistances": {
+      "physical": 25,
+      "poison": 100,
+      "magic": 0,
+      "curse": 50,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "幽影触碰",
+        "power": 6,
+        "damage_types": [
+          "magic",
+          "curse"
+        ],
+        "accuracy_modifier": 5,
+        "target_rule": "lowest_hp",
+        "status_effects": [
+          {
+            "type": "curse",
+            "duration": 3,
+            "potency": 10,
+            "chance": 0.45
+          }
+        ],
+        "attack_type": "mental"
+      }
+    ]
+  },
+  {
+    "id": "tomb_priest",
+    "name": "墓穴祭司",
+    "tags": [
+      "undead",
+      "caster",
+      "boss"
+    ],
+    "stats": {
+      "max_hp": 116,
+      "attack": 15,
+      "defense": 3,
+      "speed": 8,
+      "accuracy": 86,
+      "evasion": 8
+    },
+    "resistances": {
+      "physical": 5,
+      "poison": 100,
+      "magic": 15,
+      "curse": 60,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "诅咒仪式",
+        "power": 8,
+        "damage_types": [
+          "magic",
+          "curse"
+        ],
+        "accuracy_modifier": 8,
+        "target_rule": "all",
+        "status_effects": [
+          {
+            "type": "curse",
+            "duration": 3,
+            "potency": 15,
+            "chance": 0.55
+          }
+        ],
+        "attack_type": "mental"
+      },
+      {
+        "name": "黑光",
+        "power": 11,
+        "damage_types": [
+          "magic"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "rear",
+        "status_effects": [],
+        "attack_type": "magic"
+      }
+    ]
+  },
+  {
+    "id": "fire_lizard",
+    "name": "火蜥蜴",
+    "tags": [
+      "beast",
+      "fire"
+    ],
+    "stats": {
+      "max_hp": 62,
+      "attack": 12,
+      "defense": 4,
+      "speed": 9,
+      "accuracy": 82,
+      "evasion": 8
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 60,
+      "bleed": 0
+    },
+    "skills": [
+      {
+        "name": "火焰咬噬",
+        "power": 7,
+        "damage_types": [
+          "physical",
+          "fire"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [
+          {
+            "type": "burn",
+            "duration": 2,
+            "potency": 5,
+            "chance": 0.4
+          }
+        ],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "lava_elemental",
+    "name": "熔岩元素",
+    "tags": [
+      "elemental",
+      "fire",
+      "elite"
+    ],
+    "stats": {
+      "max_hp": 108,
+      "attack": 16,
+      "defense": 7,
+      "speed": 5,
+      "accuracy": 82,
+      "evasion": 0
+    },
+    "resistances": {
+      "physical": 10,
+      "poison": 100,
+      "magic": 10,
+      "curse": 0,
+      "fire": 100,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "熔岩爆裂",
+        "power": 10,
+        "damage_types": [
+          "magic",
+          "fire"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "all_front",
+        "status_effects": [
+          {
+            "type": "burn",
+            "duration": 3,
+            "potency": 6,
+            "chance": 0.5
+          }
+        ],
+        "attack_type": "magic"
+      }
+    ]
+  },
+  {
+    "id": "flame_guardian",
+    "name": "火焰守卫",
+    "tags": [
+      "construct",
+      "fire",
+      "boss"
+    ],
+    "stats": {
+      "max_hp": 148,
+      "attack": 18,
+      "defense": 8,
+      "speed": 7,
+      "accuracy": 84,
+      "evasion": 2
+    },
+    "resistances": {
+      "physical": 15,
+      "poison": 100,
+      "magic": 5,
+      "curse": 0,
+      "fire": 100,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "灼热斩",
+        "power": 12,
+        "damage_types": [
+          "physical",
+          "fire"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [
+          {
+            "type": "burn",
+            "duration": 3,
+            "potency": 7,
+            "chance": 0.45
+          }
+        ],
+        "attack_type": "melee"
+      },
+      {
+        "name": "烈焰横扫",
+        "power": 8,
+        "damage_types": [
+          "fire"
+        ],
+        "accuracy_modifier": 2,
+        "target_rule": "all",
+        "status_effects": [],
+        "attack_type": "magic"
+      }
+    ]
+  },
+  {
+    "id": "abyss_warlord",
+    "name": "深渊督军",
+    "tags": [
+      "boss",
+      "final",
+      "armored"
+    ],
+    "stats": {
+      "max_hp": 260,
+      "attack": 22,
+      "defense": 10,
+      "speed": 9,
+      "accuracy": 88,
+      "evasion": 8
+    },
+    "resistances": {
+      "physical": 10,
+      "poison": 35,
+      "magic": 10,
+      "curse": 45,
+      "fire": 10,
+      "bleed": 20
+    },
+    "skills": [
+      {
+        "name": "深渊号令",
+        "power": 9,
+        "damage_types": [
+          "magic",
+          "curse"
+        ],
+        "accuracy_modifier": 8,
+        "target_rule": "all",
+        "status_effects": [
+          {
+            "type": "curse",
+            "duration": 3,
+            "potency": 14,
+            "chance": 0.45
+          }
+        ],
+        "attack_type": "mental"
+      },
+      {
+        "name": "处决斩",
+        "power": 16,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "lowest_hp",
+        "status_effects": [],
+        "attack_type": "melee"
+      },
+      {
+        "name": "腐毒裂隙",
+        "power": 11,
+        "damage_types": [
+          "poison",
+          "magic"
+        ],
+        "accuracy_modifier": 5,
+        "target_rule": "rear",
+        "status_effects": [
+          {
+            "type": "poison",
+            "duration": 3,
+            "potency": 8,
+            "chance": 0.5
+          }
+        ],
+        "attack_type": "special"
+      }
+    ]
+  }
+]

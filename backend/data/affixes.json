@@ -1,0 +1,72 @@
+[
+  {
+    "id": "toxic_fog",
+    "name": "毒雾弥漫",
+    "description": "每层开始时全队可能中毒，奖励提高。",
+    "danger_delta": 1,
+    "reward_multiplier": 1.2,
+    "mechanics": [
+      "poison_pressure"
+    ]
+  },
+  {
+    "id": "elite_lair",
+    "name": "精英盘踞",
+    "description": "部分层出现额外精英敌人。",
+    "danger_delta": 1,
+    "reward_multiplier": 1.25,
+    "mechanics": [
+      "extra_elite"
+    ]
+  },
+  {
+    "id": "exposed_treasure",
+    "name": "宝藏暴露",
+    "description": "奖励提高，但 Boss 更强。",
+    "danger_delta": 1,
+    "reward_multiplier": 1.35,
+    "mechanics": [
+      "boss_bonus"
+    ]
+  },
+  {
+    "id": "time_pressure",
+    "name": "时间紧迫",
+    "description": "剩余天数更短，奖励更好。",
+    "danger_delta": 0,
+    "reward_multiplier": 1.3,
+    "mechanics": [
+      "short_life"
+    ]
+  },
+  {
+    "id": "armored_enemies",
+    "name": "甲壳增生",
+    "description": "敌人防御上升，需要破甲或魔法。",
+    "danger_delta": 1,
+    "reward_multiplier": 1.15,
+    "mechanics": [
+      "armor_bonus"
+    ]
+  },
+  {
+    "id": "ambush_routes",
+    "name": "伏击小径",
+    "description": "后排更容易被攻击。",
+    "danger_delta": 1,
+    "reward_multiplier": 1.2,
+    "mechanics": [
+      "rear_threat"
+    ]
+  },
+  {
+    "id": "burning_ground",
+    "name": "灼热地表",
+    "description": "层间会承受火焰消耗，装备耐久损耗增加。",
+    "danger_delta": 1,
+    "reward_multiplier": 1.2,
+    "mechanics": [
+      "fire_pressure"
+    ]
+  }
+]

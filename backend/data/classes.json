@@ -1,0 +1,310 @@
+[
+  {
+    "id": "warrior",
+    "name": "战士",
+    "role": "前排压制 / 保护 / 战术打断",
+    "attributes": {
+      "strength": 15,
+      "constitution": 14,
+      "dexterity": 10,
+      "agility": 8,
+      "intelligence": 6,
+      "willpower": 10,
+      "perception": 8,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "strength": 1,
+      "constitution": 1,
+      "dexterity": 1
+    },
+    "stats": {
+      "max_hp": 76,
+      "attack": 10,
+      "defense": 8,
+      "speed": 5,
+      "accuracy": 72,
+      "evasion": 3,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 5,
+      "attack": 1,
+      "defense": 1
+    },
+    "resistances": {
+      "physical": 8,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 10
+    },
+    "skills": [
+      "basic_attack",
+      "guard",
+      "power_strike",
+      "cleave",
+      "shield_bash",
+      "battle_focus",
+      "execute"
+    ]
+  },
+  {
+    "id": "ranger",
+    "name": "游侠",
+    "role": "后排射手 / 标记集火 / 高命中压制",
+    "attributes": {
+      "strength": 9,
+      "constitution": 9,
+      "dexterity": 15,
+      "agility": 14,
+      "intelligence": 8,
+      "willpower": 8,
+      "perception": 16,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "perception": 1,
+      "dexterity": 1,
+      "agility": 1
+    },
+    "stats": {
+      "max_hp": 52,
+      "attack": 10,
+      "defense": 3,
+      "speed": 8,
+      "accuracy": 78,
+      "evasion": 7,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 4,
+      "attack": 1,
+      "accuracy": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      "basic_attack",
+      "aimed_shot",
+      "volley",
+      "hunter_mark",
+      "pinning_shot",
+      "piercing_shot",
+      "rain_of_arrows"
+    ]
+  },
+  {
+    "id": "cleric",
+    "name": "牧师",
+    "role": "治疗 / 净化 / 祝福 / 对邪物特攻",
+    "attributes": {
+      "strength": 7,
+      "constitution": 11,
+      "dexterity": 8,
+      "agility": 8,
+      "intelligence": 12,
+      "willpower": 16,
+      "perception": 10,
+      "charisma": 15
+    },
+    "attribute_growth": {
+      "willpower": 1,
+      "charisma": 1,
+      "constitution": 1
+    },
+    "stats": {
+      "max_hp": 58,
+      "attack": 6,
+      "defense": 4,
+      "speed": 6,
+      "accuracy": 72,
+      "evasion": 4,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 4,
+      "defense": 1,
+      "attack": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 10,
+      "magic": 10,
+      "curse": 16,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      "basic_attack",
+      "heal",
+      "cleanse",
+      "sacred_ward",
+      "group_heal",
+      "smite_undead",
+      "mass_cleanse",
+      "divine_aegis"
+    ]
+  },
+  {
+    "id": "rogue",
+    "name": "盗贼",
+    "role": "高速爆发 / 破甲 / 毒刃 / 控制关键目标",
+    "attributes": {
+      "strength": 10,
+      "constitution": 8,
+      "dexterity": 16,
+      "agility": 17,
+      "intelligence": 9,
+      "willpower": 7,
+      "perception": 12,
+      "charisma": 8
+    },
+    "attribute_growth": {
+      "dexterity": 1,
+      "agility": 1,
+      "perception": 1
+    },
+    "stats": {
+      "max_hp": 50,
+      "attack": 9,
+      "defense": 3,
+      "speed": 10,
+      "accuracy": 76,
+      "evasion": 10,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 4,
+      "attack": 1,
+      "evasion": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 8,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 0
+    },
+    "skills": [
+      "basic_attack",
+      "backstab",
+      "armor_break",
+      "poison_blade",
+      "smoke_step",
+      "kidney_shot",
+      "shadow_finish"
+    ]
+  },
+  {
+    "id": "mage",
+    "name": "法师",
+    "role": "奥术爆发 / 火焰群攻 / 脆弱诅咒 / 魔法护盾",
+    "attributes": {
+      "strength": 5,
+      "constitution": 8,
+      "dexterity": 8,
+      "agility": 9,
+      "intelligence": 17,
+      "willpower": 15,
+      "perception": 12,
+      "charisma": 9
+    },
+    "attribute_growth": {
+      "intelligence": 1,
+      "willpower": 1,
+      "perception": 1
+    },
+    "stats": {
+      "max_hp": 44,
+      "attack": 8,
+      "defense": 2,
+      "speed": 6,
+      "accuracy": 74,
+      "evasion": 3,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 3,
+      "attack": 1,
+      "accuracy": 1
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 0,
+      "magic": 14,
+      "curse": 8,
+      "fire": 12,
+      "bleed": 0
+    },
+    "skills": [
+      "basic_attack",
+      "arcane_bolt",
+      "fireball",
+      "arcane_barrier",
+      "ignite",
+      "chain_lightning",
+      "curse_of_fragility",
+      "meteor_shower"
+    ]
+  },
+  {
+    "id": "guardian",
+    "name": "守卫",
+    "role": "专职防御 / 嘲讽 / 群体减伤 / 阵线稳定",
+    "attributes": {
+      "strength": 12,
+      "constitution": 17,
+      "dexterity": 8,
+      "agility": 6,
+      "intelligence": 6,
+      "willpower": 13,
+      "perception": 8,
+      "charisma": 7
+    },
+    "attribute_growth": {
+      "constitution": 1,
+      "willpower": 1,
+      "strength": 1
+    },
+    "stats": {
+      "max_hp": 90,
+      "attack": 7,
+      "defense": 10,
+      "speed": 4,
+      "accuracy": 70,
+      "evasion": 1,
+      "action_count": 1
+    },
+    "stat_growth": {
+      "max_hp": 6,
+      "defense": 1,
+      "attack": 1
+    },
+    "resistances": {
+      "physical": 14,
+      "poison": 0,
+      "magic": 0,
+      "curse": 0,
+      "fire": 0,
+      "bleed": 14
+    },
+    "skills": [
+      "basic_attack",
+      "guard",
+      "shield_wall",
+      "shield_bash",
+      "taunting_roar",
+      "iron_vow",
+      "bulwark_aura"
+    ]
+  }
+]

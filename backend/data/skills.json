@@ -1,0 +1,915 @@
+[
+  {
+    "id": "basic_attack",
+    "name": "普通攻击",
+    "type": "damage",
+    "category": "攻击",
+    "description": "无需消耗的基础攻击，受职业主属性轻微影响。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "front",
+    "range": "melee",
+    "uses_per_dungeon": 999,
+    "level_required": 1,
+    "attribute_focus": "melee",
+    "attribute_scale": 0.06,
+    "status_effects": []
+  },
+  {
+    "id": "guard",
+    "name": "保护",
+    "type": "guard",
+    "category": "防护",
+    "description": "进入保护姿态，优先替后排承受攻击；体质、意志越高越稳定。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_backline",
+    "range": "ally",
+    "uses_per_dungeon": 4,
+    "level_required": 1,
+    "attribute_focus": "guard",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "guarding",
+        "duration": 1,
+        "potency": 45
+      }
+    ]
+  },
+  {
+    "id": "shield_wall",
+    "name": "盾墙",
+    "type": "buff",
+    "category": "姿态",
+    "description": "短时间大幅提高自身防御并获得伤害吸收。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "self",
+    "range": "self",
+    "uses_per_dungeon": 3,
+    "level_required": 1,
+    "attribute_focus": "guard",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "shield_wall",
+        "duration": 2,
+        "potency": 28
+      },
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 8
+      }
+    ]
+  },
+  {
+    "id": "power_strike",
+    "name": "重击",
+    "type": "damage",
+    "category": "攻击",
+    "description": "高力量近战打击，适合击穿前排。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 9,
+    "accuracy_modifier": -8,
+    "target_rule": "front",
+    "range": "melee",
+    "uses_per_dungeon": 3,
+    "level_required": 1,
+    "attribute_focus": "melee",
+    "attribute_scale": 0.11,
+    "status_effects": []
+  },
+  {
+    "id": "cleave",
+    "name": "顺劈",
+    "type": "damage",
+    "category": "攻击",
+    "description": "扫击前中排多个敌人，适合清理小怪。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 4,
+    "accuracy_modifier": -5,
+    "target_rule": "all_front",
+    "range": "melee",
+    "uses_per_dungeon": 3,
+    "level_required": 2,
+    "attribute_focus": "melee",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "target_count": 2
+  },
+  {
+    "id": "shield_bash",
+    "name": "盾击",
+    "type": "damage",
+    "category": "攻击",
+    "description": "打断高威胁敌人，有概率眩晕。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 4,
+    "accuracy_modifier": 4,
+    "target_rule": "highest_attack",
+    "range": "melee",
+    "uses_per_dungeon": 3,
+    "level_required": 3,
+    "attribute_focus": "guard",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "stun",
+        "duration": 1,
+        "potency": 1,
+        "chance": 0.35
+      }
+    ],
+    "crit_chance": 0.02
+  },
+  {
+    "id": "battle_focus",
+    "name": "战斗专注",
+    "type": "buff",
+    "category": "姿态",
+    "description": "提高命中与近战伤害，适合长线 Boss 战。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "self",
+    "range": "self",
+    "uses_per_dungeon": 2,
+    "level_required": 4,
+    "attribute_focus": "tactics",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "focus",
+        "duration": 3,
+        "potency": 10
+      },
+      {
+        "type": "might",
+        "duration": 3,
+        "potency": 3
+      }
+    ]
+  },
+  {
+    "id": "execute",
+    "name": "斩杀",
+    "type": "damage",
+    "category": "攻击",
+    "description": "对低血量目标额外增伤，收割关键敌人。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 11,
+    "accuracy_modifier": 2,
+    "target_rule": "lowest_hp",
+    "range": "melee",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "melee",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "crit_chance": 0.06,
+    "execute_bonus": 0.35
+  },
+  {
+    "id": "aimed_shot",
+    "name": "瞄准射击",
+    "type": "damage",
+    "category": "攻击",
+    "description": "高命中后排射击，优先处理弓手、法师。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 7,
+    "accuracy_modifier": 10,
+    "target_rule": "rear",
+    "range": "ranged",
+    "uses_per_dungeon": 4,
+    "level_required": 1,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0.11,
+    "status_effects": []
+  },
+  {
+    "id": "volley",
+    "name": "箭雨",
+    "type": "damage",
+    "category": "攻击",
+    "description": "同时压制多个敌人。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 3,
+    "accuracy_modifier": -5,
+    "target_rule": "all",
+    "range": "ranged",
+    "uses_per_dungeon": 2,
+    "level_required": 1,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "target_count": 3
+  },
+  {
+    "id": "hunter_mark",
+    "name": "猎人标记",
+    "type": "debuff",
+    "category": "削弱",
+    "description": "标记精英或 Boss，使其更容易被命中且受到更多伤害。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "elite",
+    "range": "ranged",
+    "uses_per_dungeon": 4,
+    "level_required": 2,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "marked",
+        "duration": 3,
+        "potency": 12,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "pinning_shot",
+    "name": "牵制射击",
+    "type": "damage",
+    "category": "攻击",
+    "description": "压低高攻击敌人的行动优势。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 5,
+    "accuracy_modifier": 7,
+    "target_rule": "highest_attack",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 3,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "slow",
+        "duration": 2,
+        "potency": 5,
+        "chance": 0.75
+      }
+    ]
+  },
+  {
+    "id": "piercing_shot",
+    "name": "穿甲箭",
+    "type": "damage",
+    "category": "攻击",
+    "description": "忽略部分防御，专门处理岩甲、重甲。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 8,
+    "accuracy_modifier": 4,
+    "target_rule": "highest_defense",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 4,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "ignore_defense": 0.45
+  },
+  {
+    "id": "rain_of_arrows",
+    "name": "暴雨箭幕",
+    "type": "damage",
+    "category": "攻击",
+    "description": "高级群体射击，适合怪海层。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 5,
+    "accuracy_modifier": -3,
+    "target_rule": "all",
+    "range": "ranged",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "ranged",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "target_count": 4
+  },
+  {
+    "id": "heal",
+    "name": "治疗术",
+    "type": "heal",
+    "category": "治疗",
+    "description": "单体抬血，受魅力与意志影响。",
+    "power": 28,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_low_hp",
+    "range": "ally",
+    "uses_per_dungeon": 5,
+    "level_required": 1,
+    "attribute_focus": "healing",
+    "attribute_scale": 0.22,
+    "status_effects": [],
+    "mana_cost": 8
+  },
+  {
+    "id": "cleanse",
+    "name": "净化",
+    "type": "cleanse",
+    "category": "净化",
+    "description": "移除中毒、诅咒、燃烧、流血等异常。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_status",
+    "range": "ally",
+    "uses_per_dungeon": 3,
+    "level_required": 1,
+    "attribute_focus": "faith",
+    "attribute_scale": 0,
+    "status_effects": [],
+    "cleanse_statuses": [
+      "poison",
+      "curse",
+      "burn",
+      "bleed",
+      "armor_break",
+      "marked",
+      "vulnerable",
+      "slow",
+      "enfeeble"
+    ],
+    "mana_cost": 6
+  },
+  {
+    "id": "sacred_ward",
+    "name": "圣佑祷言",
+    "type": "support",
+    "category": "支援",
+    "description": "为全队提高魔法、诅咒、毒与火焰抗性。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 3,
+    "level_required": 2,
+    "attribute_focus": "faith",
+    "attribute_scale": 0.0,
+    "status_effects": [
+      {
+        "type": "ward",
+        "duration": 3,
+        "potency": 10
+      }
+    ],
+    "mana_cost": 10
+  },
+  {
+    "id": "group_heal",
+    "name": "群体治疗",
+    "type": "heal",
+    "category": "治疗",
+    "description": "小幅治疗全队，适合持续消耗层。",
+    "power": 14,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 3,
+    "attribute_focus": "healing",
+    "attribute_scale": 0.22,
+    "status_effects": [],
+    "target_count": 4,
+    "mana_cost": 14
+  },
+  {
+    "id": "smite_undead",
+    "name": "驱邪圣击",
+    "type": "damage",
+    "category": "攻击",
+    "description": "对亡灵、Boss 或精英施加神圣压制。",
+    "damage_types": [
+      "magic",
+      "curse"
+    ],
+    "power": 8,
+    "accuracy_modifier": 5,
+    "target_rule": "elite",
+    "range": "ranged",
+    "uses_per_dungeon": 4,
+    "level_required": 4,
+    "attribute_focus": "faith",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "vulnerable",
+        "duration": 2,
+        "potency": 8,
+        "chance": 0.45
+      }
+    ],
+    "defense_factor": 0.55,
+    "mana_cost": 10
+  },
+  {
+    "id": "mass_cleanse",
+    "name": "群体净化",
+    "type": "cleanse",
+    "category": "净化",
+    "description": "高级净化，清理全队异常。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "faith",
+    "attribute_scale": 0,
+    "status_effects": [],
+    "cleanse_statuses": [
+      "poison",
+      "curse",
+      "burn",
+      "bleed",
+      "armor_break",
+      "marked",
+      "vulnerable",
+      "slow",
+      "enfeeble"
+    ],
+    "target_count": 4,
+    "mana_cost": 16
+  },
+  {
+    "id": "divine_aegis",
+    "name": "神圣庇护",
+    "type": "support",
+    "category": "支援",
+    "description": "全队获得护盾与短暂再生。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 7,
+    "attribute_focus": "faith",
+    "attribute_scale": 0.0,
+    "status_effects": [
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 14
+      },
+      {
+        "type": "regeneration",
+        "duration": 2,
+        "potency": 5
+      }
+    ],
+    "mana_cost": 18
+  },
+  {
+    "id": "backstab",
+    "name": "背刺",
+    "type": "damage",
+    "category": "攻击",
+    "description": "灵巧与敏捷驱动的后排爆发。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 8,
+    "accuracy_modifier": 0,
+    "target_rule": "rear",
+    "range": "any",
+    "uses_per_dungeon": 4,
+    "level_required": 1,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "crit_chance": 0.08
+  },
+  {
+    "id": "armor_break",
+    "name": "破甲",
+    "type": "damage",
+    "category": "攻击",
+    "description": "降低高防御目标护甲，放大队伍物理输出。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 4,
+    "accuracy_modifier": 5,
+    "target_rule": "highest_defense",
+    "range": "melee",
+    "uses_per_dungeon": 4,
+    "level_required": 1,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "armor_break",
+        "duration": 3,
+        "potency": 6,
+        "chance": 0.9
+      }
+    ]
+  },
+  {
+    "id": "poison_blade",
+    "name": "淬毒刃",
+    "type": "damage",
+    "category": "攻击",
+    "description": "给高血量或低血量目标叠加持续毒伤。",
+    "damage_types": [
+      "physical",
+      "poison"
+    ],
+    "power": 5,
+    "accuracy_modifier": 4,
+    "target_rule": "lowest_hp",
+    "range": "melee",
+    "uses_per_dungeon": 3,
+    "level_required": 2,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "poison",
+        "duration": 3,
+        "potency": 5,
+        "chance": 0.75
+      }
+    ]
+  },
+  {
+    "id": "smoke_step",
+    "name": "烟步",
+    "type": "buff",
+    "category": "姿态",
+    "description": "提高闪避与命中，帮助盗贼在危险血线存活。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "self",
+    "range": "self",
+    "uses_per_dungeon": 3,
+    "level_required": 3,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "evasion_up",
+        "duration": 2,
+        "potency": 12
+      },
+      {
+        "type": "focus",
+        "duration": 2,
+        "potency": 6
+      }
+    ]
+  },
+  {
+    "id": "kidney_shot",
+    "name": "肾击",
+    "type": "damage",
+    "category": "攻击",
+    "description": "控制高攻击目标，打断爆发。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 4,
+    "accuracy_modifier": 7,
+    "target_rule": "highest_attack",
+    "range": "melee",
+    "uses_per_dungeon": 3,
+    "level_required": 4,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "stun",
+        "duration": 1,
+        "potency": 1,
+        "chance": 0.55
+      }
+    ]
+  },
+  {
+    "id": "shadow_finish",
+    "name": "影袭终结",
+    "type": "damage",
+    "category": "攻击",
+    "description": "对已被削弱或低血量目标造成终结伤害。",
+    "damage_types": [
+      "physical"
+    ],
+    "power": 12,
+    "accuracy_modifier": 4,
+    "target_rule": "lowest_hp",
+    "range": "melee",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "finesse",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "crit_chance": 0.12,
+    "execute_bonus": 0.25,
+    "bonus_vs_status": [
+      "marked",
+      "armor_break",
+      "poison",
+      "vulnerable"
+    ],
+    "status_bonus": 0.22
+  },
+  {
+    "id": "fireball",
+    "name": "火球术",
+    "type": "damage",
+    "category": "攻击",
+    "description": "火焰群体伤害，对弱火敌人尤佳。",
+    "damage_types": [
+      "magic",
+      "fire"
+    ],
+    "power": 10,
+    "accuracy_modifier": 0,
+    "target_rule": "cluster",
+    "range": "ranged",
+    "uses_per_dungeon": 4,
+    "level_required": 1,
+    "attribute_focus": "magic",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "burn",
+        "duration": 2,
+        "potency": 5,
+        "chance": 0.35
+      }
+    ],
+    "target_count": 3,
+    "defense_factor": 0.55,
+    "mana_cost": 12
+  },
+  {
+    "id": "arcane_bolt",
+    "name": "奥术箭",
+    "type": "damage",
+    "category": "攻击",
+    "description": "稳定魔法单点，处理高护甲目标。",
+    "damage_types": [
+      "magic"
+    ],
+    "power": 8,
+    "accuracy_modifier": 5,
+    "target_rule": "lowest_hp",
+    "range": "ranged",
+    "uses_per_dungeon": 5,
+    "level_required": 1,
+    "attribute_focus": "magic",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "defense_factor": 0.5,
+    "mana_cost": 8
+  },
+  {
+    "id": "arcane_barrier",
+    "name": "奥术屏障",
+    "type": "support",
+    "category": "支援",
+    "description": "给低血量队友护盾与抗性。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_low_hp",
+    "range": "ally",
+    "uses_per_dungeon": 3,
+    "level_required": 2,
+    "attribute_focus": "magic",
+    "attribute_scale": 0.0,
+    "status_effects": [
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 16
+      },
+      {
+        "type": "ward",
+        "duration": 2,
+        "potency": 6
+      }
+    ],
+    "target_count": 1,
+    "mana_cost": 10
+  },
+  {
+    "id": "ignite",
+    "name": "引燃",
+    "type": "damage",
+    "category": "攻击",
+    "description": "高概率燃烧单体，制造持续火焰压力。",
+    "damage_types": [
+      "fire"
+    ],
+    "power": 6,
+    "accuracy_modifier": 0,
+    "target_rule": "lowest_hp",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 3,
+    "attribute_focus": "magic",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "burn",
+        "duration": 3,
+        "potency": 6,
+        "chance": 0.85
+      }
+    ],
+    "defense_factor": 0.45,
+    "mana_cost": 9
+  },
+  {
+    "id": "chain_lightning",
+    "name": "连锁闪电",
+    "type": "damage",
+    "category": "攻击",
+    "description": "跳跃命中多个敌人，适合中规模遭遇。",
+    "damage_types": [
+      "magic"
+    ],
+    "power": 7,
+    "accuracy_modifier": 3,
+    "target_rule": "all",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 4,
+    "attribute_focus": "magic",
+    "attribute_scale": 0.11,
+    "status_effects": [],
+    "target_count": 3,
+    "defense_factor": 0.45,
+    "mana_cost": 14
+  },
+  {
+    "id": "curse_of_fragility",
+    "name": "脆弱诅咒",
+    "type": "debuff",
+    "category": "削弱",
+    "description": "降低重甲目标的抗压能力。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "highest_defense",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 5,
+    "attribute_focus": "magic",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "vulnerable",
+        "duration": 3,
+        "potency": 12,
+        "chance": 0.9
+      },
+      {
+        "type": "marked",
+        "duration": 3,
+        "potency": 8,
+        "chance": 0.9
+      }
+    ],
+    "mana_cost": 10
+  },
+  {
+    "id": "meteor_shower",
+    "name": "陨火雨",
+    "type": "damage",
+    "category": "攻击",
+    "description": "高级法术，覆盖全场并附带燃烧。",
+    "damage_types": [
+      "magic",
+      "fire"
+    ],
+    "power": 12,
+    "accuracy_modifier": -8,
+    "target_rule": "all",
+    "range": "ranged",
+    "uses_per_dungeon": 2,
+    "level_required": 7,
+    "attribute_focus": "magic",
+    "attribute_scale": 0.11,
+    "status_effects": [
+      {
+        "type": "burn",
+        "duration": 2,
+        "potency": 7,
+        "chance": 0.55
+      }
+    ],
+    "target_count": 4,
+    "defense_factor": 0.45,
+    "crit_chance": 0.04,
+    "mana_cost": 18
+  },
+  {
+    "id": "taunting_roar",
+    "name": "挑衅怒吼",
+    "type": "debuff",
+    "category": "削弱",
+    "description": "削弱前排敌人的攻击并吸引集火。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "all_front",
+    "range": "ranged",
+    "uses_per_dungeon": 3,
+    "level_required": 3,
+    "attribute_focus": "guard",
+    "attribute_scale": 0,
+    "status_effects": [
+      {
+        "type": "enfeeble",
+        "duration": 2,
+        "potency": 3,
+        "chance": 0.85
+      },
+      {
+        "type": "marked",
+        "duration": 2,
+        "potency": 6,
+        "chance": 0.85
+      }
+    ],
+    "target_count": 3
+  },
+  {
+    "id": "iron_vow",
+    "name": "钢铁誓言",
+    "type": "support",
+    "category": "支援",
+    "description": "以守卫的意志稳住队伍防线。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 5,
+    "attribute_focus": "guard",
+    "attribute_scale": 0.0,
+    "status_effects": [
+      {
+        "type": "ward",
+        "duration": 2,
+        "potency": 6
+      },
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 8
+      }
+    ],
+    "target_count": 4
+  },
+  {
+    "id": "bulwark_aura",
+    "name": "壁垒光环",
+    "type": "support",
+    "category": "支援",
+    "description": "群体减伤，适合 Boss 爆发前预铺。",
+    "power": 0,
+    "accuracy_modifier": 0,
+    "target_rule": "ally_all",
+    "range": "ally",
+    "uses_per_dungeon": 2,
+    "level_required": 6,
+    "attribute_focus": "guard",
+    "attribute_scale": 0.0,
+    "status_effects": [
+      {
+        "type": "barrier",
+        "duration": 2,
+        "potency": 12
+      },
+      {
+        "type": "shield_wall",
+        "duration": 1,
+        "potency": 12
+      }
+    ],
+    "target_count": 4
+  }
+]
