@@ -13,6 +13,7 @@ export interface GameStateView {
   party_summary: PartySummary
   active_dungeons_summary: DungeonCardView[]
   shop_summary: ShopView
+  recruits_summary: RecruitsView
   warnings: string[]
   victory: boolean
   defeat: boolean
@@ -21,6 +22,67 @@ export interface GameStateView {
   retreat_strategy: string
   retreat_strategy_label: string
   last_result?: unknown
+  quests?: QuestListView
+  quests_summary?: QuestListSummary
+}
+
+export type QuestType = 'story' | 'daily' | 'hidden'
+export type QuestStatus = 'available' | 'active' | 'completed' | 'claimed' | 'expired' | 'hidden'
+
+export interface QuestObjective {
+  id: string
+  kind: string
+  label: string
+  required: number
+  current: number
+  completed: boolean
+}
+
+export interface QuestRewards {
+  gold: number
+  exp: number
+  materials: Record<string, number>
+  flags?: Record<string, boolean>
+}
+
+export interface QuestView {
+  id: string
+  template_id: string
+  type: QuestType
+  story_kind: string
+  chain_id: string
+  title: string
+  description: string
+  status: QuestStatus
+  status_label: string
+  created_day: number | null
+  accepted_day: number | null
+  expires_day: number | null
+  completed_day: number | null
+  claimed_day: number | null
+  objectives: QuestObjective[]
+  all_completed: boolean
+  rewards: QuestRewards
+  next_quests: string[]
+  revealed_from_hidden: boolean
+  linked_dungeon_ids: string[]
+  sort: number
+}
+
+export interface QuestListSummary {
+  available_count: number
+  active_count: number
+  claimable_count: number
+  daily_day: number | null
+}
+
+export interface QuestListView {
+  available: QuestView[]
+  active: QuestView[]
+  completed: QuestView[]
+  claimed: QuestView[]
+  expired: QuestView[]
+  summary: QuestListSummary
 }
 
 export interface GamePresetView {
@@ -77,6 +139,7 @@ export interface CharacterView {
     skill_priority?: string[]
     opening_skill_priority?: string[]
     defense_skill_by_type?: Record<string, string>
+    consumable_priority?: ConsumableTacticEntry[]
   }
   equipment: Record<string, string | null>
   effective_stats: Record<string, any>
@@ -106,6 +169,19 @@ export interface CharacterTactics {
   skill_priority?: string[]
   opening_skill_priority?: string[]
   defense_skill_by_type?: Record<string, string>
+  consumable_priority?: ConsumableTacticEntry[]
+}
+
+export interface ConsumableTacticEntry {
+  consumable_id: string
+  trigger: string
+}
+
+export interface ConsumableOption {
+  id: string
+  name: string
+  summary: string
+  effect: { heal?: number; cleanse?: string[] }
 }
 
 export interface StatBreakdown {
@@ -255,6 +331,10 @@ export interface PartyView extends PartySummary {
   target_options: Record<string, string>
   retreat_options: Record<string, string>
   defense_trigger_options?: Record<string, string>
+  consumable_trigger_options?: Record<string, string>
+  consumable_options?: ConsumableOption[]
+  max_consumable_slots?: number
+  consumables?: Record<string, number>
   tactic_schemes?: TacticScheme[]
   max_tactic_schemes?: number
   max_tactic_layers?: number
@@ -292,6 +372,9 @@ export interface DungeonCardView {
   cleared: boolean
   recommended_attention: string[]
   is_final: boolean
+  source_quest_id?: string | null
+  source_quest_title?: string | null
+  persistent?: boolean
 }
 
 export interface DungeonDetailView extends DungeonCardView {
@@ -409,17 +492,53 @@ export interface CombatRoundDetail {
   logs: string[]
 }
 
+/** Max number of characters a player can hold (mirrors backend MAX_ROSTER_SIZE). */
+export const MAX_ROSTER_SIZE = 8
+
+export interface ShopItemView {
+  shop_id: string
+  merchant_id?: string
+  kind: 'equipment' | 'consumable'
+  template_id: string
+  name: string
+  slot?: string
+  rarity?: string
+  base_cost?: number
+  cost: number
+  currency?: string
+  summary: string
+  equipment?: EquipmentItem
+}
+
+export interface MerchantView {
+  merchant_id: string
+  name: string
+  icon?: string
+  items: ShopItemView[]
+}
+
 export interface ShopView {
-  items: Array<{
-    shop_id: string
-    kind: string
-    template_id: string
-    name: string
-    slot?: string
-    rarity?: string
-    cost: number
-    summary: string
-    equipment?: EquipmentItem
-  }>
-  recruits: Array<{ candidate_id: string; class_id: string; class_name: string; class_meta?: CharacterView['class_meta']; name: string; level: number; cost: number; role: string }>
+  merchants: Record<string, MerchantView>
+  refresh_day: number
+}
+
+export interface RecruitCandidateView {
+  candidate_id: string
+  class_id: string
+  class_name: string
+  class_meta?: CharacterView['class_meta']
+  name: string
+  level: number
+  rarity: string
+  rarity_label: string
+  cost: number
+  role: string
+  is_advanced?: boolean
+  /** Full character snapshot shown pre-hire; hiring reproduces it exactly. */
+  preview: CharacterView
+}
+
+export interface RecruitsView {
+  candidates: RecruitCandidateView[]
+  refresh_day: number
 }

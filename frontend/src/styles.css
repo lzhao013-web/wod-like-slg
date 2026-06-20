@@ -267,8 +267,14 @@ select { cursor: pointer; }
 /* ============================================================
    Dungeons
    ============================================================ */
-.dungeonLayout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 14px; align-items: start; }
-.dungeonList { max-height: calc(100vh - 120px); overflow: auto; }
+.dungeonLayout { display: grid; grid-template-columns: 320px minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 12px; align-items: start; }
+.dungeonStrip { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--panel-2); }
+.dungeonStrip__label { font-size: 13px; white-space: nowrap; color: var(--ink-dim); flex-shrink: 0; }
+.dungeonStrip__label b { color: var(--ink); }
+.dungeonStrip__slots { flex: 1; display: flex; gap: 8px; flex-wrap: wrap; min-height: 28px; }
+.dungeonStrip__empty { font-size: 12px; color: var(--ink-faint); }
+.dungeonStrip__clear { flex-shrink: 0; }
+.dungeonList { max-height: calc(100vh - 180px); overflow: auto; }
 .dungeonBtn { display: flex; gap: 11px; align-items: center; width: 100%; text-align: left; padding: 11px 12px; margin-bottom: 8px; border-radius: 12px; border: 1px solid var(--border-soft); background: rgba(15, 22, 35, 0.7); color: var(--ink); cursor: pointer; transition: .15s; border-left: 3px solid var(--accent); }
 .dungeonBtn:hover { background: rgba(28, 41, 63, 0.8); transform: translateX(2px); }
 .dungeonBtn.is-selected { background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 22%, #121c2c), #121c2c); border-color: var(--accent); box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 30%, transparent); }
@@ -303,6 +309,27 @@ select { cursor: pointer; }
 .layerPreview__icon { font-size: 15px; }
 .detail__actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
 .detail__actions .schemePicker { min-width: min(100%, 280px); margin: 0; grid-template-columns: 58px minmax(160px, 1fr); }
+.detail__btnRow { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Team picker in the dungeon detail actions. */
+.teamPicker { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.teamPicker__options { display: flex; flex-wrap: wrap; gap: 8px; }
+.teamCard {
+  display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1 1 150px;
+  padding: 9px 11px; border-radius: 12px; cursor: pointer; text-align: left; font: inherit; color: var(--ink);
+  border: 1px solid var(--border-soft); background: rgba(8, 12, 20, 0.5); transition: all 0.12s;
+}
+.teamCard:hover:not(:disabled) { border-color: var(--border); transform: translateY(-1px); }
+.teamCard__label { font-size: 13px; font-weight: 700; }
+.teamCard__members { font-size: 11.5px; color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.teamCard__state { font-size: 10.5px; font-weight: 700; color: var(--warn); }
+.teamCard.is-selected {
+  border-color: rgba(92, 156, 255, 0.6); background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 20%, #11192a), #11192a);
+  box-shadow: 0 4px 14px rgba(92, 156, 255, 0.18);
+}
+.teamCard.is-selected .teamCard__members { color: var(--ink); }
+.teamCard.is-deployed, .teamCard.is-empty { opacity: 0.55; cursor: not-allowed; }
+.teamCard:disabled { cursor: not-allowed; }
 
 .dungeonRail { display: flex; flex-direction: column; gap: 9px; }
 .dungeonTile { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--border-soft); background: rgba(15, 22, 35, 0.7); color: var(--ink); cursor: pointer; transition: .15s; border-left: 3px solid var(--accent); }
@@ -425,21 +452,21 @@ select { cursor: pointer; }
 .equipEmpty { margin-top: 6px; }
 
 /* ============================================================
-   Plan
+   Dungeon expedition strip (compact inline chips)
    ============================================================ */
-.planPanel { max-width: 720px; margin: 0 auto; }
-.planTimeline { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 10px; }
-.planSlot { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 13px; border: 1px solid var(--border); background: rgba(13, 19, 30, 0.7); }
-.planSlot--empty { border-style: dashed; color: var(--ink-faint); }
-.planSlot--scout { border-left: 4px solid var(--accent); background: linear-gradient(100deg, rgba(92, 156, 255, 0.1), rgba(13, 19, 30, 0.7)); }
-.planSlot--challenge { border-left: 4px solid var(--gold); background: linear-gradient(100deg, rgba(255, 193, 77, 0.1), rgba(13, 19, 30, 0.7)); }
-.planSlot__idx { width: 26px; height: 26px; display: grid; place-content: center; border-radius: 8px; background: var(--border); color: var(--ink); font-weight: 800; font-size: 13px; flex-shrink: 0; }
-.planSlot--challenge .planSlot__idx { background: var(--gold); color: #1a1305; }
-.planSlot--scout .planSlot__idx { background: var(--accent); color: #06122e; }
-.planSlot__icon { font-size: 22px; }
-.planSlot__body b { display: block; font-size: 14px; }
-.planSlot__empty { font-size: 13px; }
-.planHint { margin: 8px 0 4px; }
+.dungeonChip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px 4px 7px; border-radius: 9px; font-size: 12.5px; border: 1px solid var(--border); background: rgba(13, 19, 30, 0.7); }
+.dungeonChip--scout { border-color: rgba(92, 156, 255, 0.4); background: rgba(92, 156, 255, 0.08); }
+.dungeonChip--challenge { border-color: rgba(255, 193, 77, 0.4); background: rgba(255, 193, 77, 0.08); }
+.dungeonChip__icon { font-size: 15px; }
+.dungeonChip b { font-size: 12.5px; }
+.dungeonChip__team { color: var(--ink-faint); font-size: 11px; }
+.dungeonChip__x {
+  width: 18px; height: 18px; border-radius: 6px; border: none; background: transparent;
+  color: var(--ink-faint); cursor: pointer; font-size: 11px; display: grid; place-content: center;
+  transition: all 0.12s; margin-left: 2px; flex-shrink: 0;
+}
+.dungeonChip__x:hover:not(:disabled) { color: var(--danger); background: rgba(239, 83, 80, 0.15); }
+.dungeonChip__x:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ============================================================
    Reports
@@ -563,9 +590,26 @@ select { cursor: pointer; }
 .shopItem { padding: 11px 12px; border: 1px solid var(--border-soft); border-radius: 13px; background: rgba(13, 19, 30, 0.6); display: flex; flex-direction: column; gap: 8px; }
 .shopItem__summary { margin: 0; font-size: 12px; color: var(--ink-dim); }
 .recruitCard { padding: 12px; border: 1px solid var(--border-soft); border-left: 3px solid var(--accent); border-radius: 13px; background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 14%, #11192a), #11192a); }
-.recruitCard__head { display: flex; align-items: center; gap: 10px; }
+.recruitCard__head { display: flex; align-items: center; gap: 10px; width: 100%; background: transparent; border: 0; padding: 0; cursor: pointer; text-align: left; color: inherit; }
 .recruitCard__head b { display: block; font-size: 14px; }
+.recruitCard__title { flex: 1; min-width: 0; }
+.recruitCard__title b { display: block; font-size: 14px; }
+.recruitCard__rarityTag { font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: color-mix(in srgb, var(--rare, #888) 18%, transparent); border: 1px solid color-mix(in srgb, var(--rare, #888) 45%, transparent); white-space: nowrap; }
+.recruitCard__toggle { color: var(--ink-dim); font-size: 13px; }
 .recruitCard__role { margin: 7px 0 9px; font-size: 12.5px; color: var(--ink-dim); }
+.recruitCard--owned { border-left-width: 3px; }
+.recruitCard__preview { display: flex; flex-direction: column; gap: 7px; padding: 8px 10px; margin-bottom: 9px; border-radius: 10px; background: rgba(0, 0, 0, 0.22); border: 1px solid var(--border-soft); }
+.recruitPreview__row { display: flex; flex-wrap: wrap; gap: 8px 12px; font-size: 12.5px; }
+.recruitPreview__attr b { color: var(--ink); }
+.recruitPreview__skills { font-size: 12px; }
+.recruitList { display: flex; flex-direction: column; gap: 11px; }
+.merchantTabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.merchantTab { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border-soft); background: rgba(13, 19, 30, 0.6); color: var(--ink-dim); font-size: 13px; cursor: pointer; }
+.merchantTab:hover { color: var(--ink); }
+.merchantTab.is-active { border-color: var(--accent, var(--gold)); color: var(--ink); background: color-mix(in srgb, var(--accent, var(--gold)) 14%, rgba(13, 19, 30, 0.6)); }
+.merchantTab__icon { font-size: 15px; }
+.shopItem__recycle { display: flex; gap: 6px; flex-wrap: wrap; }
+.shopItem__recycle .btn { flex: 1; min-width: 0; }
 
 /* ============================================================
    Overlays: Day-results theatre + character sheet
@@ -932,6 +976,7 @@ select { cursor: pointer; }
   .sideNav { position: static; flex-direction: row; overflow-x: auto; top: auto; }
   .sideNav__text span { display: none; }
   .panelGrid, .dungeonLayout, .reportsLayout, .shopLayout { grid-template-columns: 1fr; }
+  .dungeonStrip { flex-wrap: wrap; }
   .overviewMetrics { grid-template-columns: repeat(2, 1fr); }
   .hud { grid-template-columns: 1fr; gap: 10px; }
   .hud__endBtn { width: 100%; }
@@ -1026,6 +1071,135 @@ select { cursor: pointer; }
 .paperdoll__badge {
   position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
   font-size: 15px; opacity: 0.78; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent, #5c9cff) 70%, transparent));
+}
+
+/* ============================================================
+   Quests
+   ============================================================ */
+.questsLayout { display: flex; flex-direction: column; gap: 14px; }
+.questsHead__chips { display: inline-flex; gap: 6px; }
+.questsHint { margin: 0; font-size: 12.5px; }
+.questList { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+.questCard {
+  padding: 13px 14px; border: 1px solid var(--border-soft); border-left: 3px solid var(--accent, var(--accent));
+  border-radius: 13px; background: linear-gradient(100deg, color-mix(in srgb, var(--accent, #5c9cff) 12%, #11192a), #11192a);
+  display: flex; flex-direction: column; gap: 9px; min-width: 0;
+}
+.questCard__head { display: flex; flex-direction: column; gap: 5px; }
+.questCard__head b { font-size: 14.5px; }
+.questCard__tags { display: inline-flex; flex-wrap: wrap; gap: 5px; }
+.questCard__desc { margin: 0; font-size: 12.5px; color: var(--ink-dim); line-height: 1.5; }
+.questCard__objs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.questObj {
+  display: flex; align-items: center; gap: 8px; font-size: 12.5px;
+  padding: 5px 8px; border-radius: 9px; background: rgba(8, 12, 20, 0.5); border: 1px solid var(--border-soft);
+}
+.questObj__check { width: 16px; text-align: center; color: var(--ink-faint); font-weight: 800; }
+.questObj__label { flex: 1; min-width: 0; }
+.questObj__count { color: var(--ink-dim); font-variant-numeric: tabular-nums; font-weight: 700; }
+.questObj.is-done { background: rgba(76, 175, 80, 0.12); border-color: rgba(76, 175, 80, 0.32); }
+.questObj.is-done .questObj__check { color: var(--good); }
+.questObj.is-done .questObj__label { color: var(--ink); }
+.questCard__rewards { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
+.rewardPill {
+  display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 999px;
+  background: rgba(255, 193, 77, 0.1); border: 1px solid rgba(255, 193, 77, 0.28); color: var(--gold); font-weight: 700;
+}
+.rewardPill:not(:nth-child(-n+3)) { background: rgba(92, 156, 255, 0.1); border-color: rgba(92, 156, 255, 0.28); color: var(--accent); }
+.questCard__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.questTag {
+  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; border: 1px solid var(--border-soft); background: rgba(8, 12, 20, 0.6);
+  color: var(--ink-dim);
+}
+.questTag.is-story { color: var(--gold); border-color: rgba(255, 193, 77, 0.35); background: rgba(255, 193, 77, 0.1); }
+.questTag.is-daily { color: #4dd0e1; border-color: rgba(77, 208, 225, 0.35); background: rgba(77, 208, 225, 0.1); }
+.questTag.is-hidden { color: var(--purple); border-color: rgba(179, 136, 255, 0.4); background: rgba(179, 136, 255, 0.12); }
+.questTag.is-status { color: var(--ink); }
+.questTag.is-warn { color: var(--warn); border-color: rgba(255, 183, 77, 0.4); background: rgba(255, 183, 77, 0.12); }
+.questDoneList { display: flex; flex-wrap: wrap; gap: 7px; }
+.questDoneTag {
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; color: var(--ink-dim); background: rgba(8, 12, 20, 0.5); border: 1px solid var(--border-soft);
+}
+.questDoneTag.is-hidden { color: var(--purple); border-color: rgba(179, 136, 255, 0.35); }
+.questDoneTag.is-clickable { cursor: pointer; transition: background 0.12s, border-color 0.12s, transform 0.08s; border: none; font: inherit; }
+.questDoneTag.is-clickable:hover { background: rgba(92, 156, 255, 0.14); border-color: rgba(92, 156, 255, 0.4); color: var(--ink); transform: translateY(-1px); }
+.questSectionCount { font-size: 12px; font-weight: 600; margin-left: 2px; }
+
+/* Tab bar */
+.questTabs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding-bottom: 2px; }
+.questTab {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 11px;
+  border: 1px solid var(--border-soft); background: rgba(8, 12, 20, 0.5); color: var(--ink-dim);
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.12s; font-family: inherit;
+}
+.questTab__icon { font-size: 14px; }
+.questTab__count {
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; background: rgba(92, 156, 255, 0.18); color: var(--accent);
+}
+.questTab:hover { color: var(--ink); border-color: var(--border); }
+.questTab.is-active {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 26%, #0e1626), #0e1626);
+  border-color: rgba(92, 156, 255, 0.5); color: var(--ink); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+}
+.questTab.is-active .questTab__count { background: var(--accent); color: #fff; }
+.questTabBody { min-height: 120px; }
+
+/* Type filter (inline under the tabs on the active content tabs) */
+.questFilterGroup { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.questFilterGroup--inline { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.questFilterGroup__label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.questFilterGroup__btns { display: flex; flex-wrap: wrap; gap: 5px; }
+.questFilterBtn {
+  padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border-soft); background: rgba(8, 12, 20, 0.5);
+  color: var(--ink-dim); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.12s;
+}
+.questFilterBtn:hover { color: var(--ink); border-color: var(--border); }
+.questFilterBtn.is-active {
+  background: linear-gradient(180deg, var(--accent), var(--accent-2)); border-color: #7fb0ff; color: #fff;
+  box-shadow: 0 4px 12px rgba(92, 156, 255, 0.28);
+}
+
+/* Clickable card body (the whole card opens details; action buttons sit below). */
+.questCard__main {
+  text-align: left; background: none; border: none; padding: 0; margin: 0; cursor: pointer; color: inherit; font: inherit;
+  display: flex; flex-direction: column; gap: 9px; min-width: 0;
+}
+.questCard__main:hover .questCard__head b { color: var(--gold); }
+
+/* Detail overlay sheet */
+.questSheet {
+  width: min(560px, 100%); border: 1px solid var(--border); border-radius: 20px; background: var(--panel-2);
+  box-shadow: var(--shadow); overflow: auto; max-height: calc(100vh - 60px); display: flex; flex-direction: column;
+}
+.questSheet__hero {
+  display: flex; align-items: center; gap: 14px; padding: 18px 20px; position: relative;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent, #5c9cff) 22%, #0e1626), #0e1626);
+  border-bottom: 1px solid var(--border);
+}
+.questSheet__icon { font-size: 30px; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent, #5c9cff) 60%, transparent)); }
+.questSheet__title { flex: 1; min-width: 0; }
+.questSheet__title h2 { font-size: 20px; margin: 0 0 6px; }
+.questSheet__close {
+  position: absolute; top: 12px; right: 14px; width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+  background: rgba(8, 12, 20, 0.6); border: 1px solid var(--border-soft); color: var(--ink-dim); font-size: 14px;
+}
+.questSheet__close:hover { color: var(--ink); border-color: var(--border); }
+.questSheet__body { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; overflow: auto; }
+.questSheet__body h4 { margin: 0; font-size: 13px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.questSheet__desc { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink); }
+.questSheet__meta { display: flex; flex-wrap: wrap; gap: 14px; padding: 10px 12px; border-radius: 11px; background: rgba(8, 12, 20, 0.4); border: 1px solid var(--border-soft); }
+.questSheet__metaRow { display: flex; flex-direction: column; gap: 1px; font-size: 12px; }
+.questSheet__metaRow span:first-child { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+.questSheet__objs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.questObj--big { padding: 8px 11px; font-size: 13.5px; }
+.questSheet__note { margin: 0; font-size: 12.5px; line-height: 1.5; }
+.questSheet__foot { display: flex; gap: 10px; flex-wrap: wrap; padding: 14px 20px; border-top: 1px solid var(--border-soft); justify-content: flex-end; }
+
+@media (max-width: 720px) {
+  .questList { grid-template-columns: 1fr; }
 }
 .paperdoll__className {
   position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);

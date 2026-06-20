@@ -66,6 +66,11 @@ class GameService:
         save_state(self.state)
         return {"ok": True, "plan": self.state["expedition_plan"]}
 
+    def remove_plan(self, index: int) -> dict[str, Any]:
+        engine.remove_plan_action(self.state, index)
+        save_state(self.state)
+        return self.get_plan()
+
     def get_plan(self) -> dict[str, Any]:
         actions = []
         for idx, action in enumerate(self.state.get("expedition_plan", [])):
@@ -164,17 +169,35 @@ class GameService:
         return self.party()
 
     def shop(self) -> dict[str, Any]:
-        return self.state.get("shop", {"items": [], "recruits": []})
+        return self.state.get("shop", {"merchants": {}, "refresh_day": 0})
+
+    def recruits(self) -> dict[str, Any]:
+        return self.state.get("recruits", {"candidates": [], "refresh_day": 0})
 
     def buy(self, shop_id: str) -> dict[str, Any]:
         item = engine.buy_shop_item(self.state, shop_id)
         save_state(self.state)
-        return {"ok": True, "acquired": item, "state": self.get_state(), "shop": self.shop()}
+        return {"ok": True, "acquired": item, "state": self.get_state(), "shop": self.shop(), "party": self.party()}
+
+    def sell(self, item_id: str) -> dict[str, Any]:
+        result = engine.sell_item(self.state, item_id)
+        save_state(self.state)
+        return {"ok": True, "result": result, "state": self.get_state(), "party": self.party()}
+
+    def salvage(self, item_id: str) -> dict[str, Any]:
+        result = engine.salvage_item(self.state, item_id)
+        save_state(self.state)
+        return {"ok": True, "result": result, "state": self.get_state(), "party": self.party()}
 
     def recruit(self, candidate_id: str) -> dict[str, Any]:
         ch = engine.recruit_character(self.state, candidate_id)
         save_state(self.state)
-        return {"ok": True, "character": ch, "state": self.get_state(), "party": self.party()}
+        return {"ok": True, "character": ch, "state": self.get_state(), "party": self.party(), "recruits": self.recruits()}
+
+    def dismiss(self, character_id: str) -> dict[str, Any]:
+        result = engine.dismiss_character(self.state, character_id)
+        save_state(self.state)
+        return {"ok": True, "result": result, "state": self.get_state(), "party": self.party()}
 
     def reports(self) -> list[dict[str, Any]]:
         return self.state.get("reports", [])
@@ -184,6 +207,25 @@ class GameService:
         if not report:
             raise ValueError("战报不存在")
         return report
+
+    def quests(self) -> dict[str, Any]:
+        engine.migrate_state(self.state)
+        return engine.quest_list_view(self.state)
+
+    def accept_quest(self, quest_id: str) -> dict[str, Any]:
+        engine.accept_quest(self.state, quest_id)
+        save_state(self.state)
+        return {"ok": True, "quests": engine.quest_list_view(self.state), "state": self.get_state()}
+
+    def claim_quest(self, quest_id: str) -> dict[str, Any]:
+        quest = engine.claim_quest(self.state, quest_id)
+        save_state(self.state)
+        return {"ok": True, "quest": quest, "quests": engine.quest_list_view(self.state), "state": self.get_state()}
+
+    def abandon_quest(self, quest_id: str) -> dict[str, Any]:
+        engine.abandon_quest(self.state, quest_id)
+        save_state(self.state)
+        return {"ok": True, "quests": engine.quest_list_view(self.state), "state": self.get_state()}
 
 
 game_service = GameService()

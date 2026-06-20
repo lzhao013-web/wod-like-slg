@@ -1,15 +1,16 @@
 import { cx } from '../lib/format'
 
-export type NavId = 'overview' | 'dungeons' | 'party' | 'tactics' | 'plan' | 'reports' | 'shop'
+export type NavId = 'overview' | 'dungeons' | 'party' | 'tactics' | 'reports' | 'shop' | 'recruits' | 'quests'
 
 const NAV: Array<{ id: NavId; label: string; icon: string; hint: string }> = [
   { id: 'overview', label: '指挥台', icon: '🗺️', hint: '每日总览' },
-  { id: 'dungeons', label: '副本情报', icon: '⚔️', hint: '侦察与挑战' },
+  { id: 'dungeons', label: '副本情报', icon: '⚔️', hint: '侦察·挑战·出征' },
+  { id: 'quests', label: '委托·任务', icon: '📜', hint: '主线·日常·隐藏' },
   { id: 'party', label: '队伍编成', icon: '🛡️', hint: '阵型·配装' },
   { id: 'tactics', label: '战术计划', icon: '🎯', hint: '先攻·开场·防御' },
-  { id: 'plan', label: '远征计划', icon: '📜', hint: '今日行动队列' },
   { id: 'reports', label: '战报复盘', icon: '📊', hint: '历史战报' },
-  { id: 'shop', label: '集市·招募', icon: '🪙', hint: '商店与招募' },
+  { id: 'shop', label: '集市·商店', icon: '🪙', hint: '买·卖·分解' },
+  { id: 'recruits', label: '酒馆·招募', icon: '🏰', hint: '招募·解雇' },
 ]
 
 export function SideNav(props: {

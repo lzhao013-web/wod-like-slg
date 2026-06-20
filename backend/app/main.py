@@ -173,6 +173,11 @@ def clear_plan():
     return game_service.clear_plan()
 
 
+@app.delete("/expedition-plan/{index}")
+def remove_plan_action(index: int):
+    return call(game_service.remove_plan, index)
+
+
 @app.get("/reports")
 def reports():
     return game_service.reports()
@@ -195,6 +200,26 @@ def report_turns(report_id: str):
     return {"report_id": report_id, "turn_logs": r.get("turn_logs", [])}
 
 
+@app.get("/quests")
+def quests():
+    return game_service.quests()
+
+
+@app.post("/quests/{quest_id}/accept")
+def accept_quest(quest_id: str):
+    return call(game_service.accept_quest, quest_id)
+
+
+@app.post("/quests/{quest_id}/claim")
+def claim_quest(quest_id: str):
+    return call(game_service.claim_quest, quest_id)
+
+
+@app.post("/quests/{quest_id}/abandon")
+def abandon_quest(quest_id: str):
+    return call(game_service.abandon_quest, quest_id)
+
+
 @app.get("/shop")
 def shop():
     return game_service.shop()
@@ -205,9 +230,29 @@ def buy(payload: dict[str, Any] = Body(...)):
     return call(game_service.buy, payload.get("shop_id"))
 
 
-@app.post("/shop/recruit")
+@app.post("/shop/sell")
+def sell(payload: dict[str, Any] = Body(...)):
+    return call(game_service.sell, payload.get("item_id"))
+
+
+@app.post("/shop/salvage")
+def salvage(payload: dict[str, Any] = Body(...)):
+    return call(game_service.salvage, payload.get("item_id"))
+
+
+@app.get("/recruits")
+def recruits():
+    return game_service.recruits()
+
+
+@app.post("/recruits/recruit")
 def recruit(payload: dict[str, Any] = Body(...)):
     return call(game_service.recruit, payload.get("candidate_id"))
+
+
+@app.post("/recruits/dismiss")
+def dismiss(payload: dict[str, Any] = Body(...)):
+    return call(game_service.dismiss, payload.get("character_id"))
 
 
 @app.post("/debug/reset-save")

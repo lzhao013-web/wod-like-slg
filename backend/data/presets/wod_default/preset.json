@@ -8,7 +8,10 @@
     "equipment": "equipment.json",
     "enemies": "enemies.json",
     "dungeon_templates": "dungeon_templates.json",
-    "affixes": "affixes.json"
+    "affixes": "affixes.json",
+    "quests": "quests.json",
+    "shop": "shop.json",
+    "recruits": "recruits.json"
   },
   "class_ui": {
     "warrior": {

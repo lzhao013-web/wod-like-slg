@@ -28,7 +28,14 @@ def test_shop_preserves_random_equipment_preview_when_bought():
     state = engine.default_state(seed=42)
     state["day"] = 12
     engine.refresh_shop(state)
-    item = next(i for i in state["shop"]["items"] if i["kind"] == "equipment" and i.get("equipment"))
+    # New shop layout: items live under state["shop"]["merchants"][mid]["items"].
+    equipment_items = [
+        i for m in state["shop"]["merchants"].values()
+        for i in m["items"]
+        if i["kind"] == "equipment" and i.get("equipment")
+    ]
+    assert equipment_items, "blacksmith should stock equipment"
+    item = equipment_items[0]
     preview = item["equipment"]
     state["gold"] = max(state["gold"], item["cost"])
 
@@ -337,6 +344,30 @@ def test_two_expeditions_use_distinct_teams_and_members():
         pass
     result = engine.end_day(state)
     assert {r["team_id"] for r in result["reports"]} == {"team_1", "team_2"}
+
+
+def test_remove_plan_action_undo_frees_team_slot():
+    state = engine.default_state(seed=123)
+    dungeons = engine.dungeon_list_view(state)
+    first, second = dungeons[0]["dungeon_id"], dungeons[1]["dungeon_id"]
+    engine.add_plan_action(state, "challenge", first)   # team_1
+    engine.add_plan_action(state, "scout", second)      # team_2
+    assert len(state["expedition_plan"]) == 2
+
+    removed = engine.remove_plan_action(state, 0)
+    assert removed is not None and removed["team_id"] == "team_1"
+    assert len(state["expedition_plan"]) == 1
+    assert state["expedition_plan"][0]["team_id"] == "team_2"  # re-indexed to slot 0
+
+    # Undoing frees the team: team_1 can now be re-assigned to a new action.
+    reassigned = engine.add_plan_action(state, "challenge", first, team_id="team_1")
+    assert reassigned["team_id"] == "team_1"
+    assert len(state["expedition_plan"]) == 2
+
+    # Out-of-range / invalid indices are a safe no-op.
+    assert engine.remove_plan_action(state, -1) is None
+    assert engine.remove_plan_action(state, 99) is None
+    assert len(state["expedition_plan"]) == 2
 
 
 def test_batch_formations_allow_swaps_and_prevent_duplicate_members():

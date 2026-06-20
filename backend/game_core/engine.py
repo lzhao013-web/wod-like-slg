@@ -42,6 +42,9 @@ BACK_CELLS = {"r2c0", "r2c1", "r2c2"}
 TEAM_IDS = ["team_1", "team_2"]
 TEAM_LABELS = {"team_1": "一队", "team_2": "二队"}
 MAX_TEAM_SIZE = 4
+MAX_ROSTER_SIZE = 8
+# Fraction of a recruited character's cost refunded when dismissed/sold.
+DISMISS_GOLD_REFUND = 0.3
 MAX_TACTIC_SCHEMES = 20
 MAX_TACTIC_LAYERS = 12
 SKILL_POINTS_PER_LEVEL = 1
@@ -57,6 +60,51 @@ STARTING_PROMOTION_BADGES = 1
 DEFAULT_SKILL_MAX_LEVEL = 5
 DEFAULT_SKILL_UPGRADE_COSTS = [4, 8, 14, 22]
 DEFAULT_PROMOTION_LEVEL = 6
+
+# --- Quest system ---------------------------------------------------------
+# Quest instances live in state["quests"]; their templates come from the
+# preset's quests.json table (loaded via load_data()["quests"]). Three quest
+# families: "story" (main/side campaign chains), "daily" (refreshed each day),
+# and "hidden" (revealed by conditions or by completing them incidentally).
+QUEST_TYPE_STORY = "story"
+QUEST_TYPE_DAILY = "daily"
+QUEST_TYPE_HIDDEN = "hidden"
+QUEST_STORY_KIND_MAIN = "main"
+QUEST_STORY_KIND_SIDE = "side"
+# Quest lifecycle statuses a quest instance moves through.
+#   available -> active -> completed -> claimed
+#   available/active -> expired (daily only, after end-of-day refresh)
+#   hidden (only for unrevealed hidden templates; never serialized as such once revealed)
+QUEST_STATUSES = ["available", "active", "completed", "claimed", "expired", "hidden"]
+QUEST_STATUS_LABELS = {
+    "available": "可接受",
+    "active": "进行中",
+    "completed": "已完成",
+    "claimed": "已领取",
+    "expired": "已过期",
+    "hidden": "隐藏",
+}
+# Objective evaluation kinds handled by record_quest_events.
+QUEST_OBJ_CLEAR_DUNGEON = "clear_dungeon"
+QUEST_OBJ_CLEAR_UNSCOUTED = "clear_unscouted_dungeon"
+QUEST_OBJ_SCOUT_DUNGEON = "scout_dungeon"
+QUEST_OBJ_SCOUT_ANY = "scout_any_dungeon"
+QUEST_OBJ_CLEAR_TWO_ONE_DAY = "clear_two_dungeons_one_day"
+QUEST_OBJECTIVE_KINDS = [
+    QUEST_OBJ_CLEAR_DUNGEON,
+    QUEST_OBJ_CLEAR_UNSCOUTED,
+    QUEST_OBJ_SCOUT_DUNGEON,
+    QUEST_OBJ_SCOUT_ANY,
+    QUEST_OBJ_CLEAR_TWO_ONE_DAY,
+]
+# Reveal-condition evaluators supported in quest template `reveal_conditions`.
+QUEST_COND_ALWAYS_TRUE = "always_true"
+QUEST_COND_FLAG = "flag"
+QUEST_COND_QUEST_COMPLETED = "quest_completed"
+QUEST_COND_HIDDEN_COMPLETED_GTE = "hidden_completed_gte"
+QUEST_DEFAULT_DAILY_COUNT = 3
+QUEST_DEFAULT_DAILY_GOLD_RANGE = (40, 60)
+QUEST_DEFAULT_EXPIRY_DAYS = 2  # daily quests remain accept-able for this many days
 
 MATERIAL_NAMES = {
     SKILL_ESSENCE_KEY: "技能精华",
@@ -230,6 +278,20 @@ TARGET_LABELS = {
 }
 
 DEFENSE_TRIGGER_LABELS = ATTACK_TYPE_LABELS
+
+# Consumable auto-use triggers. Each character tactic row carries a
+# `consumable_priority` list of {consumable_id, trigger} entries; during its
+# turn the first entry whose trigger is satisfied (and whose consumable is in
+# stock) fires before skill selection. See `_consumable_trigger_met`.
+CONSUMABLE_TRIGGERS = {
+    "self_hp_below_50": "自身 HP 低于 50%",
+    "self_hp_below_30": "自身 HP 低于 30%",
+    "ally_hp_below_30": "任意队友 HP 低于 30%",
+    "self_poisoned": "自身中毒 / 流血",
+    "ally_poisoned": "任意队友中毒 / 流血",
+    "self_cursed": "自身诅咒",
+}
+MAX_CONSUMABLE_SLOTS = 4
 
 ATTRIBUTE_KEYS = [
     "strength",
@@ -1193,6 +1255,69 @@ def clean_tactic_skill_list(values: Any, known_skills: set[str], limit: int) -> 
     return out[:limit]
 
 
+def consumable_template(consumable_id: str | None) -> dict[str, Any] | None:
+    """Data-driven consumable template (id/name/effect) or None if unknown."""
+    if not consumable_id:
+        return None
+    row = load_data().get("consumable_by_id", {}).get(consumable_id)
+    return row if isinstance(row, dict) else None
+
+
+def consumable_name(consumable_id: str | None) -> str:
+    row = consumable_template(consumable_id)
+    return row.get("name", consumable_id or "") if row else (consumable_id or "")
+
+
+def consumable_effect(consumable_id: str | None) -> dict[str, Any] | None:
+    """Resolved effect block {heal:int} and/or {cleanse:[status]} or None."""
+    row = consumable_template(consumable_id)
+    if not row:
+        return None
+    effect = row.get("effect")
+    return effect if isinstance(effect, dict) else None
+
+
+def consumable_options_view() -> list[dict[str, Any]]:
+    """All known consumables as {id, name, summary, effect} for tactic UI dropdowns."""
+    out: list[dict[str, Any]] = []
+    for cid, row in load_data().get("consumable_by_id", {}).items():
+        if not isinstance(row, dict):
+            continue
+        out.append({
+            "id": cid,
+            "name": row.get("name", cid),
+            "summary": row.get("summary", ""),
+            "effect": copy.deepcopy(row.get("effect", {})),
+        })
+    return out
+
+
+def clean_consumable_priority(values: Any) -> list[dict[str, str]]:
+    """Validate a character's consumable_priority tactic list.
+
+    Drops entries with unknown consumable ids or triggers and de-dupes by
+    consumable id (a given consumable can only sit in one slot).
+    """
+    if not isinstance(values, list):
+        return []
+    data = load_data()
+    known_ids = set(data.get("consumable_by_id", {}).keys())
+    out: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for entry in values:
+        if not isinstance(entry, dict):
+            continue
+        cid = str(entry.get("consumable_id") or "")
+        trigger = str(entry.get("trigger") or "")
+        if not cid or cid not in known_ids or cid in seen:
+            continue
+        if trigger not in CONSUMABLE_TRIGGERS:
+            continue
+        out.append({"consumable_id": cid, "trigger": trigger})
+        seen.add(cid)
+    return out[:MAX_CONSUMABLE_SLOTS]
+
+
 def attack_type_for_skill(skill: dict[str, Any]) -> str:
     """Return the one tactical attack type for an offensive skill.
 
@@ -1292,13 +1417,30 @@ def default_tactics_for_class(class_id: str | None) -> dict[str, Any]:
         if initiative_skill not in known_skills or not is_initiative_skill(skill):
             initiative_skill = ""
     defense = clean_defense_skill_map(meta.get("default_defense_skill_by_type") or {}, known_skills, data)
+    consumable_priority = clean_consumable_priority(meta.get("default_consumable_priority") or _default_consumable_priority_for_class(class_id, class_row))
     return {
         "target_priority": default_target_priority_for_class(class_id),
         "initiative_skill": initiative_skill,
         "skill_priority": clean_tactic_skill_list(meta.get("default_skill_priority", []), known_skills, 8),
         "opening_skill_priority": clean_tactic_skill_list(meta.get("default_opening_skill_priority", []), known_skills, 4),
         "defense_skill_by_type": defense,
+        "consumable_priority": consumable_priority,
     }
+
+
+def _default_consumable_priority_for_class(class_id: str | None, class_row: dict[str, Any]) -> list[dict[str, str]]:
+    """Sensible auto-use defaults when a preset doesn't configure them.
+
+    Front-liners (warrior/guardian) chug a healing potion when badly hurt; the
+    support line (cleric) keeps an antidote handy. Others start with nothing so
+    the player opts in deliberately.
+    """
+    base_id = base_class_id_for_class(class_id)
+    if base_id in {"warrior", "guardian"}:
+        return [{"consumable_id": "healing_potion", "trigger": "self_hp_below_30"}]
+    if base_id in {"cleric", "mage"}:
+        return [{"consumable_id": "antidote", "trigger": "self_poisoned"}]
+    return []
 
 
 def normalize_character(ch: dict[str, Any]) -> dict[str, Any]:
@@ -1377,6 +1519,9 @@ def normalize_character(ch: dict[str, Any]) -> dict[str, Any]:
         set(ch.get("learned_skills", [])),
         data,
     )
+    if "consumable_priority" not in ch["tactics"] or not isinstance(ch["tactics"].get("consumable_priority"), list):
+        ch["tactics"]["consumable_priority"] = copy.deepcopy(default_tactics["consumable_priority"])
+    ch["tactics"]["consumable_priority"] = clean_consumable_priority(ch["tactics"].get("consumable_priority", []))
     max_mana = int(attribute_derived_stats(ch["attributes"]).get("mana", 0))
     ch["max_mana"] = max_mana
     ch["mana"] = max(0, min(max_mana, int(ch.get("mana", max_mana))))
@@ -1692,13 +1837,23 @@ def default_state(seed: int | None = None) -> dict[str, Any]:
         "active_dungeons": [],
         "expedition_plan": [],
         "reports": [],
-        "shop": {"items": [], "recruits": []},
+        # Shop and recruitment are now independent systems with separate state
+        # keys. `shop` holds per-merchant stock (refreshed daily); `recruits`
+        # holds the tavern candidate pool (refreshed daily).
+        "shop": {"merchants": {}, "refresh_day": 0},
+        "recruits": {"candidates": [], "refresh_day": 0},
         "last_result": None,
         "victory": False,
         "defeat": False,
         "defeat_reason": None,
         "final_unlocked": False,
-        "next_counters": {"dungeon": 1, "plan": 1, "report": 1},
+        # Quest system runtime state. Templates live in data; these hold the
+        # player's instances, progress counters, story flags, and daily refresh.
+        "quests": [],
+        "quest_flags": {},
+        "quest_stats": default_quest_stats(),
+        "daily_quest_day": 0,
+        "next_counters": {"dungeon": 1, "plan": 1, "report": 1, "quest": 1},
         "debug_log": [],
     }
     preset = data.get("preset", {})
@@ -1753,7 +1908,9 @@ def default_state(seed: int | None = None) -> dict[str, Any]:
         state["formations"][tid] = copy.deepcopy(starter_formations.get(tid, {}))
     state["formation"] = copy.deepcopy(state["formations"]["team_1"])
     refresh_shop(state)
+    refresh_recruits(state)
     world_refresh(state, first_day=True)
+    init_quests(state)
     return state
 
 
@@ -1763,6 +1920,578 @@ def get_character(state: dict[str, Any], char_id: str) -> dict[str, Any] | None:
 
 def get_item(state: dict[str, Any], item_id: str) -> dict[str, Any] | None:
     return next((i for i in state["inventory"] if i["instance_id"] == item_id), None)
+
+
+# ===========================================================================
+# Quest system
+# ===========================================================================
+# Quest templates come from the active preset's quests.json (see data.py).
+# The engine owns the runtime: instantiating templates into player quests,
+# evaluating objectives when dungeons are cleared/scouted, refreshing daily
+# quests each day, revealing hidden quests, advancing story chains, and
+# granting rewards on claim. Save-state keys: quests / quest_flags /
+# quest_stats / daily_quest_day / next_counters["quest"].
+
+def default_quest_stats() -> dict[str, Any]:
+    """Zeroed quest progress aggregates backing objective evaluation."""
+    return {
+        "completed_quests": {},
+        "claimed_quests": {},
+        "dungeon_cleared_by_template": {},
+        "dungeon_scouted_by_template": {},
+        "dungeon_challenged_by_template": {},
+        "hidden_completed": 0,
+    }
+
+
+def _quest_data() -> dict[str, Any]:
+    return load_data().get("quests", {}) or {}
+
+
+def quest_template_by_id(template_id: str) -> dict[str, Any] | None:
+    return load_data().get("quest_template_by_id", {}).get(template_id)
+
+
+def _next_quest_instance_id(state: dict[str, Any]) -> str:
+    counters = state.setdefault("next_counters", {})
+    counter = int(counters.get("quest", 1))
+    counters["quest"] = counter + 1
+    return f"quest_{counter:04d}"
+
+
+def _instantiate_objective(obj_tpl: dict[str, Any]) -> dict[str, Any]:
+    """Copy a template objective into a runtime objective with current=0."""
+    obj = copy.deepcopy(obj_tpl)
+    obj["current"] = 0
+    obj["completed"] = False
+    obj.setdefault("required", 1)
+    return obj
+
+
+def _resolve_daily_gold(rng: random.Random, rewards_tpl: dict[str, Any]) -> int:
+    gold = rewards_tpl.get("gold", QUEST_DEFAULT_DAILY_GOLD_RANGE[0])
+    if isinstance(gold, dict):
+        lo = int(gold.get("min", QUEST_DEFAULT_DAILY_GOLD_RANGE[0]))
+        hi = int(gold.get("max", QUEST_DEFAULT_DAILY_GOLD_RANGE[1]))
+        return rng.randint(lo, hi) if hi >= lo else lo
+    return int(gold)
+
+
+def _resolve_rewards(rewards_tpl: dict[str, Any], rng: random.Random | None = None) -> dict[str, Any]:
+    """Resolve a reward template into concrete values (daily gold is randomized)."""
+    rewards = copy.deepcopy(rewards_tpl or {})
+    rewards.setdefault("gold", 0)
+    rewards.setdefault("materials", {})
+    rewards.setdefault("flags", {})
+    if rng is not None and isinstance(rewards.get("gold"), dict):
+        rewards["gold"] = _resolve_daily_gold(rng, rewards)
+    return rewards
+
+
+def _quest_status_label(status: str) -> str:
+    return QUEST_STATUS_LABELS.get(status, status)
+
+
+def instantiate_story_quest(state: dict[str, Any], template: dict[str, Any]) -> dict[str, Any]:
+    """Story/hidden quests keep their template id as instance id (one per playthrough)."""
+    objectives = [_instantiate_objective(o) for o in template.get("objectives", [])]
+    return {
+        "id": template["id"],
+        "template_id": template["id"],
+        "type": template.get("type", QUEST_TYPE_STORY),
+        "story_kind": template.get("story_kind", ""),
+        "chain_id": template.get("chain_id", ""),
+        "title": template.get("title", template["id"]),
+        "description": template.get("description", ""),
+        "status": "available",
+        "created_day": state.get("day", 1),
+        "accepted_day": None,
+        "expires_day": None,
+        "objectives": objectives,
+        "rewards": _resolve_rewards(template.get("rewards")),
+        "next_quests": list(template.get("next_quests", [])),
+        "auto_reveal_on_complete": bool(template.get("auto_reveal_on_complete", False)),
+        "revealed_from_hidden": False,
+        "sort": int(template.get("sort", 0)),
+        "linked_dungeon_ids": [],
+    }
+
+
+def instantiate_daily_quest(state: dict[str, Any], template: dict[str, Any], rng: random.Random) -> dict[str, Any]:
+    """Daily quests get a fresh instance id each day and randomized gold."""
+    objectives = [_instantiate_objective(o) for o in template.get("objectives", [])]
+    day = state.get("day", 1)
+    return {
+        "id": _next_quest_instance_id(state),
+        "template_id": template["id"],
+        "type": QUEST_TYPE_DAILY,
+        "story_kind": "",
+        "chain_id": "",
+        "title": template.get("title", template["id"]),
+        "description": template.get("description", ""),
+        "status": "available",
+        "created_day": day,
+        "accepted_day": None,
+        "expires_day": day + QUEST_DEFAULT_EXPIRY_DAYS - 1,
+        "objectives": objectives,
+        "rewards": _resolve_rewards(template.get("rewards"), rng=rng),
+        "next_quests": [],
+        "auto_reveal_on_complete": False,
+        "revealed_from_hidden": False,
+        "sort": 0,
+        "linked_dungeon_ids": [],
+    }
+
+
+def _quest_exists(state: dict[str, Any], quest_id: str) -> bool:
+    return any(q.get("id") == quest_id for q in state.get("quests", []))
+
+
+def _get_quest(state: dict[str, Any], quest_id: str) -> dict[str, Any] | None:
+    return next((q for q in state.get("quests", []) if q.get("id") == quest_id), None)
+
+
+def _eval_condition(state: dict[str, Any], cond: dict[str, Any]) -> bool:
+    """Evaluate one reveal/start condition. Unknown types are treated as False."""
+    ctype = cond.get("type")
+    if ctype in (QUEST_COND_ALWAYS_TRUE, "always", True):
+        return True
+    if ctype == QUEST_COND_FLAG:
+        return bool(state.get("quest_flags", {}).get(cond.get("flag")))
+    if ctype == QUEST_COND_QUEST_COMPLETED:
+        return _is_quest_template_completed(state, cond.get("quest"))
+    if ctype == QUEST_COND_HIDDEN_COMPLETED_GTE:
+        return int(state.get("quest_stats", {}).get("hidden_completed", 0)) >= int(cond.get("value", 1))
+    return False
+
+
+def _conditions_met(state: dict[str, Any], conditions: list[dict[str, Any]] | None) -> bool:
+    if not conditions:
+        return True
+    return all(_eval_condition(state, c) for c in conditions)
+
+
+def _is_quest_template_completed(state: dict[str, Any], template_id: str) -> bool:
+    """A template is 'completed' if any of its instances reached completed/claimed."""
+    return any(
+        q.get("template_id") == template_id and q.get("status") in {"completed", "claimed"}
+        for q in state.get("quests", [])
+    )
+
+
+def normalize_quest_instances(state: dict[str, Any]) -> None:
+    """Backfill/normalize quest instance fields after loading a save."""
+    quests = state.get("quests", [])
+    if not isinstance(quests, list):
+        state["quests"] = []
+        quests = []
+    for q in quests:
+        if not isinstance(q, dict):
+            continue
+        q.setdefault("template_id", q.get("id", ""))
+        q.setdefault("type", QUEST_TYPE_STORY)
+        q.setdefault("story_kind", "")
+        q.setdefault("chain_id", "")
+        q.setdefault("status", "available")
+        q.setdefault("accepted_day", None)
+        q.setdefault("expires_day", None)
+        q.setdefault("next_quests", [])
+        q.setdefault("auto_reveal_on_complete", False)
+        q.setdefault("revealed_from_hidden", False)
+        q.setdefault("sort", 0)
+        q.setdefault("linked_dungeon_ids", [])
+        q.setdefault("rewards", {})
+        objectives = q.get("objectives", [])
+        for obj in objectives:
+            if not isinstance(obj, dict):
+                continue
+            obj.setdefault("current", 0)
+            obj.setdefault("completed", False)
+            obj.setdefault("required", 1)
+            obj.setdefault("kind", QUEST_OBJ_CLEAR_DUNGEON)
+            obj["current"] = int(obj.get("current", 0))
+            obj["required"] = max(1, int(obj.get("required", 1)))
+            obj["completed"] = bool(obj.get("completed")) or obj["current"] >= obj["required"]
+        q["objectives"] = objectives
+
+
+def init_quests(state: dict[str, Any]) -> None:
+    """Seed a fresh run: reveal eligible story quests and roll the first daily set."""
+    normalize_quest_instances(state)
+    _reveal_eligible_story_quests(state)
+    state["daily_quest_day"] = 0  # force a refresh on day 1
+    refresh_daily_quests(state)
+    check_hidden_reveals(state)
+
+
+def _reveal_eligible_story_quests(state: dict[str, Any]) -> None:
+    """Instantiate story quests whose start_conditions are met and not yet present."""
+    for template in load_data().get("story_quests", []):
+        if not isinstance(template, dict) or not template.get("id"):
+            continue
+        if _quest_exists(state, template["id"]):
+            continue
+        if not _conditions_met(state, template.get("start_conditions")):
+            continue
+        state["quests"].append(instantiate_story_quest(state, template))
+
+
+def refresh_daily_quests(state: dict[str, Any]) -> None:
+    """Expire old daily quests and roll a fresh set when the day advances."""
+    day = state.get("day", 1)
+    if state.get("daily_quest_day") == day:
+        return
+    # Expire any daily quest not yet completed/claimed.
+    for q in state.get("quests", []):
+        if q.get("type") == QUEST_TYPE_DAILY and q.get("status") in {"available", "active"}:
+            q["status"] = "expired"
+            q["expires_day"] = day - 1
+    daily_templates = list(load_data().get("daily_templates", []))
+    count = int(load_data().get("daily_quest_count", QUEST_DEFAULT_DAILY_COUNT))
+    if not daily_templates or count <= 0:
+        state["daily_quest_day"] = day
+        return
+    rng = random.Random(stable_seed(state["run_seed"], "daily_quest", day))
+    # Sample without replacement when possible, otherwise allow repeats.
+    picks = rng.sample(daily_templates, min(count, len(daily_templates)))
+    if len(picks) < count:
+        picks += [rng.choice(daily_templates) for _ in range(count - len(picks))]
+    for template in picks:
+        state["quests"].append(instantiate_daily_quest(state, template, rng))
+    state["daily_quest_day"] = day
+
+
+def check_hidden_reveals(state: dict[str, Any]) -> list[dict[str, Any]]:
+    """Reveal hidden quests whose reveal_conditions are now satisfied."""
+    revealed: list[dict[str, Any]] = []
+    for template in load_data().get("hidden_quests", []):
+        if not isinstance(template, dict) or not template.get("id"):
+            continue
+        if _quest_exists(state, template["id"]):
+            continue
+        if not _conditions_met(state, template.get("reveal_conditions")):
+            continue
+        instance = instantiate_story_quest(state, template)
+        instance["type"] = QUEST_TYPE_HIDDEN
+        instance["revealed_from_hidden"] = True
+        state["quests"].append(instance)
+        revealed.append(instance)
+    return revealed
+
+
+def spawn_quest_dungeon(state: dict[str, Any], quest: dict[str, Any], spawn_tpl: dict[str, Any]) -> dict[str, Any] | None:
+    """Spawn a persistent dungeon tied to a quest, marking it for the UI."""
+    template_id = spawn_tpl.get("template_id")
+    if not template_id or template_id not in load_data().get("dungeon_by_id", {}):
+        return None
+    # Avoid spawning duplicates if the quest already linked a live dungeon.
+    for d in state.get("active_dungeons", []):
+        if d.get("source_quest_id") == quest["id"] and not d.get("cleared") and not d.get("expired"):
+            quest.setdefault("linked_dungeon_ids", []).append(d["id"])
+            return d
+    instance = spawn_dungeon_instance(state, template_id)
+    instance["source_quest_id"] = quest["id"]
+    instance["source_quest_title"] = quest.get("title", "")
+    instance["persistent"] = bool(spawn_tpl.get("persistent", True))
+    instance["remaining_days"] = 99  # quest dungeons do not rot away
+    if instance["id"] not in quest.setdefault("linked_dungeon_ids", []):
+        quest["linked_dungeon_ids"].append(instance["id"])
+    return instance
+
+
+def accept_quest(state: dict[str, Any], quest_id: str) -> dict[str, Any]:
+    """Move a quest from available -> active. All quests require manual acceptance."""
+    quest = _get_quest(state, quest_id)
+    if not quest:
+        raise ValueError("任务不存在")
+    if quest.get("status") != "available":
+        raise ValueError(f"当前状态无法接受任务：{_quest_status_label(quest.get('status', ''))}")
+    quest["status"] = "active"
+    quest["accepted_day"] = state.get("day", 1)
+    template = quest_template_by_id(quest.get("template_id", "")) or {}
+    spawn_tpl = template.get("spawn_dungeon") if isinstance(template, dict) else None
+    if spawn_tpl:
+        spawn_quest_dungeon(state, quest, spawn_tpl)
+    # Reveal the next batch of hidden quests that may have become eligible.
+    check_hidden_reveals(state)
+    return quest
+
+
+def abandon_quest(state: dict[str, Any], quest_id: str) -> dict[str, Any]:
+    """Abandon an active quest. Daily quests can be dropped; story quests are merely reset to available."""
+    quest = _get_quest(state, quest_id)
+    if not quest:
+        raise ValueError("任务不存在")
+    if quest.get("status") not in {"active", "available"}:
+        raise ValueError("当前状态无法放弃任务")
+    if quest.get("type") == QUEST_TYPE_DAILY:
+        quest["status"] = "expired"
+    else:
+        # Reset progress and put the story/hidden quest back in the pool.
+        quest["status"] = "available"
+        quest["accepted_day"] = None
+        for obj in quest.get("objectives", []):
+            obj["current"] = 0
+            obj["completed"] = False
+    return quest
+
+
+def _objective_matches(obj: dict[str, Any], event: dict[str, Any]) -> bool:
+    """Does this runtime objective consume the given progress event?"""
+    kind = obj.get("kind")
+    if event["event"] == "clear_dungeon":
+        if kind == QUEST_OBJ_CLEAR_DUNGEON:
+            return obj.get("dungeon_template_id") in (None, "", event.get("dungeon_template_id"))
+        return False
+    if event["event"] == "scout_dungeon":
+        if kind == QUEST_OBJ_SCOUT_DUNGEON:
+            return obj.get("dungeon_template_id") in (None, "", event.get("dungeon_template_id"))
+        if kind == QUEST_OBJ_SCOUT_ANY:
+            return True
+        return False
+    if event["event"] == "clear_unscouted_dungeon":
+        if kind == QUEST_OBJ_CLEAR_UNSCOUTED:
+            gte = int(obj.get("danger_level_gte", 0) or 0)
+            return gte <= int(event.get("danger_level", 0))
+        return False
+    if event["event"] == "clear_two_dungeons_one_day":
+        return kind == QUEST_OBJ_CLEAR_TWO_ONE_DAY
+    return False
+
+
+def _apply_event_to_objective(obj: dict[str, Any], event: dict[str, Any]) -> bool:
+    if obj.get("completed"):
+        return False
+    if not _objective_matches(obj, event):
+        return False
+    if event["event"] in {"clear_two_dungeons_one_day"} and not event.get("eligible", False):
+        return False
+    amount = int(event.get("amount", 1))
+    obj["current"] = min(int(obj.get("required", 1)), int(obj.get("current", 0)) + amount)
+    if obj["current"] >= int(obj.get("required", 1)):
+        obj["completed"] = True
+    return True
+
+
+def _finalize_quest_status(state: dict[str, Any], quest: dict[str, Any]) -> bool:
+    """If all objectives done, mark completed. Returns True if it just completed."""
+    if quest.get("status") != "active":
+        return False
+    objectives = quest.get("objectives", [])
+    if not objectives:
+        return False
+    if all(o.get("completed") for o in objectives):
+        quest["status"] = "completed"
+        quest["completed_day"] = state.get("day", 1)
+        stats = state.setdefault("quest_stats", default_quest_stats())
+        tpl = quest.get("template_id", quest["id"])
+        stats.setdefault("completed_quests", {})[tpl] = stats.get("completed_quests", {}).get(tpl, 0) + 1
+        if quest.get("type") == QUEST_TYPE_HIDDEN:
+            stats["hidden_completed"] = int(stats.get("hidden_completed", 0)) + 1
+        # Auto-echo: hidden quests that complete themselves reveal on completion.
+        if quest.get("auto_reveal_on_complete") and not quest.get("revealed_from_hidden"):
+            quest["revealed_from_hidden"] = True
+        return True
+    return False
+
+
+def _record_dungeon_stats(state: dict[str, Any], event: dict[str, Any]) -> None:
+    stats = state.setdefault("quest_stats", default_quest_stats())
+    template_id = event.get("dungeon_template_id")
+    if not template_id:
+        return
+    if event["event"] == "clear_dungeon" or event["event"] == "clear_unscouted_dungeon":
+        bucket = stats.setdefault("dungeon_cleared_by_template", {})
+    elif event["event"] == "scout_dungeon":
+        bucket = stats.setdefault("dungeon_scouted_by_template", {})
+    else:
+        return
+    bucket[template_id] = bucket.get(template_id, 0) + 1
+
+
+def record_quest_events(state: dict[str, Any], events: list[dict[str, Any]]) -> None:
+    """Apply a batch of dungeon progress events to all active quests.
+
+    Called from resolve_challenge/resolve_scout with one event per report.
+    """
+    if not events:
+        return
+    for event in events:
+        _record_dungeon_stats(state, event)
+    # Hidden quests with auto_reveal_on_complete may be revealed-and-completed
+    # by an event (e.g. blind victory) even though they were never accepted.
+    for event in events:
+        _maybe_reveal_hidden_by_echo(state, event)
+    newly_completed: list[dict[str, Any]] = []
+    for quest in state.get("quests", []):
+        if quest.get("status") != "active":
+            continue
+        changed = False
+        for obj in quest.get("objectives", []):
+            for event in events:
+                if _apply_event_to_objective(obj, event):
+                    changed = True
+        if changed and _finalize_quest_status(state, quest):
+            newly_completed.append(quest)
+    return None
+
+
+def _maybe_reveal_hidden_by_echo(state: dict[str, Any], event: dict[str, Any]) -> None:
+    """For auto_reveal hidden quests not yet present, check if this event satisfies them."""
+    for template in load_data().get("hidden_quests", []):
+        if not isinstance(template, dict) or not template.get("id"):
+            continue
+        if not template.get("auto_reveal_on_complete"):
+            continue
+        if _quest_exists(state, template["id"]):
+            continue
+        # Build a temporary instance, apply the event, see if it completes.
+        instance = instantiate_story_quest(state, template)
+        instance["type"] = QUEST_TYPE_HIDDEN
+        instance["status"] = "active"
+        instance["revealed_from_hidden"] = True
+        instance["accepted_day"] = state.get("day", 1)
+        for obj in instance["objectives"]:
+            _apply_event_to_objective(obj, event)
+        if all(o.get("completed") for o in instance["objectives"]) and instance["objectives"]:
+            instance["status"] = "completed"
+            instance["completed_day"] = state.get("day", 1)
+            stats = state.setdefault("quest_stats", default_quest_stats())
+            tpl = instance["template_id"]
+            stats.setdefault("completed_quests", {})[tpl] = stats.get("completed_quests", {}).get(tpl, 0) + 1
+            stats["hidden_completed"] = int(stats.get("hidden_completed", 0)) + 1
+            state["quests"].append(instance)
+
+
+def claim_quest(state: dict[str, Any], quest_id: str) -> dict[str, Any]:
+    """Grant rewards for a completed quest, then unlock its story successors."""
+    quest = _get_quest(state, quest_id)
+    if not quest:
+        raise ValueError("任务不存在")
+    if quest.get("status") != "completed":
+        raise ValueError("任务尚未完成，无法领取")
+    rewards = quest.get("rewards", {}) or {}
+    state["gold"] = int(state.get("gold", 0)) + int(rewards.get("gold", 0))
+    exp_reward = int(rewards.get("exp", 0))
+    materials = rewards.get("materials", {}) or {}
+    state_materials = state.setdefault("materials", {})
+    for key, amount in materials.items():
+        if amount:
+            state_materials[key] = int(state_materials.get(key, 0)) + int(amount)
+    if exp_reward:
+        for ch in state.get("characters", []):
+            gain_exp(ch, exp_reward)
+    for flag, value in (rewards.get("flags", {}) or {}).items():
+        state.setdefault("quest_flags", {})[flag] = value
+    quest["status"] = "claimed"
+    quest["claimed_day"] = state.get("day", 1)
+    stats = state.setdefault("quest_stats", default_quest_stats())
+    tpl = quest.get("template_id", quest["id"])
+    stats.setdefault("claimed_quests", {})[tpl] = stats.get("claimed_quests", {}).get(tpl, 0) + 1
+    # Drop this quest's persistent dungeon now that it is resolved.
+    if quest.get("linked_dungeon_ids"):
+        linked = set(quest["linked_dungeon_ids"])
+        state["active_dungeons"] = [
+            d for d in state.get("active_dungeons", [])
+            if d.get("id") not in linked or not (d.get("persistent") or d.get("source_quest_id"))
+        ]
+    _advance_quest_chain(state, quest)
+    check_hidden_reveals(state)
+    return quest
+
+
+def _advance_quest_chain(state: dict[str, Any], quest: dict[str, Any]) -> None:
+    """After claiming a quest, reveal its next_quests whose conditions now hold."""
+    for next_id in quest.get("next_quests", []):
+        template = quest_template_by_id(next_id)
+        if not template:
+            continue
+        if _quest_exists(state, next_id):
+            continue
+        if not _conditions_met(state, template.get("start_conditions")):
+            continue
+        state["quests"].append(instantiate_story_quest(state, template))
+
+
+def _quest_public_view(quest: dict[str, Any]) -> dict[str, Any]:
+    """Frontend-facing projection of a single quest instance."""
+    objectives = []
+    for obj in quest.get("objectives", []):
+        objectives.append({
+            "id": obj.get("id"),
+            "kind": obj.get("kind"),
+            "label": obj.get("label", ""),
+            "required": int(obj.get("required", 1)),
+            "current": int(obj.get("current", 0)),
+            "completed": bool(obj.get("completed", False)),
+        })
+    rewards = quest.get("rewards", {}) or {}
+    return {
+        "id": quest.get("id"),
+        "template_id": quest.get("template_id"),
+        "type": quest.get("type", QUEST_TYPE_STORY),
+        "story_kind": quest.get("story_kind", ""),
+        "chain_id": quest.get("chain_id", ""),
+        "title": quest.get("title", ""),
+        "description": quest.get("description", ""),
+        "status": quest.get("status", "available"),
+        "status_label": _quest_status_label(quest.get("status", "available")),
+        "created_day": quest.get("created_day"),
+        "accepted_day": quest.get("accepted_day"),
+        "expires_day": quest.get("expires_day"),
+        "completed_day": quest.get("completed_day"),
+        "claimed_day": quest.get("claimed_day"),
+        "objectives": objectives,
+        "all_completed": bool(objectives) and all(o["completed"] for o in objectives),
+        "rewards": {
+            "gold": int(rewards.get("gold", 0)),
+            "exp": int(rewards.get("exp", 0)),
+            "materials": rewards.get("materials", {}),
+            "flags": rewards.get("flags", {}),
+        },
+        "next_quests": list(quest.get("next_quests", [])),
+        "revealed_from_hidden": bool(quest.get("revealed_from_hidden", False)),
+        "linked_dungeon_ids": list(quest.get("linked_dungeon_ids", [])),
+        "sort": int(quest.get("sort", 0)),
+    }
+
+
+def quest_list_view(state: dict[str, Any]) -> dict[str, Any]:
+    """Group quests into buckets the UI can render directly.
+
+    Unrevealed hidden quests are excluded entirely so the client never sees them.
+    """
+    normalize_quest_instances(state)
+    buckets: dict[str, list[dict[str, Any]]] = {
+        "available": [],
+        "active": [],
+        "completed": [],
+        "claimed": [],
+        "expired": [],
+    }
+    for quest in state.get("quests", []):
+        if not isinstance(quest, dict):
+            continue
+        status = quest.get("status", "available")
+        if status not in buckets:
+            continue
+        buckets[status].append(_quest_public_view(quest))
+    for key in buckets:
+        buckets[key].sort(key=lambda q: (q.get("sort", 0), q.get("id", "")))
+    summary = {
+        "available_count": len(buckets["available"]),
+        "active_count": len(buckets["active"]),
+        "claimable_count": len(buckets["completed"]),
+        "daily_day": state.get("daily_quest_day"),
+    }
+    return {
+        "available": buckets["available"],
+        "active": buckets["active"],
+        "completed": buckets["completed"],
+        "claimed": buckets["claimed"],
+        "expired": buckets["expired"],
+        "summary": summary,
+    }
 
 
 def normalize_equipment_item(item: dict[str, Any]) -> dict[str, Any]:
@@ -2026,53 +2755,167 @@ def normalize_character_equipment_occupancy(state: dict[str, Any], char: dict[st
 
 
 def refresh_shop(state: dict[str, Any]) -> None:
-    rng = random.Random(stable_seed(state["run_seed"], "shop", state["day"]))
+    """Regenerate every merchant's stock for the current day.
+
+    Each merchant owns an independent, deterministic RNG stream seeded from
+    (run_seed, "shop", merchant_id, day) so a given day's shop is reproducible
+    for testing and reload. Shop config (merchants, pricing floors, sell/salvage
+    tables) comes from the preset's shop.json via load_data()["shop_config"].
+    """
+    data = load_data()
+    shop_config = data.get("shop_config", {})
     level = equipment_level_from_danger(day=state["day"])
     equipment_pool = equipment_templates_for_level(level)
-    items = []
-    for _ in range(min(5, len(equipment_pool))):
-        tpl = weighted_choice(
-            rng,
-            equipment_pool,
-            lambda e: max(1, 12 - abs(int(e.get("tier", 1)) - level) * 2) * (0.45 if equipment_kind(e) == "special" else 1.0),
-        )
-        eq = instance_equipment(tpl["id"], rng=rng, level=level)
-        eq["cost"] = int(eq.get("cost", 50) * (0.9 + rng.random() * 0.25))
-        items.append({
-            "shop_id": make_id("shop"),
-            "kind": "equipment",
-            "template_id": eq["template_id"],
-            "name": eq["name"],
-            "slot": eq["slot"],
-            "rarity": eq["rarity"],
-            "cost": eq["cost"],
-            "summary": format_equipment_summary(eq),
-            "equipment": copy.deepcopy(eq),
-        })
-    consumables = [
-        {"shop_id": make_id("shop"), "kind": "consumable", "template_id": "healing_potion", "name": "治疗药水", "cost": 25, "summary": "挑战中低血量时自动回复少量 HP（MVP 简化为库存资源）"},
-        {"shop_id": make_id("shop"), "kind": "consumable", "template_id": "antidote", "name": "解毒剂", "cost": 18, "summary": "用于补充解毒准备（MVP 简化为库存资源）"},
-    ]
-    items.extend(consumables)
+    rarity_floor = shop_config.get("rarity_price_floor", {})
+    merchants: dict[str, Any] = {}
+    for merchant in shop_config.get("merchants", []):
+        mid = merchant.get("id") or make_id("merchant")
+        rng = random.Random(stable_seed(state["run_seed"], "shop", mid, state["day"]))
+        slot_count = max(0, int(merchant.get("slot_count", 3)))
+        currency = merchant.get("currency", "gold")
+        jitter_lo, jitter_hi = merchant.get("cost_jitter", [0.9, 1.15])
+        sells = merchant.get("sells", [])
+        items: list[dict[str, Any]] = []
+        if "equipment" in sells:
+            slot_groups = (merchant.get("equipment_filter") or {}).get("slot_groups") or []
+            pool = [
+                tpl for tpl in equipment_pool
+                if not slot_groups or any(equipment_slot_matches_token(tpl.get("slot"), g) for g in slot_groups)
+            ]
+            for _ in range(min(slot_count, len(pool))):
+                tpl = weighted_choice(
+                    rng,
+                    pool,
+                    lambda e: max(1, 12 - abs(int(e.get("tier", 1)) - level) * 2) * (0.45 if equipment_kind(e) == "special" else 1.0),
+                )
+                eq = instance_equipment(tpl["id"], rng=rng, level=level)
+                base_cost = int(eq.get("cost", 50))
+                # Jitter the price, then enforce a rarity-based floor so high-rarity
+                # stock can never be sold below base_cost * floor_multiplier.
+                floor = rarity_floor.get(eq.get("rarity"), 1.0)
+                jittered = base_cost * (jitter_lo + rng.random() * (jitter_hi - jitter_lo))
+                floored = max(jittered, base_cost * floor)
+                final_cost = max(1, int(round(floored)))
+                eq["cost"] = final_cost
+                items.append({
+                    "shop_id": make_id("shop"),
+                    "merchant_id": mid,
+                    "kind": "equipment",
+                    "template_id": eq["template_id"],
+                    "name": eq["name"],
+                    "slot": eq["slot"],
+                    "rarity": eq["rarity"],
+                    "base_cost": base_cost,
+                    "cost": final_cost,
+                    "currency": currency,
+                    "summary": format_equipment_summary(eq),
+                    "equipment": copy.deepcopy(eq),
+                })
+        if "consumable" in sells:
+            for consumable in merchant.get("consumables", [])[:slot_count]:
+                if not isinstance(consumable, dict) or not consumable.get("id"):
+                    continue
+                base = int(consumable.get("cost", 20))
+                final_cost = max(1, int(round(base * (jitter_lo + rng.random() * (jitter_hi - jitter_lo)))))
+                items.append({
+                    "shop_id": make_id("shop"),
+                    "merchant_id": mid,
+                    "kind": "consumable",
+                    "template_id": consumable["id"],
+                    "name": consumable.get("name", consumable["id"]),
+                    "cost": final_cost,
+                    "base_cost": base,
+                    "currency": currency,
+                    "summary": consumable.get("summary", ""),
+                })
+        merchants[mid] = {
+            "merchant_id": mid,
+            "name": merchant.get("name", mid),
+            "icon": merchant.get("icon", "🪙"),
+            "items": items,
+        }
+    state["shop"] = {"merchants": merchants, "refresh_day": state["day"]}
+
+
+def refresh_recruits(state: dict[str, Any]) -> None:
+    """Regenerate the tavern candidate pool for the current day.
+
+    Candidates carry a full character snapshot in `preview` generated with the
+    real create_character/level_up_character pipeline, so what the player sees
+    before hiring is exactly what joins the roster. Rarity scales both cost and
+    attributes for flavor. Config from load_data()["recruit_config"].
+    """
     data = load_data()
+    rcfg = data.get("recruit_config", {})
     preset = data.get("preset", {})
-    recruit_classes = preset.get("recruit_pool") or [c["id"] for c in data["classes"]]
-    recruits = []
-    names = preset.get("recruit_names") or ["伊芙", "莱恩", "卡洛", "薇拉", "塔克", "米娜", "洛特", "珂赛"]
-    for i in range(3):
-        cid = rng.choice(recruit_classes)
-        c = data["class_by_id"][cid]
-        recruits.append({
-            "candidate_id": make_id("rec"),
+    recruit_pool = rcfg.get("recruit_pool") or preset.get("recruit_pool") or [c["id"] for c in data["classes"]]
+    # Split base vs advanced classes so advanced ones only roll by chance.
+    base_pool = [cid for cid in recruit_pool if not _class_is_advanced(cid, data)]
+    advanced_pool = [cid for cid in recruit_pool if _class_is_advanced(cid, data)]
+    if not base_pool:
+        base_pool = recruit_pool
+    weights = rcfg.get("rarity_weights", {"common": 50, "uncommon": 30, "rare": 15, "epic": 4, "legendary": 1})
+    rarity_keys = [k for k in EQUIPMENT_RARITIES if k in weights and k != "artifact"]
+    rarity_weights_list = [max(0, int(weights[k])) for k in rarity_keys]
+    modifiers = rcfg.get("rarity_modifiers", {})
+    name_pools = rcfg.get("name_pools", {}) or {}
+    fallback_names = preset.get("recruit_names") or ["伊芙", "莱恩", "卡洛", "薇拉", "塔克", "米娜", "洛特", "珂赛"]
+    advanced_chance = clamp(float(rcfg.get("advanced_chance", 0.0)), 0.0, 1.0)
+    count = max(0, int(rcfg.get("candidate_count", 3)))
+    base_cost = int(rcfg.get("base_cost", 90))
+    cost_per_level = int(rcfg.get("cost_per_level", 12))
+
+    rng = random.Random(stable_seed(state["run_seed"], "recruits", state["day"]))
+    candidates: list[dict[str, Any]] = []
+    for _ in range(count):
+        use_advanced = bool(advanced_pool) and rng.random() < advanced_chance
+        pool = advanced_pool if use_advanced else base_pool
+        cid = rng.choice(pool) if pool else rng.choice(recruit_pool or ["warrior"])
+        c = data["class_by_id"].get(cid)
+        if not c:
+            continue
+        rarity = rng.choices(rarity_keys, weights=rarity_weights_list, k=1)[0] if rarity_keys else "common"
+        mod = modifiers.get(rarity, {})
+        attr_mult = float(mod.get("attr_mult", 1.0))
+        cost_mult = float(mod.get("cost_mult", 1.0))
+        level = max(1, state["day"] // 8 + rng.randint(0, 1))
+        # Build the candidate's name from per-class pool, else advanced pool, else fallback.
+        name_pool = name_pools.get(cid) or (name_pools.get("_advanced") if use_advanced else None) or name_pools.get("_default") or fallback_names
+        name = rng.choice(name_pool)
+        ch = create_character(cid, name, make_id("rec"))
+        while ch["level"] < level:
+            level_up_character(ch)
+        # Apply rarity attribute scaling on top of the grown character.
+        if attr_mult != 1.0:
+            for k in ch["attributes"]:
+                ch["attributes"][k] = max(1, int(round(ch["attributes"][k] * attr_mult)))
+            # Recompute hp/mana derived from the scaled attributes.
+            derived = attribute_derived_stats(ch["attributes"])
+            ch["max_hp"] = int(ch["base_stats"].get("max_hp", 1)) + derived["hp_bonus"]
+            ch["hp"] = ch["max_hp"]
+            ch["max_mana"] = int(derived.get("mana", 0))
+            ch["mana"] = ch["max_mana"]
+        cost = max(1, int(round((base_cost + cost_per_level * (level - 1)) * cost_mult)))
+        candidates.append({
+            "candidate_id": ch["id"],
             "class_id": cid,
             "class_name": c["name"],
             "class_meta": class_preset_meta(cid),
-            "name": rng.choice(names),
-            "level": max(1, state["day"] // 8 + rng.randint(0, 1)),
-            "cost": 85 + 25 * max(0, state["day"] // 7),
+            "name": name,
+            "level": level,
+            "rarity": rarity,
+            "rarity_label": EQUIPMENT_RARITY_LABELS.get(rarity, rarity),
+            "cost": cost,
             "role": c.get("role", ""),
+            "is_advanced": bool(c.get("is_advanced")),
+            "preview": copy.deepcopy(ch),
         })
-    state["shop"] = {"items": items, "recruits": recruits}
+    state["recruits"] = {"candidates": candidates, "refresh_day": state["day"]}
+
+
+def _class_is_advanced(class_id: str, data: dict[str, Any]) -> bool:
+    row = data.get("class_by_id", {}).get(class_id)
+    return bool(row and row.get("is_advanced"))
 
 
 def format_equipment_summary(e: dict[str, Any]) -> str:
@@ -2149,12 +2992,23 @@ def available_template_ids_for_day(day: int) -> list[str]:
 def world_refresh(state: dict[str, Any], first_day: bool = False) -> None:
     if not first_day:
         for d in state["active_dungeons"]:
-            if d.get("is_final") or d.get("cleared"):
+            if d.get("is_final") or d.get("cleared") or d.get("persistent") or d.get("source_quest_id"):
                 continue
             d["remaining_days"] -= 1
             if d["remaining_days"] <= 0:
                 d["expired"] = True
-        state["active_dungeons"] = [d for d in state["active_dungeons"] if not d.get("expired") and not (d.get("cleared") and d.get("reward_charges", 0) <= 0)]
+        # Drop expired normal dungeons and fully-drained normal dungeons.
+        # Persistent quest dungeons are kept until their quest is claimed,
+        # even if cleared, so the player can re-target or re-read the link.
+        def _keep_dungeon(d: dict[str, Any]) -> bool:
+            if d.get("expired"):
+                return False
+            if d.get("persistent") or d.get("source_quest_id"):
+                return True
+            if d.get("cleared") and d.get("reward_charges", 0) <= 0:
+                return False
+            return True
+        state["active_dungeons"] = [d for d in state["active_dungeons"] if _keep_dungeon(d)]
     if state["day"] >= 25 and not state.get("final_unlocked"):
         spawn_dungeon_instance(state, "final_bastion", fixed_final=True)
         state["final_unlocked"] = True
@@ -2163,10 +3017,15 @@ def world_refresh(state: dict[str, Any], first_day: bool = False) -> None:
         desired = 5
     rng = random.Random(stable_seed(state["run_seed"], "world", state["day"], len(state["active_dungeons"])))
     pool = available_template_ids_for_day(state["day"])
-    while len([d for d in state["active_dungeons"] if not d.get("is_final")]) < desired:
+    # Only count naturally-spawned dungeons toward the daily desired total;
+    # quest-spawned persistent dungeons are additive on top.
+    natural = [d for d in state["active_dungeons"] if not d.get("is_final") and not (d.get("persistent") or d.get("source_quest_id"))]
+    while len(natural) < desired:
         template_id = rng.choice(pool)
         spawn_dungeon_instance(state, template_id, rng=rng)
+        natural = [d for d in state["active_dungeons"] if not d.get("is_final") and not (d.get("persistent") or d.get("source_quest_id"))]
     refresh_shop(state)
+    refresh_recruits(state)
     state["expedition_plan"] = []
 
 
@@ -2353,6 +3212,19 @@ def clear_plan(state: dict[str, Any]) -> None:
     state["expedition_plan"] = []
 
 
+def remove_plan_action(state: dict[str, Any], index: int) -> dict[str, Any] | None:
+    """Remove a single action from today's expedition plan by its position.
+
+    Returns the removed action (or None if the index was out of range). The plan
+    is a positional queue, so removing re-indexes the remaining actions — this
+    frees up both the expedition slot and the team that action had reserved.
+    """
+    plan = state.get("expedition_plan", [])
+    if not isinstance(plan, list) or index < 0 or index >= len(plan):
+        return None
+    return plan.pop(index)
+
+
 def update_formation(state: dict[str, Any], formation: dict[str, str | None], team_id: str = "team_1") -> None:
     cleaned = clean_formation(state, team_id, formation)
     formations = ensure_formations(state)
@@ -2380,6 +3252,7 @@ def tactic_row_from_character(ch: dict[str, Any], tactics: dict[str, Any] | None
         "skill_priority": copy.deepcopy(tactics.get("skill_priority", [])),
         "opening_skill_priority": copy.deepcopy(tactics.get("opening_skill_priority", [])),
         "defense_skill_by_type": copy.deepcopy(tactics.get("defense_skill_by_type", {})),
+        "consumable_priority": copy.deepcopy(tactics.get("consumable_priority", [])),
     }
 
 
@@ -2411,6 +3284,7 @@ def clean_tactic_row_for_character(ch: dict[str, Any], row: dict[str, Any], data
     result.setdefault("skill_priority", copy.deepcopy(defaults["skill_priority"]))
     result.setdefault("opening_skill_priority", copy.deepcopy(defaults["opening_skill_priority"]))
     result.setdefault("defense_skill_by_type", copy.deepcopy(defaults["defense_skill_by_type"]))
+    result.setdefault("consumable_priority", copy.deepcopy(defaults["consumable_priority"]))
 
     target = row.get("target_priority")
     if target:
@@ -2436,12 +3310,15 @@ def clean_tactic_row_for_character(ch: dict[str, Any], row: dict[str, Any], data
         if not isinstance(raw, dict):
             raise ValueError("防御技能配置格式错误")
         result["defense_skill_by_type"] = clean_defense_skill_map(raw, known_skills, data)
+    if "consumable_priority" in row:
+        result["consumable_priority"] = clean_consumable_priority(row.get("consumable_priority") or [])
     return {
         "target_priority": result.get("target_priority", defaults["target_priority"]),
         "initiative_skill": result.get("initiative_skill", ""),
         "skill_priority": copy.deepcopy(result.get("skill_priority", [])),
         "opening_skill_priority": copy.deepcopy(result.get("opening_skill_priority", [])),
         "defense_skill_by_type": copy.deepcopy(result.get("defense_skill_by_type", {})),
+        "consumable_priority": copy.deepcopy(result.get("consumable_priority", [])),
     }
 
 
@@ -2541,6 +3418,7 @@ def tactic_scheme_summary(tactics: dict[str, Any]) -> dict[str, int]:
         "opening": sum(list_len(row.get("opening_skill_priority")) for row in rows + layer_rows if isinstance(row, dict)),
         "priority": sum(list_len(row.get("skill_priority")) for row in rows + layer_rows if isinstance(row, dict)),
         "defense": sum(dict_len(row.get("defense_skill_by_type")) for row in rows + layer_rows if isinstance(row, dict)),
+        "consumables": sum(list_len(row.get("consumable_priority")) for row in rows + layer_rows if isinstance(row, dict)),
     }
 
 
@@ -2869,13 +3747,34 @@ def reset_attributes(state: dict[str, Any], character_id: str) -> dict[str, Any]
     return ch
 
 
+def _find_shop_item(state: dict[str, Any], shop_id: str) -> tuple[dict[str, Any], str] | None:
+    """Locate a shop item across all merchants. Returns (item, merchant_id)."""
+    for mid, merchant in state.get("shop", {}).get("merchants", {}).items():
+        for item in merchant.get("items", []):
+            if item.get("shop_id") == shop_id:
+                return item, mid
+    return None
+
+
+def _spend_currency(state: dict[str, Any], currency: str, amount: int) -> None:
+    """Deduct a purchase price in either gold or a named material currency."""
+    if currency == "gold":
+        if state["gold"] < amount:
+            raise ValueError("金币不足")
+        state["gold"] -= amount
+    else:
+        have = int(state.get("materials", {}).get(currency, 0))
+        if have < amount:
+            raise ValueError(f"{MATERIAL_NAMES.get(currency, currency)}不足")
+        state.setdefault("materials", {})[currency] = have - amount
+
+
 def buy_shop_item(state: dict[str, Any], shop_id: str) -> dict[str, Any]:
-    item = next((i for i in state["shop"]["items"] if i["shop_id"] == shop_id), None)
-    if not item:
+    found = _find_shop_item(state, shop_id)
+    if not found:
         raise ValueError("商品不存在")
-    if state["gold"] < item["cost"]:
-        raise ValueError("金币不足")
-    state["gold"] -= item["cost"]
+    item, mid = found
+    _spend_currency(state, item.get("currency", "gold"), int(item["cost"]))
     if item["kind"] == "equipment":
         eq = copy.deepcopy(item.get("equipment")) if isinstance(item.get("equipment"), dict) else instance_equipment(item["template_id"])
         eq["instance_id"] = eq.get("instance_id") or make_id("eq")
@@ -2886,25 +3785,121 @@ def buy_shop_item(state: dict[str, Any], shop_id: str) -> dict[str, Any]:
     else:
         state["consumables"][item["template_id"]] = state["consumables"].get(item["template_id"], 0) + 1
         acquired = {"type": "consumable", "id": item["template_id"], "name": item["name"]}
-    state["shop"]["items"] = [i for i in state["shop"]["items"] if i["shop_id"] != shop_id]
+    state["shop"]["merchants"][mid]["items"] = [i for i in state["shop"]["merchants"][mid]["items"] if i["shop_id"] != shop_id]
     return acquired
 
 
+def _estimate_sell_value(state_item: dict[str, Any], shop_config: dict[str, Any]) -> int:
+    rarity = state_item.get("rarity", "common")
+    multiplier = float(shop_config.get("sell_multipliers", {}).get(rarity, 0.4))
+    return max(1, int(round(int(state_item.get("cost", 0)) * multiplier)))
+
+
+def sell_item(state: dict[str, Any], item_id: str) -> dict[str, Any]:
+    """Sell an inventory equipment piece back for gold based on rarity."""
+    shop_config = load_data().get("shop_config", {})
+    item = get_item(state, item_id)
+    if not item:
+        raise ValueError("物品不存在")
+    if item.get("equipped_by"):
+        raise ValueError("请先卸下装备再出售")
+    value = _estimate_sell_value(item, shop_config)
+    state["gold"] += value
+    state["inventory"] = [i for i in state["inventory"] if i.get("instance_id") != item_id]
+    return {"type": "sell", "item_id": item_id, "gold": value, "name": item.get("name", "")}
+
+
+def _salvage_material_yield(class_id: str | None, salvage_cfg: dict[str, Any], rng: random.Random) -> dict[str, int]:
+    """Roll salvage material drops for a character class affinity. Returns {material: amount}."""
+    yield_map: dict[str, int] = {}
+    for key, drops in salvage_cfg.items():
+        if class_id and class_id in key.split("|") and isinstance(drops, dict):
+            for mat, bounds in drops.items():
+                if isinstance(bounds, list) and len(bounds) == 2:
+                    low, high = int(bounds[0]), int(bounds[1])
+                    if high > low:
+                        amount = rng.randint(low, high)
+                    else:
+                        amount = low
+                    if amount > 0:
+                        yield_map[mat] = yield_map.get(mat, 0) + amount
+    return yield_map
+
+
+def salvage_item(state: dict[str, Any], item_id: str) -> dict[str, Any]:
+    """Break down an inventory equipment piece into gold + class-affinity materials."""
+    shop_config = load_data().get("shop_config", {})
+    salvage_cfg = shop_config.get("salvage", {})
+    item = get_item(state, item_id)
+    if not item:
+        raise ValueError("物品不存在")
+    if item.get("equipped_by"):
+        raise ValueError("请先卸下装备再分解")
+    rarity = item.get("rarity", "common")
+    gold = int(salvage_cfg.get("gold", {}).get(rarity, 5))
+    rng = random.Random(stable_seed(state["run_seed"], "salvage", item_id, state["day"]))
+    # Class affinity comes from the item's class_restriction, if any.
+    affinity = item.get("class_restriction") or []
+    affinity_id = affinity[0] if affinity else None
+    materials = _salvage_material_yield(affinity_id, salvage_cfg.get("materials", {}), rng)
+    state["gold"] += gold
+    for mat, amount in materials.items():
+        state.setdefault("materials", {})[mat] = state.setdefault("materials", {}).get(mat, 0) + amount
+    state["inventory"] = [i for i in state["inventory"] if i.get("instance_id") != item_id]
+    return {"type": "salvage", "item_id": item_id, "gold": gold, "materials": materials, "name": item.get("name", "")}
+
+
 def recruit_character(state: dict[str, Any], candidate_id: str) -> dict[str, Any]:
-    rec = next((r for r in state["shop"]["recruits"] if r["candidate_id"] == candidate_id), None)
+    candidates = state.get("recruits", {}).get("candidates", [])
+    rec = next((r for r in candidates if r.get("candidate_id") == candidate_id), None)
     if not rec:
         raise ValueError("招募对象不存在")
     if state["gold"] < rec["cost"]:
         raise ValueError("金币不足")
-    if len(state["characters"]) >= 8:
+    if len(state["characters"]) >= MAX_ROSTER_SIZE:
         raise ValueError("总角色栏位已满")
     state["gold"] -= rec["cost"]
-    ch = create_character(rec["class_id"], rec["name"])
-    while ch["level"] < rec.get("level", 1):
-        level_up_character(ch)
+    # The preview is the exact character snapshot shown to the player, so
+    # hiring it gives "what you saw is what you get" — no re-roll on join.
+    ch = copy.deepcopy(rec.get("preview")) if isinstance(rec.get("preview"), dict) else None
+    if not ch:
+        ch = create_character(rec["class_id"], rec.get("name", "新成员"))
+        while ch["level"] < rec.get("level", 1):
+            level_up_character(ch)
+    ch["id"] = rec["candidate_id"]
+    ch["available"] = True
+    ch["recruit_cost"] = int(rec.get("cost", 0))  # powers dismiss refund
+    normalize_character(ch)
     state["characters"].append(ch)
-    state["shop"]["recruits"] = [r for r in state["shop"]["recruits"] if r["candidate_id"] != candidate_id]
+    state["recruits"]["candidates"] = [r for r in candidates if r.get("candidate_id") != candidate_id]
     return ch
+
+
+def dismiss_character(state: dict[str, Any], character_id: str) -> dict[str, Any]:
+    """Dismiss a roster character, refunding part of their hire cost as gold.
+
+    The character must not be in any formation and must not be the last remaining
+    member of the roster. Refund is DISMISS_GOLD_REFUND of their last known
+    recruit cost (best-effort: 0 for starter characters).
+    """
+    ch = get_character(state, character_id)
+    if not ch:
+        raise ValueError("角色不存在")
+    teams = formation_member_team_map(state)
+    if character_id in teams:
+        raise ValueError("角色在编队中，请先移出编队")
+    if len(state["characters"]) <= 1:
+        raise ValueError("至少保留一名角色")
+    refund = max(0, int(round(int(ch.get("recruit_cost", 0)) * DISMISS_GOLD_REFUND)))
+    state["gold"] += refund
+    # Drop any equipment owned by the dismissed character back into inventory.
+    for slot, eq_id in (ch.get("equipment") or {}).items():
+        if eq_id:
+            eq = get_item(state, eq_id)
+            if eq:
+                eq["equipped_by"] = None
+    state["characters"] = [c for c in state["characters"] if c.get("id") != character_id]
+    return {"type": "dismiss", "character_id": character_id, "gold": refund, "name": ch.get("name", "")}
 
 
 def ordered_party_members(state: dict[str, Any], team_id: str = "team_1") -> list[dict[str, Any]]:
@@ -2921,6 +3916,7 @@ def ordered_party_members(state: dict[str, Any], team_id: str = "team_1") -> lis
 def public_state_view(state: dict[str, Any]) -> dict[str, Any]:
     migrate_state(state)
     ensure_formations(state)
+    quests = quest_list_view(state)
     return {
         "day": state["day"],
         "max_day": state["max_day"],
@@ -2934,6 +3930,7 @@ def public_state_view(state: dict[str, Any]) -> dict[str, Any]:
         "party_summary": party_summary(state),
         "active_dungeons_summary": dungeon_list_view(state),
         "shop_summary": state.get("shop", {}),
+        "recruits_summary": state.get("recruits", {}),
         "warnings": daily_warnings(state),
         "victory": state.get("victory", False),
         "defeat": state.get("defeat", False),
@@ -2942,6 +3939,8 @@ def public_state_view(state: dict[str, Any]) -> dict[str, Any]:
         "last_result": state.get("last_result"),
         "retreat_strategy": state.get("retreat_strategy", "standard"),
         "retreat_strategy_label": RETREAT_LABELS.get(state.get("retreat_strategy", "standard"), "标准"),
+        "quests": quests,
+        "quests_summary": quests["summary"],
     }
 
 
@@ -2969,6 +3968,10 @@ def preset_public_view() -> dict[str, Any]:
         "dungeons": copy.deepcopy(data.get("dungeons", [])),
         "affixes": copy.deepcopy(data.get("affixes", [])),
         "skill_ai": copy.deepcopy(data.get("skill_ai_by_class_id", {})),
+        "quests": copy.deepcopy(data.get("quests", {})),
+        "quest_status_labels": copy.deepcopy(QUEST_STATUS_LABELS),
+        "shop_config": copy.deepcopy(data.get("shop_config", {})),
+        "recruit_config": copy.deepcopy(data.get("recruit_config", {})),
     }
 
 
@@ -2980,6 +3983,11 @@ def migrate_state(state: dict[str, Any]) -> dict[str, Any]:
     """Best-effort save migration for data-driven WOD attributes and skills."""
     rebuild_level_scaled_sheet = int(state.get("schema_version", 1)) < 3 or state.get("attribute_system_version") != 1
     state.setdefault("materials", {})
+    # Consumable stock is a shared pool {template_id: count}. Old saves predating
+    # the battle-consumption feature may lack it entirely; backfill so the pool
+    # exists before any challenge tries to read/write it.
+    if not isinstance(state.get("consumables"), dict):
+        state["consumables"] = {"healing_potion": 3, "antidote": 2}
     state["materials"][SKILL_ESSENCE_KEY] = max(0, int(state["materials"].get(SKILL_ESSENCE_KEY, 0)))
     if PROMOTION_BADGE_KEY not in state["materials"]:
         state["materials"][PROMOTION_BADGE_KEY] = STARTING_PROMOTION_BADGES
@@ -3004,6 +4012,39 @@ def migrate_state(state: dict[str, Any]) -> dict[str, Any]:
         ch["mana"] = max(0, min(int(ch.get("mana", ch["max_mana"])), ch["max_mana"]))
     state["schema_version"] = 3
     state["attribute_system_version"] = 1
+    # Quest system: backfill runtime fields for saves created before the
+    # quest system existed, and normalize the quest instance list.
+    state.setdefault("quests", [])
+    state.setdefault("quest_flags", {})
+    base_stats = default_quest_stats()
+    existing_stats = state.get("quest_stats", {})
+    if not isinstance(existing_stats, dict):
+        existing_stats = {}
+    merged_stats = copy.deepcopy(base_stats)
+    for key, default_val in base_stats.items():
+        merged_stats[key] = existing_stats.get(key, default_val) if isinstance(existing_stats.get(key), type(default_val)) else default_val
+    state["quest_stats"] = merged_stats
+    state.setdefault("daily_quest_day", 0)
+    counters = state.setdefault("next_counters", {})
+    if "quest" not in counters:
+        counters["quest"] = 1 + sum(1 for q in state["quests"] if str(q.get("id", "")).startswith("quest_"))
+    normalize_quest_instances(state)
+    # Shop & recruitment migration. Old saves stored shop as {"items", "recruits"}
+    # (a flat list) and had no separate recruits key. Replace those legacy shapes
+    # with the new per-merchant / candidates structures; the daily refresh will
+    # repopulate them on the next world_refresh, so no content is lost.
+    shop = state.get("shop")
+    if not isinstance(shop, dict) or "merchants" not in shop:
+        state["shop"] = {"merchants": {}, "refresh_day": 0}
+    else:
+        state["shop"].setdefault("merchants", {})
+        state["shop"].setdefault("refresh_day", 0)
+    recruits = state.get("recruits")
+    if not isinstance(recruits, dict) or "candidates" not in recruits:
+        state["recruits"] = {"candidates": [], "refresh_day": 0}
+    else:
+        state["recruits"].setdefault("candidates", [])
+        state["recruits"].setdefault("refresh_day", 0)
     ensure_formations(state)
     ensure_tactic_schemes(state)
     ensure_layer_tactics(state)
@@ -3072,6 +4113,10 @@ def party_summary(state: dict[str, Any]) -> dict[str, Any]:
         "retreat_strategy": state.get("retreat_strategy", "standard"),
         "layer_tactics": layer_tactics_view(state),
         "tactic_layer_options": tactic_layer_options(state),
+        "consumable_trigger_options": CONSUMABLE_TRIGGERS,
+        "consumable_options": consumable_options_view(),
+        "max_consumable_slots": MAX_CONSUMABLE_SLOTS,
+        "consumables": state.get("consumables", {}),
     }
 
 
@@ -3081,7 +4126,8 @@ def dungeon_list_view(state: dict[str, Any]) -> list[dict[str, Any]]:
         if d.get("expired"):
             continue
         attention = []
-        if d["remaining_days"] <= 1 and not d.get("is_final"):
+        persistent = bool(d.get("persistent") or d.get("source_quest_id"))
+        if d["remaining_days"] <= 1 and not d.get("is_final") and not persistent:
             attention.append("即将过期")
         if d["danger_level"] >= 5:
             attention.append("高风险")
@@ -3089,6 +4135,8 @@ def dungeon_list_view(state: dict[str, Any]) -> list[dict[str, Any]]:
             attention.append("已侦察")
         if d.get("is_final"):
             attention.append("最终挑战")
+        if persistent:
+            attention.append("任务副本")
         rows.append({
             "dungeon_id": d["id"],
             "name": d["name"],
@@ -3105,8 +4153,11 @@ def dungeon_list_view(state: dict[str, Any]) -> list[dict[str, Any]]:
             "cleared": bool(d.get("cleared")),
             "recommended_attention": attention,
             "is_final": bool(d.get("is_final")),
+            "source_quest_id": d.get("source_quest_id"),
+            "source_quest_title": d.get("source_quest_title"),
+            "persistent": persistent,
         })
-    return sorted(rows, key=lambda x: (not x["is_final"], x["remaining_days"], -x["danger_level"]))
+    return sorted(rows, key=lambda x: (not x["is_final"], x["persistent"], x["remaining_days"], -x["danger_level"]))
 
 
 def dungeon_detail_view(state: dict[str, Any], dungeon_id: str) -> dict[str, Any]:
@@ -4005,6 +5056,109 @@ def apply_cleanse(actor: Combatant, target: Combatant, skill: dict[str, Any], lo
     })
 
 
+def _unit_hp_pct(unit: Combatant) -> float:
+    mx = int(unit.get("max_hp", 0) or 0)
+    return (int(unit.get("hp", 0)) / mx) if mx > 0 else 0.0
+
+
+def _consumable_trigger_met(trigger: str, actor: Combatant, party: list[Combatant]) -> bool:
+    """Whether a consumable's auto-use trigger currently applies.
+
+    Party members share the consumable stock, so `party` is the full living
+    roster the actor can react to.
+    """
+    living_allies = [u for u in party if u.get("hp", 0) > 0]
+    if trigger == "self_hp_below_50":
+        return _unit_hp_pct(actor) < 0.50
+    if trigger == "self_hp_below_30":
+        return _unit_hp_pct(actor) < 0.30
+    if trigger == "ally_hp_below_30":
+        return any(_unit_hp_pct(u) < 0.30 for u in living_allies)
+    if trigger == "self_poisoned":
+        return has_status(actor, "poison") or has_status(actor, "bleed")
+    if trigger == "ally_poisoned":
+        return any(has_status(u, "poison") or has_status(u, "bleed") for u in living_allies)
+    if trigger == "self_cursed":
+        return has_status(actor, "curse")
+    return False
+
+
+def use_consumable(actor: Combatant, consumable_id: str, report: dict[str, Any], logs: list[str]) -> bool:
+    """Consume one charge from the shared pool and apply its effect.
+
+    Returns True when a charge was spent (and an effect applied). The pool and
+    a per-consumable usage counter live on the report; `resolve_challenge`
+    writes the final tally back into state["consumables"] after the dungeon.
+    """
+    pool = report.get("_consumables_pool")
+    if not isinstance(pool, dict) or pool.get(consumable_id, 0) <= 0:
+        return False
+    effect = consumable_effect(consumable_id)
+    if not effect:
+        return False
+    pool[consumable_id] = int(pool.get(consumable_id, 0)) - 1
+    report["consumables_used"][consumable_id] = int(report.get("consumables_used", {}).get(consumable_id, 0)) + 1
+    cname = consumable_name(consumable_id)
+    consumed_anything = False
+
+    heal_amount = effect.get("heal")
+    if isinstance(heal_amount, (int, float)) and heal_amount:
+        before = int(actor["hp"])
+        actor["hp"] = min(int(actor["max_hp"]), before + int(heal_amount))
+        healed = int(actor["hp"]) - before
+        report["healing_done"][actor["id"]] += healed
+        consumed_anything = consumed_anything or healed > 0
+        text = f"{actor['name']} 使用 {cname}，回复 {healed} HP"
+        logs.append(text)
+        record_event(report, {
+            "type": "consumable", "text": text, "subtype": "heal",
+            "actor": event_actor(actor), "target": event_actor(actor),
+            "consumable": cname, "amount": healed,
+            "target_hp_before": before, "target_hp_after": int(actor["hp"]),
+            "target_statuses": copy.deepcopy(actor.get("statuses", [])),
+        })
+
+    cleanse_types = effect.get("cleanse")
+    if isinstance(cleanse_types, list) and cleanse_types:
+        removable = {str(t) for t in cleanse_types if isinstance(t, str)}
+        before = list(actor.get("statuses", []))
+        actor["statuses"] = [s for s in actor.get("statuses", []) if s["type"] not in removable]
+        removed = len(before) - len(actor["statuses"])
+        report["skill_usage"][actor["id"]]["cleanse_removed"] += removed
+        consumed_anything = consumed_anything or removed > 0
+        text = f"{actor['name']} 使用 {cname}，净化 {removed} 个异常状态"
+        logs.append(text)
+        record_event(report, {
+            "type": "consumable", "text": text, "subtype": "cleanse",
+            "actor": event_actor(actor), "target": event_actor(actor),
+            "consumable": cname, "amount": removed,
+            "removed_statuses": copy.deepcopy(before),
+            "target_statuses": copy.deepcopy(actor.get("statuses", [])),
+        })
+
+    if not consumed_anything:
+        # No-op use (e.g. quaffing a potion at full HP): refund the charge so
+        # the player isn't charged for nothing and the AI doesn't loop on it.
+        pool[consumable_id] = int(pool.get(consumable_id, 0)) + 1
+        report["consumables_used"][consumable_id] = int(report["consumables_used"].get(consumable_id, 0)) - 1
+        return False
+    return True
+
+
+def maybe_use_consumable(actor: Combatant, party: list[Combatant], report: dict[str, Any], logs: list[str]) -> bool:
+    """Try the actor's configured consumable priority in order; one per turn."""
+    for entry in actor.get("tactics", {}).get("consumable_priority", []) or []:
+        if not isinstance(entry, dict):
+            continue
+        cid = str(entry.get("consumable_id") or "")
+        trigger = str(entry.get("trigger") or "")
+        if not cid or trigger not in CONSUMABLE_TRIGGERS:
+            continue
+        if _consumable_trigger_met(trigger, actor, party) and use_consumable(actor, cid, report, logs):
+            return True
+    return False
+
+
 def apply_guard(actor: Combatant, skill: dict[str, Any], logs: list[str], report: dict[str, Any]) -> None:
     actor["guarding"] = True
     for st in skill.get("status_effects", []):
@@ -4087,6 +5241,11 @@ def actor_take_turn(actor: Combatant, party: list[Combatant], enemies: list[Comb
         return
     data = load_data()
     if actor["side"] == "party":
+        # Consumable auto-use runs before skill selection and costs the turn's
+        # one potion budget; using one does not skip the subsequent skill.
+        maybe_use_consumable(actor, party, report, logs)
+        if actor["hp"] <= 0:
+            return
         sid = choose_player_skill(actor, party, enemies)
         if not execute_player_skill(actor, sid, party, enemies, rng, logs, report):
             execute_player_skill(actor, "basic_attack", party, enemies, rng, logs, report)
@@ -4415,12 +5574,13 @@ def resolve_challenge(state: dict[str, Any], dungeon: dict[str, Any], action_ind
         "tactic_scheme_name": tactic_scheme["name"] if tactic_scheme else "当前战术",
         "result": "unknown", "cleared_layers": 0,
         "summary": "", "rewards": {"gold": 0, "exp": 0, "materials": {}, "equipment": []},
-        "losses": {"hp": {}, "mana": {}, "injuries": [], "durability": {}}, "layer_results": [], "damage_stats": {}, "healing_stats": {}, "mana_spent_stats": {}, "damage_taken_stats": {},
+        "losses": {"hp": {}, "mana": {}, "injuries": [], "durability": {}, "consumables": {}}, "layer_results": [], "damage_stats": {}, "healing_stats": {}, "mana_spent_stats": {}, "damage_taken_stats": {},
         "damage_by_type_stats": {}, "miss_stats": {}, "review_metrics": {}, "battle_recap": [], "critical_events": [],
         "status_stats": Counter(), "skill_usage_stats": {}, "party_skill_usage_stats": {}, "enemy_skill_usage_stats": {},
         "key_events": [], "failure_reasons": [], "revealed_mechanics": [], "turn_logs": [], "unit_names": {}, "initial_party": lineup_snapshot(party),
         "damage_done": defaultdict(float), "damage_taken": defaultdict(float), "healing_done": defaultdict(float), "mana_spent": defaultdict(float), "damage_by_type": defaultdict(float),
         "skill_usage": defaultdict(Counter), "misses": defaultdict(int), "backline_damage": 0, "extra_durability_loss": 0, "affix_mechanics": affix_mechanics,
+        "consumables_used": {}, "_consumables_pool": dict(state.get("consumables", {})),
     }
     register_unit_names(report, party)
     dungeon["challenged"] = True
@@ -4453,11 +5613,50 @@ def resolve_challenge(state: dict[str, Any], dungeon: dict[str, Any], action_ind
             ch["injury_state"] = injury
             report["losses"]["injuries"].append(f"{ch['name']}：{injury}")
     apply_equipment_durability_loss(state, party, dungeon, report)
+    # Write consumable consumption back into the shared stock. The battle ran
+    # against tactic_state (a deep copy), so deduct here on the authoritative
+    # state, driven by the per-consumable tally accumulated on the report.
+    for cid, used in report.get("consumables_used", {}).items():
+        used = max(0, int(used))
+        if used <= 0:
+            continue
+        state.setdefault("consumables", {})
+        state["consumables"][cid] = max(0, int(state["consumables"].get(cid, 0)) - used)
+        report["losses"]["consumables"][consumable_name(cid)] = f"-{used}"
     apply_rewards_for_report(state, dungeon, template, report, rng, party)
     finalize_report(state, dungeon, template, report, party)
+    # Feed dungeon outcomes into the quest system: clears advance clear_dungeon
+    # objectives, and an unscented victory may complete a blind-victory hidden quest.
+    record_quest_events(state, _quest_events_for_challenge(state, dungeon, template, report))
     state["next_counters"]["report"] += 1
     state["reports"].insert(0, sanitize_report(report))
     return state["reports"][0]
+
+
+def _quest_events_for_challenge(state: dict[str, Any], dungeon: dict[str, Any], template: dict[str, Any], report: dict[str, Any]) -> list[dict[str, Any]]:
+    """Translate a challenge report into quest progress events."""
+    events: list[dict[str, Any]] = []
+    template_id = dungeon.get("template_id") or template.get("id")
+    if report.get("result") == "victory":
+        events.append({"event": "clear_dungeon", "dungeon_template_id": template_id, "amount": 1})
+        if not dungeon.get("scout_info"):
+            events.append({
+                "event": "clear_unscouted_dungeon",
+                "dungeon_template_id": template_id,
+                "danger_level": int(dungeon.get("danger_level", 0)),
+                "amount": 1,
+            })
+        # Streak objective: count victorious challenges already recorded today
+        # (this report included). Two or more clears on the same day qualify.
+        day = state.get("day", 1)
+        clears_today = 1 + sum(
+            1 for r in state.get("reports", [])
+            if r.get("type") == "challenge" and r.get("result") == "victory" and r.get("day") == day
+        )
+        if clears_today >= 2:
+            events.append({"event": "clear_two_dungeons_one_day", "amount": 1, "eligible": True})
+    return events
+
 
 
 def apply_equipment_durability_loss(state: dict[str, Any], party: list[Combatant], dungeon: dict[str, Any], report: dict[str, Any]) -> None:
@@ -4725,12 +5924,18 @@ def resolve_scout(state: dict[str, Any], dungeon: dict[str, Any], team_id: str =
         "dungeon_id": dungeon["id"], "dungeon_name": dungeon["name"], "team_id": team_id, "team_name": TEAM_LABELS.get(team_id, team_id),
         "result": "scouted", "cleared_layers": 0,
         "summary": f"{TEAM_LABELS.get(team_id, team_id)}侦察完成：{dungeon['name']} 的关键机制已解锁。",
-        "rewards": {"gold": 0, "exp": 8, "materials": {}, "equipment": []}, "losses": {"hp": {}, "injuries": [], "durability": {}},
+        "rewards": {"gold": 0, "exp": 8, "materials": {}, "equipment": []}, "losses": {"hp": {}, "injuries": [], "durability": {}, "consumables": {}},
         "layer_results": [], "damage_stats": {}, "healing_stats": {}, "damage_taken_stats": {}, "status_stats": {}, "skill_usage_stats": {},
         "key_events": lines, "failure_reasons": ["侦察占用一次远征机会，但降低了盲打风险。"], "revealed_mechanics": lines, "turn_logs": lines,
     }
     for ch in ordered_party_members(state, team_id):
         gain_exp(ch, 8)
+    # Recon feeds scout_dungeon / scout_any_dungeon quest objectives.
+    record_quest_events(state, [{
+        "event": "scout_dungeon",
+        "dungeon_template_id": dungeon.get("template_id") or template.get("id"),
+        "amount": 1,
+    }])
     state["next_counters"]["report"] += 1
     state["reports"].insert(0, report)
     return report
@@ -4753,7 +5958,7 @@ def apply_rest_day(state: dict[str, Any]) -> dict[str, Any]:
     report = {
         "id": f"rp_{state['next_counters']['report']:04d}", "day": state["day"], "type": "rest", "dungeon_id": None, "dungeon_name": "休整日", "result": "rested", "cleared_layers": 0,
         "summary": "没有安排远征：全队休整、治疗、恢复法力并进行轻量训练。", "rewards": {"gold": 0, "exp": 6, "materials": {}, "equipment": []},
-        "losses": {"hp": {}, "mana": {}, "injuries": [], "durability": {}}, "layer_results": [], "damage_stats": {}, "healing_stats": {}, "damage_taken_stats": {}, "status_stats": {}, "skill_usage_stats": {},
+        "losses": {"hp": {}, "mana": {}, "injuries": [], "durability": {}, "consumables": {}}, "layer_results": [], "damage_stats": {}, "healing_stats": {}, "damage_taken_stats": {}, "status_stats": {}, "skill_usage_stats": {},
         "key_events": ["全队恢复 HP 与法力，清除临时异常状态。"], "failure_reasons": ["休整牺牲当天远征收益，但能恢复长期推进能力。"], "revealed_mechanics": [], "turn_logs": []
     }
     state["next_counters"]["report"] += 1
@@ -4793,6 +5998,9 @@ def advance_day(state: dict[str, Any]) -> None:
         state["defeat_reason"] = "第 30 天结束时未能通关最终 Boss。"
     else:
         world_refresh(state)
+        # New day: roll fresh daily quests and re-check hidden quest conditions.
+        refresh_daily_quests(state)
+        check_hidden_reveals(state)
 
 
 def end_day(state: dict[str, Any]) -> dict[str, Any]:

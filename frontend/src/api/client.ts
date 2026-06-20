@@ -1,4 +1,4 @@
-import type { DungeonCardView, DungeonDetailView, GamePresetView, GameStateView, PartyView, PlanAction, ReportView, ShopView } from '../types/game'
+import type { DungeonCardView, DungeonDetailView, GamePresetView, GameStateView, PartyView, PlanAction, QuestListView, RecruitsView, ReportView, ShopView } from '../types/game'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(url, {
@@ -28,6 +28,7 @@ export const api = {
   planChallenge: (id: string, tactic_scheme_id?: string, team_id?: string) => request<PlanAction>(`/dungeons/${id}/challenge`, { method: 'POST', body: JSON.stringify({ team_id, tactic_scheme_id }) }),
   plan: () => request<{ actions: PlanAction[]; expedition_points_left: number }>('/expedition-plan'),
   clearPlan: () => request<{ ok: boolean; plan: PlanAction[] }>('/expedition-plan/clear', { method: 'POST' }),
+  removePlan: (index: number) => request<{ actions: PlanAction[]; expedition_points_left: number }>(`/expedition-plan/${index}`, { method: 'DELETE' }),
   party: () => request<PartyView>('/party'),
   formation: (formation: Record<string, string | null>, team_id = 'team_1') => request<PartyView>('/party/formation', { method: 'POST', body: JSON.stringify({ team_id, formation }) }),
   formations: (formations: Record<string, Record<string, string | null>>) => request<PartyView>('/party/formations', { method: 'POST', body: JSON.stringify({ formations }) }),
@@ -44,8 +45,16 @@ export const api = {
   reports: () => request<ReportView[]>('/reports'),
   report: (id: string) => request<ReportView>(`/reports/${id}`),
   shop: () => request<ShopView>('/shop'),
-  buy: (shop_id: string) => request<any>('/shop/buy', { method: 'POST', body: JSON.stringify({ shop_id }) }),
-  recruit: (candidate_id: string) => request<any>('/shop/recruit', { method: 'POST', body: JSON.stringify({ candidate_id }) }),
+  buy: (shop_id: string) => request<{ ok: boolean; acquired: any; state: GameStateView; shop: ShopView; party: PartyView }>('/shop/buy', { method: 'POST', body: JSON.stringify({ shop_id }) }),
+  sell: (item_id: string) => request<{ ok: boolean; result: any; state: GameStateView; party: PartyView }>('/shop/sell', { method: 'POST', body: JSON.stringify({ item_id }) }),
+  salvage: (item_id: string) => request<{ ok: boolean; result: any; state: GameStateView; party: PartyView }>('/shop/salvage', { method: 'POST', body: JSON.stringify({ item_id }) }),
+  recruits: () => request<RecruitsView>('/recruits'),
+  recruit: (candidate_id: string) => request<{ ok: boolean; character: any; state: GameStateView; party: PartyView; recruits: RecruitsView }>('/recruits/recruit', { method: 'POST', body: JSON.stringify({ candidate_id }) }),
+  dismiss: (character_id: string) => request<{ ok: boolean; result: any; state: GameStateView; party: PartyView }>('/recruits/dismiss', { method: 'POST', body: JSON.stringify({ character_id }) }),
+  quests: () => request<QuestListView>('/quests'),
+  acceptQuest: (quest_id: string) => request<{ ok: boolean; quests: QuestListView; state: GameStateView }>(`/quests/${quest_id}/accept`, { method: 'POST' }),
+  claimQuest: (quest_id: string) => request<{ ok: boolean; quest: any; quests: QuestListView; state: GameStateView }>(`/quests/${quest_id}/claim`, { method: 'POST' }),
+  abandonQuest: (quest_id: string) => request<{ ok: boolean; quests: QuestListView; state: GameStateView }>(`/quests/${quest_id}/abandon`, { method: 'POST' }),
   debugState: () => request<any>('/debug/state'),
   reset: () => request<GameStateView>('/debug/reset-save', { method: 'POST' })
 }

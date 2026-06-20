@@ -1,0 +1,300 @@
+{
+  "note": "任务模板表。三类任务：主线/支线 story（固定剧情链，story_kind=main/side）、日常 daily（模板池随机抽取）、隐藏 hidden（条件揭示）。所有任务均需玩家手动接受。",
+  "story_quests": [
+    {
+      "id": "main_001_spider_nest",
+      "type": "story",
+      "story_kind": "main",
+      "chain_id": "main_campaign",
+      "title": "蛛巢初探",
+      "description": "村道上的蛛网越来越密。先清理一处蜘蛛巢穴，确认毒蛛活动的源头。",
+      "start_conditions": [
+        { "type": "always_true" }
+      ],
+      "objectives": [
+        {
+          "id": "clear_spider",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "spider_nest",
+          "required": 1,
+          "label": "通关 1 处蜘蛛巢穴"
+        }
+      ],
+      "rewards": {
+        "gold": 80,
+        "exp": 20,
+        "materials": {
+          "venom_sac": 2,
+          "skill_essence": 3
+        },
+        "flags": {
+          "main_spider_nest_cleared": true
+        }
+      },
+      "next_quests": [
+        "main_002_bandit_trace"
+      ],
+      "spawn_dungeon": {
+        "template_id": "spider_nest",
+        "persistent": true
+      },
+      "sort": 0
+    },
+    {
+      "id": "main_002_bandit_trace",
+      "type": "story",
+      "story_kind": "main",
+      "chain_id": "main_campaign",
+      "title": "盗匪踪迹",
+      "description": "蛛巢中发现了人为投放的诱饵。侦察并击破一处盗贼营地，找出幕后线索。",
+      "start_conditions": [
+        { "type": "flag", "flag": "main_spider_nest_cleared" }
+      ],
+      "objectives": [
+        {
+          "id": "scout_bandit",
+          "kind": "scout_dungeon",
+          "dungeon_template_id": "bandit_camp",
+          "required": 1,
+          "label": "侦察 1 处盗贼营地"
+        },
+        {
+          "id": "clear_bandit",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "bandit_camp",
+          "required": 1,
+          "label": "通关 1 处盗贼营地"
+        }
+      ],
+      "rewards": {
+        "gold": 120,
+        "exp": 30,
+        "materials": {
+          "cloth": 3,
+          "glory": 1,
+          "skill_essence": 4
+        },
+        "flags": {
+          "main_bandit_trace_cleared": true
+        }
+      },
+      "next_quests": [
+        "main_003_forge_preparation"
+      ],
+      "spawn_dungeon": {
+        "template_id": "bandit_camp",
+        "persistent": true
+      },
+      "sort": 1
+    },
+    {
+      "id": "main_003_forge_preparation",
+      "type": "story",
+      "story_kind": "main",
+      "chain_id": "main_campaign",
+      "title": "熔炉备战",
+      "description": "盗匪营地指向了更深处的熔岩裂谷。收集矿石，为最终决战做准备。",
+      "start_conditions": [
+        { "type": "flag", "flag": "main_bandit_trace_cleared" }
+      ],
+      "objectives": [
+        {
+          "id": "clear_lava",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "lava_rift",
+          "required": 1,
+          "label": "通关 1 处熔岩裂谷"
+        }
+      ],
+      "rewards": {
+        "gold": 180,
+        "exp": 40,
+        "materials": {
+          "ore": 4,
+          "fire_core": 2,
+          "skill_essence": 5
+        },
+        "flags": {
+          "main_forge_ready": true
+        }
+      },
+      "next_quests": [],
+      "spawn_dungeon": {
+        "template_id": "lava_rift",
+        "persistent": true
+      },
+      "sort": 2
+    },
+    {
+      "id": "side_mine_contract",
+      "type": "story",
+      "story_kind": "side",
+      "chain_id": "local_contracts",
+      "title": "矿工的委托",
+      "description": "矿工行会愿意用额外报酬换回废弃矿洞中的矿石。",
+      "start_conditions": [
+        { "type": "flag", "flag": "main_spider_nest_cleared" }
+      ],
+      "objectives": [
+        {
+          "id": "clear_mine_side",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "abandoned_mine",
+          "required": 1,
+          "label": "通关 1 处废弃矿洞"
+        }
+      ],
+      "rewards": {
+        "gold": 90,
+        "materials": {
+          "ore": 3,
+          "skill_essence": 2
+        }
+      },
+      "next_quests": [],
+      "sort": 10
+    }
+  ],
+  "daily_templates": [
+    {
+      "id": "daily_ore_supply",
+      "title": "日常委托：矿石补给",
+      "description": "行会急需矿石，清理废弃矿洞可以获得额外结算。",
+      "objectives": [
+        {
+          "id": "clear_mine_daily",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "abandoned_mine",
+          "required": 1,
+          "label": "通关 1 处废弃矿洞"
+        }
+      ],
+      "rewards": {
+        "gold": { "min": 40, "max": 60 },
+        "materials": {
+          "ore": 3
+        }
+      }
+    },
+    {
+      "id": "daily_spider_control",
+      "title": "日常委托：毒蛛样本",
+      "description": "清理蜘蛛巢穴并回收毒囊样本。",
+      "objectives": [
+        {
+          "id": "clear_spider_daily",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "spider_nest",
+          "required": 1,
+          "label": "通关 1 处蜘蛛巢穴"
+        }
+      ],
+      "rewards": {
+        "gold": { "min": 40, "max": 60 },
+        "materials": {
+          "venom_sac": 2
+        }
+      }
+    },
+    {
+      "id": "daily_scout_any",
+      "title": "日常委托：绘制路线",
+      "description": "派出队伍侦察任意副本，为后续远征补全情报。",
+      "objectives": [
+        {
+          "id": "scout_any",
+          "kind": "scout_any_dungeon",
+          "required": 1,
+          "label": "侦察任意 1 处副本"
+        }
+      ],
+      "rewards": {
+        "gold": { "min": 40, "max": 60 },
+        "materials": {
+          "skill_essence": 1
+        }
+      }
+    },
+    {
+      "id": "daily_bandit_purge",
+      "title": "日常委托：清剿流寇",
+      "description": "盗贼营地的余孽仍在骚扰商道，清剿一处以绝后患。",
+      "objectives": [
+        {
+          "id": "clear_bandit_daily",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "bandit_camp",
+          "required": 1,
+          "label": "通关 1 处盗贼营地"
+        }
+      ],
+      "rewards": {
+        "gold": { "min": 50, "max": 80 },
+        "materials": {
+          "cloth": 2
+        }
+      }
+    }
+  ],
+  "daily_quest_count": 3,
+  "hidden_quests": [
+    {
+      "id": "hidden_blind_victory",
+      "title": "隐藏：盲战取胜",
+      "description": "在没有侦察的情况下通关一处危险等级 3+ 的副本。",
+      "reveal_conditions": [
+        { "type": "flag", "flag": "main_spider_nest_cleared" }
+      ],
+      "objectives": [
+        {
+          "id": "blind_clear",
+          "kind": "clear_unscouted_dungeon",
+          "danger_level_gte": 3,
+          "required": 1,
+          "label": "未侦察通关危险等级 3+ 副本"
+        }
+      ],
+      "rewards": {
+        "gold": 140,
+        "materials": {
+          "glory": 1,
+          "skill_essence": 4
+        },
+        "flags": {
+          "hidden_blind_victory_revealed": true
+        }
+      },
+      "auto_reveal_on_complete": true,
+      "next_quests": [],
+      "sort": 100
+    },
+    {
+      "id": "hidden_streak_warrior",
+      "title": "隐藏：连战连捷",
+      "description": "在一天之内连续通关两处副本，展现远征队的极限战力。",
+      "reveal_conditions": [
+        { "type": "flag", "flag": "main_bandit_trace_cleared" }
+      ],
+      "objectives": [
+        {
+          "id": "two_clears_one_day",
+          "kind": "clear_two_dungeons_one_day",
+          "required": 1,
+          "label": "同一天内通关 2 处副本"
+        }
+      ],
+      "rewards": {
+        "gold": 160,
+        "materials": {
+          "glory": 1
+        },
+        "flags": {
+          "hidden_streak_warrior_revealed": true
+        }
+      },
+      "auto_reveal_on_complete": true,
+      "next_quests": [],
+      "sort": 101
+    }
+  ]
+}

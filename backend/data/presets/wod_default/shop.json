@@ -1,0 +1,91 @@
+{
+  "merchants": [
+    {
+      "id": "blacksmith",
+      "name": "铁匠铺",
+      "icon": "⚒️",
+      "sells": ["equipment"],
+      "equipment_filter": {
+        "slot_groups": ["main_hand", "off_hand", "two_hand", "body", "head", "hands", "feet", "waist"]
+      },
+      "slot_count": 5,
+      "currency": "gold",
+      "cost_jitter": [0.9, 1.15]
+    },
+    {
+      "id": "alchemist",
+      "name": "炼金铺",
+      "icon": "🧪",
+      "sells": ["consumable"],
+      "consumables": [
+        {
+          "id": "healing_potion",
+          "name": "治疗药水",
+          "cost": 25,
+          "summary": "挑战中低血量时自动回复少量 HP（库存资源）",
+          "effect": { "heal": 45 }
+        },
+        {
+          "id": "antidote",
+          "name": "解毒剂",
+          "cost": 18,
+          "summary": "中毒或流血时自动净化（库存资源）",
+          "effect": { "cleanse": ["poison", "bleed"] }
+        }
+      ],
+      "slot_count": 3,
+      "currency": "gold"
+    },
+    {
+      "id": "general_store",
+      "name": "杂货铺",
+      "icon": "🎒",
+      "sells": ["equipment"],
+      "equipment_filter": {
+        "slot_groups": ["ring", "necklace", "backpack"]
+      },
+      "slot_count": 3,
+      "currency": "gold",
+      "cost_jitter": [0.9, 1.15]
+    }
+  ],
+  "sell_multipliers": {
+    "common": 0.4,
+    "uncommon": 0.45,
+    "rare": 0.5,
+    "epic": 0.55,
+    "legendary": 0.6,
+    "artifact": 0.65
+  },
+  "salvage": {
+    "gold": {
+      "common": 5,
+      "uncommon": 8,
+      "rare": 15,
+      "epic": 25,
+      "legendary": 40,
+      "artifact": 60
+    },
+    "materials": {
+      "warrior|guardian": {
+        "ore": [1, 2]
+      },
+      "ranger|rogue": {
+        "leather": [1, 2],
+        "beast_fang": [0, 1]
+      },
+      "mage|cleric": {
+        "cloth": [1, 2],
+        "arcane_dust": [0, 1]
+      }
+    }
+  },
+  "rarity_price_floor": {
+    "common": 1.0,
+    "uncommon": 1.0,
+    "rare": 1.1,
+    "epic": 1.3,
+    "legendary": 1.6,
+    "artifact": 2.0
+  }
+}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api/client'
-import type { DungeonCardView, DungeonDetailView, GameStateView, PartyView, PlanAction, ReportView, ShopView } from '../types/game'
+import type { DungeonCardView, DungeonDetailView, GameStateView, PartyView, PlanAction, RecruitsView, ReportView, ShopView } from '../types/game'
 
 export type Phase = 'loading' | 'start' | 'playing' | 'dayResults' | 'ended'
 
@@ -29,6 +29,7 @@ export interface GameApi {
   plan: PlanAction[]
   reports: ReportView[]
   shop: ShopView | null
+  recruits: RecruitsView | null
   formationCells: string[]
   lastDayResult: DayResult | null
   selectedDungeon: string
@@ -67,6 +68,7 @@ export function useGame(): GameApi {
   const [plan, setPlan] = useState<PlanAction[]>([])
   const [reports, setReports] = useState<ReportView[]>([])
   const [shop, setShop] = useState<ShopView | null>(null)
+  const [recruits, setRecruits] = useState<RecruitsView | null>(null)
   const [lastDayResult, setLastDayResult] = useState<DayResult | null>(null)
   const [selectedDungeon, setSelectedDungeon] = useState('')
   const [selectedReport, setSelectedReport] = useState('')
@@ -90,8 +92,8 @@ export function useGame(): GameApi {
   const loadAll = useCallback(async (showLoading = true) => {
     if (showLoading) setLoading(true)
     try {
-      const [s, ds, p, pl, rs, sh] = await Promise.all([
-        api.state(), api.dungeons(), api.party(), api.plan(), api.reports(), api.shop(),
+      const [s, ds, p, pl, rs, sh, rc] = await Promise.all([
+        api.state(), api.dungeons(), api.party(), api.plan(), api.reports(), api.shop(), api.recruits(),
       ])
       setState(s)
       setDungeons(ds)
@@ -99,6 +101,7 @@ export function useGame(): GameApi {
       setPlan(pl.actions)
       setReports(rs)
       setShop(sh)
+      setRecruits(rc)
       setError(null)
       return { state: s, dungeons: ds, party: p }
     } catch (err: any) {
@@ -179,8 +182,8 @@ export function useGame(): GameApi {
     try {
       const result = await api.endDay()
       // Refresh the underlying state but go straight into the results theatre.
-      const [s, ds, p, pl, rs, sh] = await Promise.all([
-        api.state(), api.dungeons(), api.party(), api.plan(), api.reports(), api.shop(),
+      const [s, ds, p, pl, rs, sh, rc] = await Promise.all([
+        api.state(), api.dungeons(), api.party(), api.plan(), api.reports(), api.shop(), api.recruits(),
       ])
       setState(s)
       setDungeons(ds)
@@ -188,6 +191,7 @@ export function useGame(): GameApi {
       setPlan(pl.actions)
       setReports(rs)
       setShop(sh)
+      setRecruits(rc)
       setLastDayResult({ reports: result.reports, state: result.state })
       if (s.victory || s.defeat) {
         // Defer the ended screen until the player has watched the results.
@@ -235,7 +239,7 @@ export function useGame(): GameApi {
   const gotoStart = useCallback(() => setPhase('start'), [])
 
   return {
-    phase, state, dungeons, party, plan, reports, shop,
+    phase, state, dungeons, party, plan, reports, shop, recruits,
     formationCells: FORMATION_CELLS,
     lastDayResult, selectedDungeon, selectedReport, dungeonDetail, reportDetail,
     loading, toasts, busy, error,

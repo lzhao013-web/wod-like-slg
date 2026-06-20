@@ -92,6 +92,55 @@ def load_data(preset_id: str | None = None) -> dict[str, Any]:
     enemies = _read_preset_file(preset, preset_path, "enemies", "enemies.json")
     dungeons = _read_preset_file(preset, preset_path, "dungeon_templates", "dungeon_templates.json")
     affixes = _read_preset_file(preset, preset_path, "affixes", "affixes.json")
+    # Quests are optional: a preset without a quests table simply yields empty lists.
+    try:
+        quests = _read_preset_file(preset, preset_path, "quests", "quests.json")
+    except (OSError, FileNotFoundError):
+        quests = {"story_quests": [], "daily_templates": [], "daily_quest_count": 0, "hidden_quests": []}
+    if not isinstance(quests, dict):
+        quests = {"story_quests": [], "daily_templates": [], "daily_quest_count": 0, "hidden_quests": []}
+    quests.setdefault("story_quests", [])
+    quests.setdefault("daily_templates", [])
+    quests.setdefault("daily_quest_count", 0)
+    quests.setdefault("hidden_quests", [])
+    # Shop and recruit configs are optional presets. A preset without them
+    # falls back to empty/default configs so older saves keep working.
+    try:
+        shop_config = _read_preset_file(preset, preset_path, "shop", "shop.json")
+    except (OSError, FileNotFoundError):
+        shop_config = {}
+    if not isinstance(shop_config, dict):
+        shop_config = {}
+    shop_config.setdefault("merchants", [])
+    shop_config.setdefault("sell_multipliers", {})
+    shop_config.setdefault("salvage", {"gold": {}, "materials": {}})
+    shop_config.setdefault("rarity_price_floor", {})
+    # Index consumable templates (with their effect blocks) so the battle
+    # engine and UI can resolve a consumable id -> name/effect data-driven.
+    consumable_by_id: dict[str, Any] = {}
+    for merchant in shop_config.get("merchants", []):
+        if not isinstance(merchant, dict):
+            continue
+        for consumable in merchant.get("consumables", []) or []:
+            if isinstance(consumable, dict) and consumable.get("id"):
+                consumable_by_id[consumable["id"]] = consumable
+    try:
+        recruit_config = _read_preset_file(preset, preset_path, "recruits", "recruits.json")
+    except (OSError, FileNotFoundError):
+        recruit_config = {}
+    if not isinstance(recruit_config, dict):
+        recruit_config = {}
+    story_quests = quests["story_quests"]
+    hidden_quests = quests["hidden_quests"]
+    daily_templates = quests["daily_templates"]
+    # Quest templates are addressable by id across story + hidden categories.
+    quest_templates_by_id: dict[str, Any] = {}
+    for tmpl in story_quests:
+        if isinstance(tmpl, dict) and tmpl.get("id"):
+            quest_templates_by_id[tmpl["id"]] = tmpl
+    for tmpl in hidden_quests:
+        if isinstance(tmpl, dict) and tmpl.get("id"):
+            quest_templates_by_id[tmpl["id"]] = tmpl
     class_ui = preset.get("class_ui", {}) if isinstance(preset.get("class_ui", {}), dict) else {}
     skill_ai = preset.get("skill_ai", {}) if isinstance(preset.get("skill_ai", {}), dict) else {}
     return {
@@ -105,6 +154,14 @@ def load_data(preset_id: str | None = None) -> dict[str, Any]:
         "enemies": enemies,
         "dungeons": dungeons,
         "affixes": affixes,
+        "quests": quests,
+        "story_quests": story_quests,
+        "daily_templates": daily_templates,
+        "hidden_quests": hidden_quests,
+        "daily_quest_count": quests.get("daily_quest_count", 0),
+        "shop_config": shop_config,
+        "recruit_config": recruit_config,
+        "consumable_by_id": consumable_by_id,
         "class_by_id": {x["id"]: x for x in classes},
         "skill_by_id": {x["id"]: x for x in skills},
         "class_ui_by_id": copy.deepcopy(class_ui),
@@ -113,6 +170,8 @@ def load_data(preset_id: str | None = None) -> dict[str, Any]:
         "enemy_by_id": {x["id"]: x for x in enemies},
         "dungeon_by_id": {x["id"]: x for x in dungeons},
         "affix_by_id": {x["id"]: x for x in affixes},
+        "quest_template_by_id": quest_templates_by_id,
+        "daily_template_by_id": {x["id"]: x for x in daily_templates if isinstance(x, dict) and x.get("id")},
     }
 
 

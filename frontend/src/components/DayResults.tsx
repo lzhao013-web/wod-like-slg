@@ -308,7 +308,8 @@ export function ReportLosses(props: { report: ReportView; memberByName: Record<s
   const injuries = losses.injuries ?? []
   const dur = losses.durability ?? {}
   const mana = losses.mana ?? {}
-  const empty = injuries.length === 0 && Object.keys(dur).length === 0 && Object.keys(mana).length === 0
+  const consumables = losses.consumables ?? {}
+  const empty = injuries.length === 0 && Object.keys(dur).length === 0 && Object.keys(mana).length === 0 && Object.keys(consumables).length === 0
   return (
     <div className="losses">
       <h4>🩹 损耗</h4>
@@ -322,6 +323,12 @@ export function ReportLosses(props: { report: ReportView; memberByName: Record<s
         <div className="losses__dur">
           <span className="muted">装备耐久：</span>
           {Object.entries(dur).map(([k, v]) => <span key={k} className="durChip">{k} <em>{v as string}</em></span>)}
+        </div>
+      )}
+      {Object.keys(consumables).length > 0 && (
+        <div className="losses__dur">
+          <span className="muted">消耗品：</span>
+          {Object.entries(consumables).map(([k, v]) => <span key={k} className="durChip">{k} <em>{v as string}</em></span>)}
         </div>
       )}
       {Object.keys(mana).length > 0 && (

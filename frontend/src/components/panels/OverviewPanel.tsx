@@ -37,6 +37,17 @@ export function OverviewPanel(props: {
           </>
         )}
 
+        {Object.keys(state.consumables ?? {}).some(k => (state.consumables[k] ?? 0) > 0) && (
+          <>
+            <h3 className="sub">🧪 消耗品库存</h3>
+            <div className="matRow">
+              {Object.entries(state.consumables).filter(([, v]) => (v ?? 0) > 0).map(([k, v]) => (
+                <span className="matPill" key={k}><span className="matPill__icon">{CONSUMABLE_ICON[k] ?? '🧪'}</span>{CONSUMABLE_NAME[k] ?? k} <b>{v}</b></span>
+              ))}
+            </div>
+          </>
+        )}
+
         <h3 className="sub">⚠️ 今日关注</h3>
         {state.warnings.length ? (
           <ul className="warnList">{state.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>
@@ -91,4 +102,14 @@ function Metric(props: { icon: string; label: string; value: any; tone?: string 
       <span className="metric__value">{props.value}</span>
     </div>
   )
+}
+
+// Consumable display names mirror backend/data/presets/wod_default/shop.json.
+const CONSUMABLE_NAME: Record<string, string> = {
+  healing_potion: '治疗药水',
+  antidote: '解毒剂',
+}
+const CONSUMABLE_ICON: Record<string, string> = {
+  healing_potion: '🧴',
+  antidote: '🧪',
 }

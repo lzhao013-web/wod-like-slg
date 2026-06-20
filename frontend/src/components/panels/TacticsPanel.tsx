@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { CharacterView, PartyView } from '../../types/game'
+import type { CharacterView, ConsumableOption, ConsumableTacticEntry, PartyView } from '../../types/game'
 import { CharacterAvatar } from '../CharacterAvatar'
 import { Chip } from '../Chips'
 import { attackTypeDescription, attackTypeLabel, classMeta } from '../../theme'
@@ -11,6 +11,7 @@ interface CharacterTacticDraft {
   skill_priority: string[]
   opening_skill_priority: string[]
   defense_skill_by_type: Record<string, string>
+  consumable_priority: ConsumableTacticEntry[]
 }
 
 export function TacticsPanel(props: {
@@ -93,6 +94,36 @@ export function TacticsPanel(props: {
         [scopeKey]: {
           ...currentScope,
           [characterId]: { ...current, defense_skill_by_type: defense },
+        },
+      }
+    })
+  }
+
+  function setConsumableEntry(characterId: string, index: number, field: 'consumable_id' | 'trigger', value: string) {
+    setTacticsByScope(prev => {
+      const currentScope = prev[scopeKey] ?? {}
+      const current = currentScope[characterId] ?? emptyTacticDraft()
+      const list: ConsumableTacticEntry[] = (current.consumable_priority ?? []).map(e => ({ ...e }))
+      const entry = list[index] ?? { consumable_id: '', trigger: '' }
+      entry[field] = value
+      // Clearing the consumable id removes the whole slot.
+      if (field === 'consumable_id' && !value) {
+        list.splice(index, 1)
+      } else {
+        list[index] = entry
+      }
+      // De-dup by consumable_id: a given consumable can only occupy one slot.
+      const seen = new Set<string>()
+      const deduped = list.filter(e => {
+        if (!e.consumable_id || seen.has(e.consumable_id)) return false
+        seen.add(e.consumable_id)
+        return true
+      })
+      return {
+        ...prev,
+        [scopeKey]: {
+          ...currentScope,
+          [characterId]: { ...current, consumable_priority: deduped },
         },
       }
     })
@@ -240,10 +271,15 @@ export function TacticsPanel(props: {
             hasLayerOverride={hasLayerOverride(party, selectedLayer, m.id)}
             targetOptions={party.target_options}
             defenseOptions={party.defense_trigger_options ?? DEFAULT_DEFENSE_TRIGGER_OPTIONS}
+            consumableOptions={party.consumable_options ?? []}
+            consumableTriggers={party.consumable_trigger_options ?? {}}
+            consumables={party.consumables ?? {}}
+            maxConsumableSlots={party.max_consumable_slots ?? 4}
             onPatch={patch => patchTactic(m.id, patch)}
             onPriority={(index, value) => setTacticArray(m.id, 'skill_priority', index, value)}
             onOpening={(index, value) => setTacticArray(m.id, 'opening_skill_priority', index, value)}
             onDefense={(trigger, value) => setDefenseSkill(m.id, trigger, value)}
+            onConsumable={(index, field, value) => setConsumableEntry(m.id, index, field, value)}
             onSave={() => saveMemberTactics(m.id)}
             onClearLayer={() => clearLayerMemberTactics(m.id)}
             onInspect={() => props.onInspect(m)}
@@ -279,6 +315,7 @@ function emptyTacticDraft(): CharacterTacticDraft {
     skill_priority: [],
     opening_skill_priority: [],
     defense_skill_by_type: {},
+    consumable_priority: [],
   }
 }
 
@@ -289,6 +326,7 @@ function tacticDraftFromTactics(tactics: CharacterView['tactics'] | undefined): 
     skill_priority: compactSkillList(tactics?.skill_priority ?? []),
     opening_skill_priority: compactSkillList(tactics?.opening_skill_priority ?? []),
     defense_skill_by_type: { ...(tactics?.defense_skill_by_type ?? {}) },
+    consumable_priority: (tactics?.consumable_priority ?? []).map(e => ({ consumable_id: e.consumable_id, trigger: e.trigger })),
   }
 }
 
@@ -332,6 +370,7 @@ function schemeSummaryText(s: { summary?: Record<string, number> }): string {
     `${m.opening ?? 0}开场`,
     `${m.priority ?? 0}优先级`,
     `${m.defense ?? 0}防御响应`,
+    `${m.consumables ?? 0}消耗品`,
   ]
   return bits.join(' · ')
 }
@@ -354,6 +393,7 @@ function normalizeDraftForCompare(d: CharacterTacticDraft): CharacterTacticDraft
     skill_priority: compactSkillList(d.skill_priority ?? []),
     opening_skill_priority: compactSkillList(d.opening_skill_priority ?? []),
     defense_skill_by_type: Object.fromEntries(Object.entries(d.defense_skill_by_type ?? {}).filter(([, v]) => !!v).sort(([a], [b]) => a.localeCompare(b))),
+    consumable_priority: (d.consumable_priority ?? []).filter(e => e.consumable_id && e.trigger).map(e => ({ consumable_id: e.consumable_id, trigger: e.trigger })),
   }
 }
 
@@ -365,10 +405,15 @@ function TacticsCard(props: {
   hasLayerOverride: boolean
   targetOptions: Record<string, string>
   defenseOptions: Record<string, string>
+  consumableOptions: ConsumableOption[]
+  consumableTriggers: Record<string, string>
+  consumables: Record<string, number>
+  maxConsumableSlots: number
   onPatch: (patch: Partial<CharacterTacticDraft>) => void
   onPriority: (index: number, value: string) => void
   onOpening: (index: number, value: string) => void
   onDefense: (trigger: string, value: string) => void
+  onConsumable: (index: number, field: 'consumable_id' | 'trigger', value: string) => void
   onSave: () => void
   onClearLayer: () => void
   onInspect: () => void
@@ -481,6 +526,32 @@ function TacticsCard(props: {
                   {options.map(s => <option key={s.id} value={s.id}>{skillOptionLabel(s)}</option>)}
                 </select>
               </label>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="tacticBlock">
+        <b>🧪 消耗品</b>
+        <p className="tacticHint">满足条件时自动使用一瓶（全队共享库存）。库存可在炼金铺补充。</p>
+        <div className="defenseGrid">
+          {Array.from({ length: props.maxConsumableSlots }).map((_, i) => {
+            const entry = props.draft.consumable_priority[i]
+            const cid = entry?.consumable_id ?? ''
+            const trigger = entry?.trigger ?? ''
+            return (
+              <div key={i} className="defenseSelect defenseSelect--consumable">
+                <select value={cid} onChange={e => props.onConsumable(i, 'consumable_id', e.target.value)}>
+                  <option value="">槽 {i + 1}：不使用</option>
+                  {props.consumableOptions.map(o => (
+                    <option key={o.id} value={o.id}>{o.name}（库存 {props.consumables[o.id] ?? 0}）</option>
+                  ))}
+                </select>
+                <select value={trigger} onChange={e => props.onConsumable(i, 'trigger', e.target.value)} disabled={!cid}>
+                  <option value="">选择触发条件</option>
+                  {Object.entries(props.consumableTriggers).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                </select>
+              </div>
             )
           })}
         </div>

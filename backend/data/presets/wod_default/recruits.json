@@ -1,0 +1,65 @@
+{
+  "recruit_pool": [
+    "warrior",
+    "ranger",
+    "cleric",
+    "rogue",
+    "mage",
+    "guardian",
+    "berserker",
+    "sword_commander",
+    "sacred_guardian",
+    "fortress_commander",
+    "sharpshooter",
+    "wild_hunter",
+    "shadow_dancer",
+    "venom_blade",
+    "high_priest",
+    "inquisitor",
+    "elementalist",
+    "hex_scholar"
+  ],
+  "advanced_chance": 0.2,
+  "rarity_weights": {
+    "common": 50,
+    "uncommon": 30,
+    "rare": 15,
+    "epic": 4,
+    "legendary": 1
+  },
+  "rarity_modifiers": {
+    "common": {
+      "cost_mult": 0.8,
+      "attr_mult": 0.9
+    },
+    "uncommon": {
+      "cost_mult": 1.0,
+      "attr_mult": 1.0
+    },
+    "rare": {
+      "cost_mult": 1.4,
+      "attr_mult": 1.1
+    },
+    "epic": {
+      "cost_mult": 2.0,
+      "attr_mult": 1.2
+    },
+    "legendary": {
+      "cost_mult": 3.0,
+      "attr_mult": 1.35
+    }
+  },
+  "candidate_count": 4,
+  "base_cost": 90,
+  "cost_per_level": 12,
+  "name_pools": {
+    "warrior": ["莱恩", "塔克", "加雷斯", "乌尔里希"],
+    "guardian": ["巴尔德", "西格蒙", "铁壁海尔"],
+    "ranger": ["卡洛", "洛特", "灰林", "风行者"],
+    "rogue": ["珂赛", "影刃", "夜枭", "凯尔"],
+    "mage": ["伊芙", "薇拉", "塞勒涅", "阿斯特拉"],
+    "cleric": ["米娜", "瑟琳娜", "光明使", "安娜"],
+    "_advanced": ["瓦尔基里", "暮光", "审判官雷恩", "苍穹"],
+    "_default": ["卡洛", "米娜", "洛特", "珂赛", "塔克", "伊芙"]
+  }
+}
