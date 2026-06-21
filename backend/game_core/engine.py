@@ -169,6 +169,23 @@ EQUIPMENT_KIND_LABELS = {
     "special": "特殊装备",
     "special_base": "特别装备",
 }
+
+# --- Equipment enchantment system -------------------------------------------
+# Materials acquired from dungeon drops / salvage / quests are spent here to
+# upgrade equipment:
+#   * enchant: adds a random affix line from the existing equipment affix pool.
+#   * reroll:  re-rolls an existing enchant line into a different one.
+#   * ascension: a special (fixed-rarity) item + a recipe -> a stronger item.
+# Enchant/reroll bonuses are summed straight into the instance's
+# stats/resistances so the existing effective_stats data flow picks them up
+# unchanged.
+
+# Flat cost for one enchant roll (and one reroll). arcane_dust is the universal
+# reagent; venom_sac adds a small throttle.
+ENCHANT_COST = {"arcane_dust": 3, "venom_sac": 1}
+MAX_ENCHANT_SLOTS = 2
+
+
 CHARACTER_EQUIPMENT_SLOTS = [
     "head",
     "body",
@@ -496,6 +513,12 @@ def choose_equipment_affixes(tpl: dict[str, Any], rarity: str, rng: random.Rando
 def add_number_maps(target: dict[str, int], source: dict[str, Any], multiplier: float = 1.0) -> None:
     for key, value in source.items():
         target[key] = int(target.get(key, 0) + round(float(value) * multiplier))
+
+
+def subtract_number_maps(target: dict[str, int], source: dict[str, Any]) -> None:
+    """Inverse of add_number_maps: subtract a removed affix's contribution back out."""
+    for key, value in source.items():
+        target[key] = int(target.get(key, 0) - round(float(value)))
 
 
 def unique_text_list(values: Iterable[Any]) -> list[str]:
@@ -2506,6 +2529,8 @@ def normalize_equipment_item(item: dict[str, Any]) -> dict[str, Any]:
     item.setdefault("item_kind_label", EQUIPMENT_KIND_LABELS.get(kind, kind))
     item.setdefault("item_level", int(tpl.get("tier", 1)) if tpl else 1)
     item.setdefault("affixes", [])
+    item.setdefault("enchants", [])
+    item.setdefault("enchant_reroll_count", 0)
     item.setdefault("stats", {})
     item.setdefault("resistances", {})
     item.setdefault("special_effects", [])
@@ -3847,6 +3872,173 @@ def salvage_item(state: dict[str, Any], item_id: str) -> dict[str, Any]:
         state.setdefault("materials", {})[mat] = state.setdefault("materials", {}).get(mat, 0) + amount
     state["inventory"] = [i for i in state["inventory"] if i.get("instance_id") != item_id]
     return {"type": "salvage", "item_id": item_id, "gold": gold, "materials": materials, "name": item.get("name", "")}
+
+
+# --- Equipment enchantment / reroll / ascension ----------------------------
+def _format_enchanted_name(item: dict[str, Any]) -> str:
+    """Rebuild an item's display name from its base name + affixes + enchants."""
+    base = item.get("base_name") or item.get("name", "")
+    affix_like = list(item.get("affixes", [])) + list(item.get("enchants", []))
+    return format_equipment_name(base, affix_like)
+
+
+def _strip_enchant_from_item(item: dict[str, Any], enchant: dict[str, Any]) -> None:
+    """Reverse the stat/resistance/effect contribution of one enchant line,
+    removing it cleanly so reroll doesn't leave phantom bonuses behind."""
+    subtract_number_maps(item["stats"], enchant.get("stats", {}))
+    subtract_number_maps(item["resistances"], enchant.get("resistances", {}))
+    # Special effects may be shared by the template, an affix, or another enchant;
+    # only drop an effect if no remaining source still provides it.
+    remaining_sources = list(item.get("special_effects", []))  # current instance pool
+    for source in (item.get("affixes", []) + list(item.get("enchants", []))):
+        if isinstance(source, dict):
+            remaining_sources += source.get("special_effects", [])
+    # `remaining_sources` currently still includes the enchant we're removing (it is
+    # still in item["enchants"]); exclude its effects from the "still provided" set.
+    removing_effects = set(enchant.get("special_effects", []))
+    provided: dict[str, int] = {}
+    for eff in remaining_sources:
+        if eff in removing_effects:
+            continue
+        provided[eff] = provided.get(eff, 0) + 1
+    # Also count the template's own special_effects (base gear effects).
+    tpl = load_data().get("equipment_by_id", {}).get(item.get("template_id"), {})
+    for eff in tpl.get("special_effects", []):
+        provided[eff] = provided.get(eff, 0) + 1
+    item["special_effects"] = [e for e in item.get("special_effects", []) if provided.get(e, 0) > 0]
+
+
+def _enchant_affix_candidates(item: dict[str, Any], exclude_ids: set[str] | None = None) -> list[dict[str, Any]]:
+    """Affixes from the equipment pool compatible with this item at its rarity.
+    Re-derives affix_tags from the template because instances do not carry them.
+    `exclude_ids` optionally blocks specific affix ids (e.g. the one being rerolled)."""
+    tpl = load_data().get("equipment_by_id", {}).get(item.get("template_id"), {})
+    compat_tpl = {
+        "slot": item.get("slot", tpl.get("slot")),
+        "affix_tags": tpl.get("affix_tags", []),
+        "exclude_affixes": tpl.get("exclude_affixes", []),
+    }
+    rarity = item.get("rarity", "common")
+    owned_ids = {a.get("id") for a in (list(item.get("affixes", [])) + list(item.get("enchants", []))) if isinstance(a, dict)}
+    if exclude_ids:
+        owned_ids |= exclude_ids
+    return [
+        a for a in equipment_affix_pool()
+        if affix_matches_template(a, compat_tpl, rarity) and a.get("id") not in owned_ids
+    ]
+
+
+def enchant_equipment(state: dict[str, Any], item_id: str) -> dict[str, Any]:
+    """Spend reagents to add one random compatible affix line to an item. Special
+    (fixed-rarity) items cannot be enchanted. Up to MAX_ENCHANT_SLOTS lines."""
+    item = get_item(state, item_id)
+    if not item:
+        raise ValueError("装备不存在")
+    normalize_equipment_item(item)
+    if str(item.get("item_kind")) == "special":
+        raise ValueError("特殊装备无法附魔")
+    enchants = item.setdefault("enchants", [])
+    if len(enchants) >= MAX_ENCHANT_SLOTS:
+        raise ValueError("附魔词条已满")
+    candidates = _enchant_affix_candidates(item)
+    if not candidates:
+        raise ValueError("没有可附加的词缀")
+    for key, amount in ENCHANT_COST.items():
+        _spend_currency(state, key, int(amount))
+    rng = random.Random(stable_seed(state["run_seed"], "enchant", item_id, state["day"], str(len(enchants))))
+    weights = [max(1, int(a.get("weight", 1))) for a in candidates]
+    chosen = copy.deepcopy(rng.choices(candidates, weights=weights, k=1)[0])
+    add_number_maps(item["stats"], chosen.get("stats", {}))
+    add_number_maps(item["resistances"], chosen.get("resistances", {}))
+    for effect in chosen.get("special_effects", []):
+        if effect and effect not in item.setdefault("special_effects", []):
+            item["special_effects"].append(effect)
+    enchants.append(affix_public_view(chosen))
+    item["name"] = _format_enchanted_name(item)
+    return {"type": "enchant", "item": copy.deepcopy(item), "affix": affix_public_view(chosen)}
+
+
+def reroll_enchant(state: dict[str, Any], item_id: str, enchant_index: int) -> dict[str, Any]:
+    """Re-roll an existing enchant line into a different one. Costs the same as a
+    fresh enchant. The old line's stats are stripped first, then a new compatible
+    affix (never the same id) is drawn and summed back in."""
+    item = get_item(state, item_id)
+    if not item:
+        raise ValueError("装备不存在")
+    normalize_equipment_item(item)
+    if str(item.get("item_kind")) == "special":
+        raise ValueError("特殊装备无法附魔")
+    enchants = item.setdefault("enchants", [])
+    idx = int(enchant_index)
+    if idx < 0 or idx >= len(enchants):
+        raise ValueError("要重掷的词条不存在")
+    old = enchants[idx]
+    candidates = _enchant_affix_candidates(item, exclude_ids={old.get("id")})
+    if not candidates:
+        raise ValueError("没有可替换的词缀")
+    for key, amount in ENCHANT_COST.items():
+        _spend_currency(state, key, int(amount))
+    # Strip the old line's contribution, then drop it from the ledger.
+    _strip_enchant_from_item(item, old)
+    enchants.pop(idx)
+    # Seed varies with the reroll counter so in-place rerolls don't repeat.
+    reroll_count = int(item.get("enchant_reroll_count", 0)) + 1
+    item["enchant_reroll_count"] = reroll_count
+    rng = random.Random(stable_seed(state["run_seed"], "reroll", item_id, state["day"], str(reroll_count)))
+    weights = [max(1, int(a.get("weight", 1))) for a in candidates]
+    chosen = copy.deepcopy(rng.choices(candidates, weights=weights, k=1)[0])
+    add_number_maps(item["stats"], chosen.get("stats", {}))
+    add_number_maps(item["resistances"], chosen.get("resistances", {}))
+    for effect in chosen.get("special_effects", []):
+        if effect and effect not in item.setdefault("special_effects", []):
+            item["special_effects"].append(effect)
+    enchants.insert(idx, affix_public_view(chosen))
+    item["name"] = _format_enchanted_name(item)
+    return {"type": "reroll", "item": copy.deepcopy(item), "affix": affix_public_view(chosen)}
+
+
+def ascension_recipes() -> list[dict[str, Any]]:
+    """Loaded from preset.json `ascension_recipes`. Each: {source, target, materials}."""
+    rows = load_data().get("preset", {}).get("ascension_recipes")
+    if not isinstance(rows, list):
+        return []
+    return [copy.deepcopy(r) for r in rows if isinstance(r, dict) and r.get("source") and r.get("target")]
+
+
+def ascension_recipe_for(item: dict[str, Any]) -> dict[str, Any] | None:
+    """The ascension recipe applicable to this item's template, or None."""
+    tid = str(item.get("template_id") or "")
+    return next((r for r in ascension_recipes() if str(r.get("source")) == tid), None)
+
+
+def ascend_equipment(state: dict[str, Any], item_id: str) -> dict[str, Any]:
+    """Transform a special item into its ascension target, consuming the recipe's
+    materials. The source must be unequipped. The new instance keeps the same
+    instance_id so any external references stay valid."""
+    item = get_item(state, item_id)
+    if not item:
+        raise ValueError("装备不存在")
+    normalize_equipment_item(item)
+    if str(item.get("item_kind")) != "special":
+        raise ValueError("此装备无法升华")
+    recipe = ascension_recipe_for(item)
+    if not recipe:
+        raise ValueError("此装备没有升华配方")
+    if item.get("equipped_by"):
+        raise ValueError("请先卸下装备再升华")
+    target_id = str(recipe.get("target"))
+    materials = recipe.get("materials", {}) if isinstance(recipe.get("materials"), dict) else {}
+    for key, amount in materials.items():
+        _spend_currency(state, str(key), int(amount))  # raises localized ValueError if short
+    source_name = item.get("name", "")
+    source_id = item["instance_id"]
+    owner = item.get("equipped_by")
+    new_item = instance_equipment(target_id, instance_id=source_id)
+    new_item["equipped_by"] = owner
+    normalize_equipment_item(new_item)
+    state["inventory"] = [i for i in state["inventory"] if i.get("instance_id") != source_id]
+    state["inventory"].append(new_item)
+    return {"type": "ascend", "item": copy.deepcopy(new_item), "source": source_name, "target": new_item.get("name", "")}
 
 
 def recruit_character(state: dict[str, Any], candidate_id: str) -> dict[str, Any]:
@@ -5715,7 +5907,9 @@ def apply_rewards_for_report(state: dict[str, Any], dungeon: dict[str, Any], tem
         eq_id = rng.choice(base["equipment_pool"])
         eq = instance_equipment(eq_id, rng=rng, level=equipment_drop_level(state, dungeon))
         state["inventory"].append(eq)
-        report["rewards"]["equipment"].append(eq["name"])
+        # Store the full item object (not just the name) so the UI can render a
+        # hover tooltip on the drop. `name` is kept for legacy/name-only callers.
+        report["rewards"]["equipment"].append({"name": eq["name"], "item": copy.deepcopy(eq)})
     if success:
         dungeon["reward_charges"] = max(0, dungeon.get("reward_charges", 1) - 1)
         dungeon["cleared"] = dungeon["reward_charges"] <= 0
@@ -5798,7 +5992,8 @@ def finalize_report(state: dict[str, Any], dungeon: dict[str, Any], template: di
     for k, v in report["rewards"].get("materials", {}).items():
         reward_bits.append(f"{MATERIAL_NAMES.get(k,k)} +{v}")
     if report["rewards"].get("equipment"):
-        reward_bits.append("装备：" + "、".join(report["rewards"]["equipment"]))
+        eq_names = [e["name"] if isinstance(e, dict) else str(e) for e in report["rewards"]["equipment"]]
+        reward_bits.append("装备：" + "、".join(eq_names))
     report["summary"] = f"{result_label}：推进 {report['cleared_layers']}/{template['layer_count']} 层。" + (" 获得 " + "，".join(reward_bits) if reward_bits else "")
     report["damage_stats"] = named_report_stats(state, report, report["damage_done"])
     report["damage_taken_stats"] = named_report_stats(state, report, report["damage_taken"])

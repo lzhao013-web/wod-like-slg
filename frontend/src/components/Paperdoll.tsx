@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { CharacterView, PartyView } from '../types/game'
 import { classMeta, compatibleEquipmentSlots, itemFitsEquipmentSlot, rarityMeta, SLOT_ICON, SLOT_LABEL } from '../theme'
 import { cx } from '../lib/format'
 import { EquipmentCard } from './EquipmentCard'
+import { EquipmentHover } from './EquipmentTooltip'
 
 // Body-worn slots laid out around the silhouette (backpack handled separately in the tray).
 const TRAY_SLOTS = ['backpack_1', 'backpack_2', 'backpack_3', 'backpack_4'] as const
@@ -20,11 +21,27 @@ export function Paperdoll(props: {
   onEquip?: (charId: string, itemId: string | null, slot?: string) => void
   busy?: boolean
   readOnly?: boolean
+  /** Hide the built-in swap-detail panel (use when the parent renders its own
+   * equip source, e.g. an InventoryGrid beside the paperdoll). */
+  hideDetail?: boolean
+  /** Controlled selected slot for parent-rendered equipment libraries. */
+  activeSlot?: string
+  onActiveSlotChange?: (slot: string) => void
 }) {
   const m = props.member
   const cm = classMeta(m.class_id)
   const editable = !!props.onEquip && !props.readOnly
-  const [activeSlot, setActiveSlot] = useState<string>('')
+  const [innerActiveSlot, setInnerActiveSlot] = useState<string>('')
+  const activeSlot = props.activeSlot ?? innerActiveSlot
+
+  useEffect(() => {
+    if (props.activeSlot === undefined) setInnerActiveSlot('')
+  }, [m.id, props.activeSlot])
+
+  function setActiveSlot(next: string) {
+    setInnerActiveSlot(next)
+    props.onActiveSlotChange?.(next)
+  }
 
   const itemById = (id: string | null) => (id ? props.party.inventory.find(i => i.instance_id === id) : undefined)
 
@@ -34,7 +51,7 @@ export function Paperdoll(props: {
     const rm = item ? rarityMeta(item.rarity) : null
     const active = activeSlot === slot
     const occupiedByTwoHand = slot === 'off_hand' && itemById(m.equipment?.main_hand ?? null)?.slot === 'two_hand'
-    return (
+    const slotBtn = (
       <button
         type="button"
         key={slot}
@@ -55,6 +72,8 @@ export function Paperdoll(props: {
         {occupiedByTwoHand && <span className="pdSlot__note">双手占用</span>}
       </button>
     )
+    // Wrap filled slots in a hover tooltip (read-only in CharacterSheet too).
+    return item ? <EquipmentHover key={slot} item={item}>{slotBtn}</EquipmentHover> : slotBtn
   }
 
   // Active slot detail panel (interactive mode only).
@@ -68,11 +87,11 @@ export function Paperdoll(props: {
     : []
 
   return (
-    <div className={cx('paperdoll', props.readOnly && 'is-readonly')}>
+    <div className={cx('paperdoll', props.readOnly && 'is-readonly', props.hideDetail && 'is-detail-hidden')}>
       <div className="paperdoll__stage">
         <div className="paperdoll__cols">
           <div className="paperdoll__left">
-            {['main_hand', 'ring_1', 'hands', 'waist'].map(renderSlot)}
+            {['main_hand', 'hands', 'waist', 'ring_1'].map(renderSlot)}
           </div>
 
           <div className="paperdoll__center">
@@ -94,7 +113,7 @@ export function Paperdoll(props: {
           </div>
 
           <div className="paperdoll__right">
-            {['off_hand', 'ring_2', 'feet'].map(renderSlot)}
+            {['body', 'off_hand', 'feet', 'ring_2'].map(renderSlot)}
           </div>
         </div>
 
@@ -104,7 +123,7 @@ export function Paperdoll(props: {
         </div>
       </div>
 
-      {editable && (
+      {editable && !props.hideDetail && (
         <div className="paperdoll__detail">
           {!active && <p className="paperdoll__hint muted">点击左侧槽位查看与更换装备</p>}
           {active && (

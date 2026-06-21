@@ -13,6 +13,14 @@
     "shop": "shop.json",
     "recruits": "recruits.json"
   },
+  "ascension_recipes": [
+    {"source": "poison_ring", "target": "serpent_ring", "materials": {"arcane_dust": 4, "venom_sac": 3}, "description": "将毒抗戒指淬炼为毒蛇之环，大幅强化毒抗并附带闪避。"},
+    {"source": "holy_emblem", "target": "radiant_emblem", "materials": {"arcane_dust": 4, "relic": 1}, "description": "以古代遗物圣化圣徽，获得更强治疗加成与抗咒。"},
+    {"source": "eagle_eye", "target": "hunters_eye", "materials": {"arcane_dust": 4, "beast_fang": 3}, "description": "用野兽牙开光鹰眼护符，命中与攻击双提升。"},
+    {"source": "fire_charm", "target": "molten_core", "materials": {"arcane_dust": 4, "fire_core": 2}, "description": "将火蜥护符熔铸为熔火之心，极强火抗与火焰加成。"},
+    {"source": "blood_stitch", "target": "blood_seal", "materials": {"arcane_dust": 4, "cloth": 4}, "description": "以布料重缝止血包为鲜血封印，生命与止血皆增。"},
+    {"source": "curse_ward", "target": "banishing_ward", "materials": {"arcane_dust": 4, "relic": 1}, "description": "以遗物加持祛咒护符，化为破咒圣符，抗咒抗魔双全。"}
+  ],
   "class_ui": {
     "warrior": {
       "icon": "⚔️",

@@ -174,6 +174,26 @@ class GameService:
     def recruits(self) -> dict[str, Any]:
         return self.state.get("recruits", {"candidates": [], "refresh_day": 0})
 
+    def ascension_recipes(self) -> dict[str, Any]:
+        """Static ascension recipes with a preview instance of each target, so the
+        UI can show the resulting equipment (and its hover details) up front."""
+        recipes = engine.ascension_recipes()
+        data = engine.load_data()
+        out = []
+        for r in recipes:
+            target_id = str(r.get("target"))
+            target_tpl = data.get("equipment_by_id", {}).get(target_id, {})
+            preview = engine.instance_equipment(target_id) if target_tpl else None
+            out.append({
+                "source": str(r.get("source")),
+                "target": target_id,
+                "target_name": target_tpl.get("name", target_id),
+                "materials": dict(r.get("materials", {})),
+                "description": str(r.get("description", "")),
+                "preview": preview,
+            })
+        return {"recipes": out}
+
     def buy(self, shop_id: str) -> dict[str, Any]:
         item = engine.buy_shop_item(self.state, shop_id)
         save_state(self.state)
@@ -186,6 +206,21 @@ class GameService:
 
     def salvage(self, item_id: str) -> dict[str, Any]:
         result = engine.salvage_item(self.state, item_id)
+        save_state(self.state)
+        return {"ok": True, "result": result, "state": self.get_state(), "party": self.party()}
+
+    def enchant_equipment(self, item_id: str) -> dict[str, Any]:
+        result = engine.enchant_equipment(self.state, item_id)
+        save_state(self.state)
+        return {"ok": True, "result": result, "state": self.get_state(), "party": self.party()}
+
+    def reroll_enchant(self, payload: dict[str, Any]) -> dict[str, Any]:
+        result = engine.reroll_enchant(self.state, payload.get("item_id"), int(payload.get("enchant_index", 0)))
+        save_state(self.state)
+        return {"ok": True, "result": result, "state": self.get_state(), "party": self.party()}
+
+    def ascend_equipment(self, item_id: str) -> dict[str, Any]:
+        result = engine.ascend_equipment(self.state, item_id)
         save_state(self.state)
         return {"ok": True, "result": result, "state": self.get_state(), "party": self.party()}
 

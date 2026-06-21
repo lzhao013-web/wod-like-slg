@@ -320,10 +320,26 @@ export interface EquipmentItem {
     special_effects?: string[]
     durability_bonus?: number
   }>
+  enchants?: Array<{
+    id: string
+    name: string
+    stats?: Record<string, number>
+    resistances?: Record<string, number>
+    special_effects?: string[]
+    durability_bonus?: number
+  }>
+  enchant_reroll_count?: number
   durability: number
   max_durability: number
   class_restriction: string[]
   equipped_by?: string | null
+}
+
+/** An equipment drop as it appears in a report's rewards.equipment[] — the full
+ * item is included so a hover tooltip can show its details. */
+export interface EquipmentDrop {
+  name: string
+  item: EquipmentItem
 }
 
 export interface PartyView extends PartySummary {

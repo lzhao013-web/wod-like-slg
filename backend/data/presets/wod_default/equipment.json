@@ -591,5 +591,150 @@
       "ward"
     ],
     "class_restriction": []
+  },
+  {
+    "id": "serpent_ring",
+    "name": "毒蛇之环",
+    "slot": "ring",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 3,
+    "rarity": "rare",
+    "cost": 160,
+    "stats": {
+      "evasion": 3
+    },
+    "resistances": {
+      "poison": 28
+    },
+    "special_effects": [],
+    "durability": 36,
+    "affix_tags": [
+      "trinket",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "radiant_emblem",
+    "name": "圣光圣徽",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 3,
+    "rarity": "rare",
+    "cost": 170,
+    "stats": {
+      "max_mana": 6
+    },
+    "resistances": {
+      "curse": 22,
+      "magic": 10
+    },
+    "special_effects": [
+      "healing_bonus"
+    ],
+    "durability": 36,
+    "affix_tags": [
+      "trinket",
+      "faith",
+      "healing",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "hunters_eye",
+    "name": "猎神之眼",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 3,
+    "rarity": "rare",
+    "cost": 165,
+    "stats": {
+      "accuracy": 16,
+      "attack": 2
+    },
+    "resistances": {},
+    "special_effects": [],
+    "durability": 36,
+    "affix_tags": [
+      "trinket",
+      "ranged",
+      "finesse"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "molten_core",
+    "name": "熔火之心",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 3,
+    "rarity": "rare",
+    "cost": 170,
+    "stats": {},
+    "resistances": {
+      "fire": 28
+    },
+    "special_effects": [
+      "fire_bonus_minor"
+    ],
+    "durability": 36,
+    "affix_tags": [
+      "trinket",
+      "fire",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "blood_seal",
+    "name": "鲜血封印",
+    "slot": "backpack",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 3,
+    "rarity": "rare",
+    "cost": 160,
+    "stats": {
+      "max_hp": 16
+    },
+    "resistances": {
+      "bleed": 24
+    },
+    "special_effects": [],
+    "durability": 30,
+    "affix_tags": [
+      "trinket",
+      "ward"
+    ],
+    "class_restriction": []
+  },
+  {
+    "id": "banishing_ward",
+    "name": "破咒圣符",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 3,
+    "rarity": "rare",
+    "cost": 170,
+    "stats": {
+      "defense": 2
+    },
+    "resistances": {
+      "curse": 26,
+      "magic": 10
+    },
+    "special_effects": [],
+    "durability": 36,
+    "affix_tags": [
+      "trinket",
+      "ward"
+    ],
+    "class_restriction": []
   }
 ]

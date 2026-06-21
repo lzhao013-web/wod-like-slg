@@ -1,6 +1,6 @@
 import { cx } from '../lib/format'
 
-export type NavId = 'overview' | 'dungeons' | 'party' | 'tactics' | 'reports' | 'shop' | 'recruits' | 'quests'
+export type NavId = 'overview' | 'dungeons' | 'party' | 'tactics' | 'reports' | 'shop' | 'enchant' | 'recruits' | 'quests'
 
 const NAV: Array<{ id: NavId; label: string; icon: string; hint: string }> = [
   { id: 'overview', label: '指挥台', icon: '🗺️', hint: '每日总览' },
@@ -10,6 +10,7 @@ const NAV: Array<{ id: NavId; label: string; icon: string; hint: string }> = [
   { id: 'tactics', label: '战术计划', icon: '🎯', hint: '先攻·开场·防御' },
   { id: 'reports', label: '战报复盘', icon: '📊', hint: '历史战报' },
   { id: 'shop', label: '集市·商店', icon: '🪙', hint: '买·卖·分解' },
+  { id: 'enchant', label: '附魔·升华', icon: '🌀', hint: '附魔·重掷·升华装备' },
   { id: 'recruits', label: '酒馆·招募', icon: '🏰', hint: '招募·解雇' },
 ]
 

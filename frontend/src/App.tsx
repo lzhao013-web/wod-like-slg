@@ -12,6 +12,7 @@ import { PartyPanel } from './components/panels/PartyPanel'
 import { TacticsPanel } from './components/panels/TacticsPanel'
 import { ReportsPanel } from './components/panels/ReportsPanel'
 import { ShopPanel } from './components/panels/ShopPanel'
+import { EnchantPanel } from './components/panels/EnchantPanel'
 import { RecruitsPanel } from './components/panels/RecruitsPanel'
 import { QuestsPanel } from './components/panels/QuestsPanel'
 import type { CharacterView } from './types/game'
@@ -137,10 +138,27 @@ export default function App() {
               gold={state.gold}
               materials={state.materials}
               inventory={game.party?.inventory ?? []}
+              members={partyMembers}
               busy={game.busy}
               onBuy={(id) => game.act(() => apiBuy(id), { toast: (v: any) => ({ tone: 'success', text: `购得 ${v?.acquired?.item?.name ?? v?.acquired?.name ?? '物品'}。` } as any) })}
+              onBuyMany={(ids) => game.act(async () => {
+                let count = 0
+                for (const id of ids) { await apiBuy(id); count++ }
+                return count
+              }, { toast: (n: any) => ({ tone: 'success', text: `一键购得 ${n ?? ids.length} 件商品。` } as any) })}
               onSell={(itemId) => game.act(() => apiSell(itemId), { toast: (v: any) => ({ tone: 'success', text: `出售 ${v?.result?.name ?? '装备'}，获得 🪙${v?.result?.gold ?? 0}。` } as any) })}
               onSalvage={(itemId) => game.act(() => apiSalvage(itemId), { toast: (v: any) => ({ tone: 'success', text: `分解 ${v?.result?.name ?? '装备'}，获得 🪙${v?.result?.gold ?? 0}${Object.keys(v?.result?.materials ?? {}).length ? ' 与材料' : ''}。` } as any) })}
+            />
+          )}
+          {nav === 'enchant' && (
+            <EnchantPanel
+              inventory={game.party?.inventory ?? []}
+              members={partyMembers}
+              materials={state.materials}
+              busy={game.busy}
+              onEnchant={(itemId) => game.act(() => apiEnchant(itemId), { toast: (v: any) => ({ tone: 'success', text: `${v?.result?.item?.name ?? '装备'} 附魔：◆ ${v?.result?.affix?.name ?? '词缀'}。` } as any) })}
+              onReroll={(itemId, idx) => game.act(() => apiReroll(itemId, idx), { toast: (v: any) => ({ tone: 'success', text: `${v?.result?.item?.name ?? '装备'} 重掷为：◆ ${v?.result?.affix?.name ?? '词缀'}。` } as any) })}
+              onAscend={(itemId) => game.act(() => apiAscend(itemId), { toast: (v: any) => ({ tone: 'success', text: `${v?.result?.source ?? '装备'} 升华为 ${v?.result?.target ?? '新装备'}。` } as any) })}
             />
           )}
           {nav === 'recruits' && (
@@ -217,6 +235,9 @@ const apiRemovePlan = (index: number) => api.removePlan(index)
 const apiBuy = (id: string) => api.buy(id)
 const apiSell = (id: string) => api.sell(id)
 const apiSalvage = (id: string) => api.salvage(id)
+const apiEnchant = (id: string) => api.enchantEquipment(id)
+const apiReroll = (id: string, idx: number) => api.rerollEnchant(id, idx)
+const apiAscend = (id: string) => api.ascendEquipment(id)
 const apiRecruit = (id: string) => api.recruit(id)
 const apiDismiss = (id: string) => api.dismiss(id)
 const apiAcceptQuest = (id: string) => apiJson(`/quests/${id}/accept`, { method: 'POST' })

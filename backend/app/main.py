@@ -240,9 +240,29 @@ def salvage(payload: dict[str, Any] = Body(...)):
     return call(game_service.salvage, payload.get("item_id"))
 
 
+@app.post("/party/equipment/enchant")
+def enchant_equipment(payload: dict[str, Any] = Body(...)):
+    return call(game_service.enchant_equipment, payload.get("item_id"))
+
+
+@app.post("/party/equipment/reroll")
+def reroll_enchant(payload: dict[str, Any] = Body(...)):
+    return call(game_service.reroll_enchant, payload)
+
+
+@app.post("/party/equipment/ascend")
+def ascend_equipment(payload: dict[str, Any] = Body(...)):
+    return call(game_service.ascend_equipment, payload.get("item_id"))
+
+
 @app.get("/recruits")
 def recruits():
     return game_service.recruits()
+
+
+@app.get("/equipment/ascension-recipes")
+def ascension_recipes():
+    return game_service.ascension_recipes()
 
 
 @app.post("/recruits/recruit")

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { CharacterView, PartyView } from '../../types/game'
+import type { CharacterView, EquipmentItem, PartyView } from '../../types/game'
 import { CharacterAvatar } from '../CharacterAvatar'
 import { Bar } from '../Bar'
 import { Chip, StatusChip } from '../Chips'
 import { Paperdoll } from '../Paperdoll'
-import { ATTRIBUTES, classMeta, STATS } from '../../theme'
+import { InventoryGrid } from '../InventoryGrid'
+import { ATTRIBUTES, classMeta, itemFitsEquipmentSlot, SLOT_ICON, SLOT_LABEL, STATS } from '../../theme'
 import { CELL_LABEL, FRONT_CELLS, MID_CELLS, BACK_CELLS } from '../../state/useGame'
 import { cx } from '../../lib/format'
 
@@ -25,11 +26,16 @@ export function PartyPanel(props: {
   const [drafts, setDrafts] = useState<Record<string, Record<string, string | null>>>(() => normalizeDrafts(teamIds, formations))
   const [selected, setSelected] = useState<string>('')
   const [editingEquipFor, setEditingEquipFor] = useState<string>('')
+  const [activeEquipSlot, setActiveEquipSlot] = useState<string>('')
 
   useEffect(() => {
     if (!teamIds.includes(activeTeam)) setActiveTeam(teamIds[0] ?? 'team_1')
     setDrafts(normalizeDrafts(teamIds, formations))
   }, [party])
+
+  useEffect(() => {
+    setActiveEquipSlot('')
+  }, [editingEquipFor])
 
   const memberById: Record<string, CharacterView> = {}
   for (const m of party.members) memberById[m.id] = m
@@ -41,6 +47,12 @@ export function PartyPanel(props: {
   const inFormation = party.members.filter(m => formationIds.has(m.id))
   const reserves = party.members.filter(m => !formationIds.has(m.id) && !otherTeamIds.has(m.id))
   const otherTeamMembers = party.members.filter(m => otherTeamIds.has(m.id))
+  const equipTarget = editingEquipFor ? memberById[editingEquipFor] : undefined
+  const currentSlotItemId = equipTarget && activeEquipSlot ? (equipTarget.equipment?.[activeEquipSlot] ?? null) : null
+  const currentSlotItem = currentSlotItemId ? party.inventory.find(i => i.instance_id === currentSlotItemId) : undefined
+  const visibleInventory = equipTarget && activeEquipSlot
+    ? party.inventory.filter(i => itemFitsEquipmentSlot(i.slot, activeEquipSlot) && canCharacterEquipItem(equipTarget, i))
+    : party.inventory
 
   function place(cell: string) {
     if (!selected) return
@@ -160,7 +172,7 @@ export function PartyPanel(props: {
       </section>
 
       <section className="panel equipPanel">
-        <div className="panel__head"><h2>⚒️ 配装</h2><span className="muted">选择角色后更换装备</span></div>
+        <div className="panel__head"><h2>⚒️ 配装</h2><span className="muted">选择角色，再点选部位；右侧只显示该部位可装备的物品</span></div>
         <div className="equipRoster">
           {party.members.map(m => (
             <button key={m.id} className={cx('equipRoster__btn', editingEquipFor === m.id && 'is-active')} onClick={() => setEditingEquipFor(editingEquipFor === m.id ? '' : m.id)}>
@@ -168,8 +180,106 @@ export function PartyPanel(props: {
             </button>
           ))}
         </div>
-        {editingEquipFor ? (
-          <Paperdoll member={memberById[editingEquipFor]} party={party} onEquip={props.onEquip} busy={props.busy} />
+        {equipTarget ? (
+          <div className="equipLayout">
+            <div className="equipLayout__paperdoll">
+              <Paperdoll
+                member={equipTarget}
+                party={party}
+                onEquip={props.onEquip}
+                busy={props.busy}
+                hideDetail
+                activeSlot={activeEquipSlot}
+                onActiveSlotChange={setActiveEquipSlot}
+              />
+            </div>
+            <div className="equipLayout__stash">
+              <div className="panel__head" style={{ marginBottom: 8 }}>
+                <h3>🎒 装备库</h3>
+                <Chip icon={activeEquipSlot ? (SLOT_ICON[activeEquipSlot] ?? '🎯') : '📦'} tone={activeEquipSlot ? 'accent' : 'muted'}>
+                  {activeEquipSlot ? `${visibleInventory.length}/${party.inventory.length} 件` : `${party.inventory.length} 件`}
+                </Chip>
+              </div>
+              <div className={cx('equipSlotBar', activeEquipSlot && 'is-active')}>
+                <div className="equipSlotBar__main">
+                  <span className="equipSlotBar__icon">{activeEquipSlot ? (SLOT_ICON[activeEquipSlot] ?? '✦') : '👆'}</span>
+                  <span className="equipSlotBar__text">
+                    {activeEquipSlot ? (
+                      <>
+                        <b>{SLOT_LABEL[activeEquipSlot] ?? activeEquipSlot}</b>
+                        <small>{currentSlotItem ? `当前：${currentSlotItem.name}` : '当前未装备'} · 已过滤为该部位可装备物品</small>
+                      </>
+                    ) : (
+                      <>
+                        <b>先点击左侧装备部位</b>
+                        <small>未选择部位时显示全部装备；选择后会自动过滤并装备到该槽位。</small>
+                      </>
+                    )}
+                  </span>
+                </div>
+                {activeEquipSlot && (
+                  <div className="equipSlotBar__actions">
+                    {currentSlotItem && (
+                      <button className="btn btn--ghost btn--sm" disabled={props.busy} onClick={() => props.onEquip(equipTarget.id, null, activeEquipSlot)}>
+                        ↩ 卸下此部位
+                      </button>
+                    )}
+                    <button className="btn btn--ghost btn--sm" type="button" onClick={() => setActiveEquipSlot('')}>
+                      显示全部
+                    </button>
+                  </div>
+                )}
+              </div>
+              <InventoryGrid
+                items={visibleInventory}
+                members={party.members}
+                selectedId={currentSlotItem?.instance_id}
+                showStatusFilter
+                emptyHint={activeEquipSlot ? `${SLOT_LABEL[activeEquipSlot] ?? activeEquipSlot} 暂无可装备物品。` : '装备库空空如也。'}
+                busy={props.busy}
+                actions={item => {
+                  const target = equipTarget
+                  if (!target) return null
+                  const owner = item.equipped_by ?? null
+                  const targetSlot = activeEquipSlot && itemFitsEquipmentSlot(item.slot, activeEquipSlot) ? activeEquipSlot : undefined
+                  const isInActiveSlot = !!targetSlot && target.equipment?.[targetSlot] === item.instance_id
+                  // class_restriction empty = usable by all
+                  const allowed = canCharacterEquipItem(target, item)
+                  if (owner === target.id) {
+                    if (isInActiveSlot) {
+                      return (
+                        <button className="btn btn--ghost btn--sm" disabled={props.busy} onClick={() => props.onEquip(target.id, null, targetSlot)}>
+                          ↩ 卸下
+                        </button>
+                      )
+                    }
+                    if (targetSlot) {
+                      return (
+                        <button className="btn btn--accent btn--sm" disabled={props.busy} onClick={() => props.onEquip(target.id, item.instance_id, targetSlot)}>
+                          ↔ 移到此部位
+                        </button>
+                      )
+                    }
+                    return <span className="muted" style={{ fontSize: 12 }}>当前穿着</span>
+                  }
+                  if (owner) {
+                    return (
+                      <button className="btn btn--ghost btn--sm" disabled={props.busy || !allowed} onClick={() => props.onEquip(target.id, item.instance_id, targetSlot)}>
+                        ⬆️ 转移到此角色
+                      </button>
+                    )
+                  }
+                  return (
+                    <button className={cx('btn btn--sm', allowed ? 'btn--accent' : 'btn--ghost')} disabled={props.busy || !allowed}
+                      title={allowed ? '装备到当前角色' : `${target.class_name} 无法装备`}
+                      onClick={() => props.onEquip(target.id, item.instance_id, targetSlot)}>
+                      {allowed ? '装备' : '职业不符'}
+                    </button>
+                  )
+                }}
+              />
+            </div>
+          </div>
         ) : (
           <p className="muted equipEmpty">点击上方角色以更换其武器 / 护甲 / 饰品。</p>
         )}
@@ -204,6 +314,13 @@ function memberSort(a: CharacterView, b: CharacterView): number {
   const pa = posScore[classMeta(a.class_id).position] ?? 2
   const pb = posScore[classMeta(b.class_id).position] ?? 2
   return pa - pb || b.level - a.level || (b.hp / Math.max(1, b.max_hp)) - (a.hp / Math.max(1, a.max_hp))
+}
+
+function canCharacterEquipItem(ch: CharacterView, item: EquipmentItem): boolean {
+  const restriction = item.class_restriction ?? []
+  return restriction.length === 0
+    || restriction.includes(ch.class_id)
+    || (!!ch.base_class_id && restriction.includes(ch.base_class_id))
 }
 
 function preferredCells(ch: CharacterView): string[] {

@@ -3,8 +3,10 @@ import type { EquipmentItem } from '../types/game'
 import { rarityMeta, SLOT_ICON, SLOT_LABEL, ELEMENTS, statLabel, specialEffectLabel } from '../theme'
 import { cx, num } from '../lib/format'
 import { RarityTag } from './Chips'
+import { EquipmentHover } from './EquipmentTooltip'
 
-/** Renders an equipment item as a rarity-gated card. */
+/** Renders an equipment item as a rarity-gated card. In compact mode (or when
+ * `tooltip` is set), hovering shows a full-detail tooltip via a portal. */
 export function EquipmentCard(props: {
   item: EquipmentItem
   onClick?: () => void
@@ -17,14 +19,18 @@ export function EquipmentCard(props: {
   cost?: number
   showCost?: boolean
   compact?: boolean
+  /** Force the hover tooltip on even for non-compact cards. */
+  tooltip?: boolean
 }) {
   const m = rarityMeta(props.item.rarity)
   const stats = props.item.stats ?? {}
   const resists = props.item.resistances ?? {}
   const affixes = props.item.affixes ?? []
+  const enchants = props.item.enchants ?? []
   const kind = props.item.item_kind_label ?? (props.item.item_kind === 'special' ? '特殊装备' : props.item.item_kind === 'special_base' ? '特别装备' : '基础装备')
   const level = props.item.item_level ? ` · Lv.${props.item.item_level}` : ''
-  return (
+  const showTooltip = props.tooltip || props.compact
+  const card = (
     <div
       className={cx('eqCard', `eqCard--${m.key}`, props.selected && 'is-selected', props.compact && 'is-compact')}
       style={{ '--rare': m.color, '--glow': m.glow } as CSSProperties}
@@ -69,6 +75,11 @@ export function EquipmentCard(props: {
               {affixes.map(a => <span key={a.id} className="eqEffect">◆ {a.name}</span>)}
             </div>
           )}
+          {enchants.length > 0 && (
+            <div className="eqCard__effects">
+              {enchants.map(a => <span key={a.id} className="eqEffect eqEffect--ench">🌀 {a.name}</span>)}
+            </div>
+          )}
           {props.item.durability !== undefined && (
             <div className="eqCard__dur">耐久 {props.item.durability}/{props.item.max_durability}</div>
           )}
@@ -83,4 +94,8 @@ export function EquipmentCard(props: {
       )}
     </div>
   )
+  if (showTooltip) {
+    return <EquipmentHover item={props.item}>{card}</EquipmentHover>
+  }
+  return card
 }

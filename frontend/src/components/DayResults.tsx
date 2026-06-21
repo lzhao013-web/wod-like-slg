@@ -5,6 +5,7 @@ import { HpBar } from './Bar'
 import { BattleReplay } from './BattleReplay'
 import { CharacterAvatar } from './CharacterAvatar'
 import { Chip, ResultBadge } from './Chips'
+import { EquipmentHover } from './EquipmentTooltip'
 import { resultMeta, enemyIcon, materialIcon, materialName, translateGameText } from '../theme'
 import { parseHpParts, cx } from '../lib/format'
 
@@ -287,7 +288,7 @@ function RestReport(props: { report: ReportView }) {
 export function ReportRewards(props: { report: ReportView }) {
   const r = props.report.rewards ?? {}
   const mats = r.materials ?? {}
-  const eq = r.equipment ?? []
+  const eq: Array<string | { name: string; item?: any }> = r.equipment ?? []
   const empty = !r.gold && !r.exp && Object.keys(mats).length === 0 && eq.length === 0
   return (
     <div className="rewards">
@@ -297,7 +298,12 @@ export function ReportRewards(props: { report: ReportView }) {
         {!!r.gold && <Chip icon="🪙" tone="accent">金币 +{r.gold}</Chip>}
         {!!r.exp && <Chip icon="✨" tone="info">经验 +{r.exp}</Chip>}
         {Object.entries(mats).map(([k, v]) => <Chip key={k} icon={materialIcon(materialName(k))} tone="muted">{materialName(k)} +{v as number}</Chip>)}
-        {eq.map((name: string, i: number) => <Chip key={i} icon="✦" tone="accent">{name}</Chip>)}
+        {eq.map((entry, i) => {
+          const name = typeof entry === 'string' ? entry : entry.name
+          const item = typeof entry === 'string' ? null : entry.item
+          const chip = <Chip key={i} icon="✦" tone="accent">{name}</Chip>
+          return item ? <EquipmentHover key={i} item={item}>{chip}</EquipmentHover> : chip
+        })}
       </div>
     </div>
   )
