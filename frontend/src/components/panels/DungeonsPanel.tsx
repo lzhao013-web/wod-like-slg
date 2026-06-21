@@ -22,10 +22,10 @@ export function DungeonsPanel(props: {
   pointsLeft: number
 }) {
   return (
-    <div className="dungeonLayout">
+    <div className="dungeonLayout" data-guide-id="dungeons-panel">
       {/* Compact expedition strip — shows today's planned actions as inline chips.
           The "结算远征" button and remaining count already live in the TopBar. */}
-      <div className="dungeonStrip">
+      <div className="dungeonStrip" data-guide-id="expedition-plan-strip">
         <div className="dungeonStrip__label">
           <b>🧭 今日出征</b>
         </div>
@@ -49,7 +49,7 @@ export function DungeonsPanel(props: {
       </div>
 
       {/* Two-column dungeon browser */}
-      <section className="panel dungeonList">
+      <section className="panel dungeonList" data-guide-id="dungeon-list">
         <div className="panel__head"><h2>⚔️ 副本情报</h2><span className="muted">{props.dungeons.length} 个</span></div>
         {props.dungeons.length === 0 && <p className="muted">今日没有可用副本。</p>}
         {props.dungeons.map(d => {
@@ -58,6 +58,7 @@ export function DungeonsPanel(props: {
             <button key={d.dungeon_id}
               className={cx('dungeonBtn', props.selected === d.dungeon_id && 'is-selected', d.is_final && 'is-final')}
               style={{ '--accent': accent } as CSSProperties}
+              data-guide-id={d.source_quest_id ? `quest-dungeon-${d.source_quest_id}` : `dungeon-${d.dungeon_id}`}
               onClick={() => props.onSelect(d.dungeon_id)}>
               <span className="dungeonBtn__icon">{themeIcon(d.theme)}</span>
               <span className="dungeonBtn__body">
@@ -76,7 +77,7 @@ export function DungeonsPanel(props: {
         })}
       </section>
 
-      <section className="panel dungeonDetail">
+      <section className="panel dungeonDetail" data-guide-id="dungeon-detail">
         <DungeonDetail
           detail={props.detail}
           party={props.party}
@@ -217,7 +218,7 @@ function DungeonDetail(props: {
 
       <div className="detail__actions">
         {/* Expedition target — pick which team deploys here. */}
-        <div className="teamPicker">
+        <div className="teamPicker" data-guide-id="dungeon-team-picker">
           <span className="fieldRow__label">出征队伍</span>
           <div className="teamPicker__options">
             {teamRows.map(t => {
@@ -239,7 +240,7 @@ function DungeonDetail(props: {
           </div>
         </div>
 
-        <label className="fieldRow schemePicker">
+        <label className="fieldRow schemePicker" data-guide-id="dungeon-scheme-picker">
           <span className="fieldRow__label">总方案</span>
           <select
             value={selectedSchemeId}
@@ -252,10 +253,10 @@ function DungeonDetail(props: {
         </label>
 
         <div className="detail__btnRow">
-          <button className="btn btn--ghost" onClick={() => props.onScout(detail.dungeon_id, selectedTeamId)} disabled={props.busy || scouted || noTeamAvailable}>
+          <button className="btn btn--ghost" data-guide-id="dungeon-scout-button" onClick={() => props.onScout(detail.dungeon_id, selectedTeamId)} disabled={props.busy || scouted || noTeamAvailable}>
             🔭 {scouted ? '已侦察' : `安排侦察（${chosenTeam?.label ?? '无队伍'}）`}
           </button>
-          <button className="btn btn--primary" onClick={() => props.onChallenge(detail.dungeon_id, selectedSchemeId || undefined, selectedTeamId)} disabled={props.busy || noTeamAvailable}>
+          <button className="btn btn--primary" data-guide-id="dungeon-challenge-button" onClick={() => props.onChallenge(detail.dungeon_id, selectedSchemeId || undefined, selectedTeamId)} disabled={props.busy || noTeamAvailable}>
             ⚔️ 安排挑战（{chosenTeam?.label ?? '无队伍'} · {selectedScheme?.name ?? '当前战术'}）
           </button>
         </div>

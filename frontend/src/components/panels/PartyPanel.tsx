@@ -106,8 +106,8 @@ export function PartyPanel(props: {
   }
 
   return (
-    <div className="partyLayout">
-      <section className="panel formationPanel">
+    <div className="partyLayout" data-guide-id="party-panel">
+      <section className="panel formationPanel" data-guide-id="party-formation">
         <div className="panel__head">
           <h2>🛡️ 双队编成 · 3×3</h2>
           <span className="muted">{teamLabels[activeTeam] ?? activeTeam} 上阵 {inFormation.length} / {party.max_team_size ?? 4} · 队员不能重复</span>
@@ -130,7 +130,7 @@ export function PartyPanel(props: {
           <FormationRow label="后排" cells={Array.from(BACK_CELLS)} draft={draft} memberById={memberById} selected={selected} onPlace={place} onClear={clearCell} />
         </div>
 
-        <div className="formationActions">
+        <div className="formationActions" data-guide-id="party-formation-actions">
           <button className="btn btn--primary btn--sm" onClick={() => props.onFormation(activeTeam, draft)} disabled={props.busy || !dirty}>
             {dirty ? `💾 保存${teamLabels[activeTeam] ?? ''}阵型` : '✓ 已保存'}
           </button>
@@ -159,7 +159,7 @@ export function PartyPanel(props: {
         )}
       </section>
 
-      <section className="panel rosterPanel">
+      <section className="panel rosterPanel" data-guide-id="party-roster">
         <div className="panel__head">
           <h2>👥 {teamLabels[activeTeam] ?? '队伍'}成员</h2>
           <span className="muted">{inFormation.length} 人 · 卡片已显示八维/技能构筑</span>
@@ -171,7 +171,7 @@ export function PartyPanel(props: {
         </div>
       </section>
 
-      <section className="panel equipPanel">
+      <section className="panel equipPanel" data-guide-id="party-equipment">
         <div className="panel__head"><h2>⚒️ 配装</h2><span className="muted">选择角色，再点选部位；右侧只显示该部位可装备的物品</span></div>
         <div className="equipRoster">
           {party.members.map(m => (

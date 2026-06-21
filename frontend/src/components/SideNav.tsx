@@ -27,6 +27,7 @@ export function SideNav(props: {
           <button
             key={item.id}
             className={cx('sideNav__item', props.active === item.id && 'is-active')}
+            data-guide-id={`nav-${item.id}`}
             onClick={() => props.onChange(item.id)}
           >
             <span className="sideNav__icon">{item.icon}</span>

@@ -26,6 +26,29 @@ export interface GameStateView {
   quests_summary?: QuestListSummary
 }
 
+export interface SaveSlotView {
+  id: string
+  label: string
+  kind: 'auto' | 'manual'
+  exists: boolean
+  modified_at?: string
+  corrupt?: boolean
+  error?: string
+  day?: number | null
+  max_day?: number | null
+  run_seed?: number | null
+  gold?: number | null
+  victory?: boolean
+  defeat?: boolean
+  party_count?: number
+  report_count?: number
+}
+
+export interface SaveSlotListView {
+  active_slot_id: string
+  slots: SaveSlotView[]
+}
+
 export type QuestType = 'story' | 'daily' | 'hidden'
 export type QuestStatus = 'available' | 'active' | 'completed' | 'claimed' | 'expired' | 'hidden'
 
@@ -43,6 +66,29 @@ export interface QuestRewards {
   exp: number
   materials: Record<string, number>
   flags?: Record<string, boolean>
+  equipment?: Array<{ id: string; name: string; rarity?: string; preview?: EquipmentItem }>
+}
+
+export type QuestGuidePlacement = 'auto' | 'top' | 'right' | 'bottom' | 'left' | 'center'
+
+export interface QuestGuideAction {
+  type: 'navigate' | 'click_target' | 'complete_objective'
+  label?: string
+  nav?: string
+  target?: string
+  objective_id?: string
+  advance?: boolean
+}
+
+export interface QuestGuideStep {
+  id: string
+  title: string
+  body: string
+  target?: string
+  placement?: QuestGuidePlacement
+  nav?: string
+  action?: QuestGuideAction
+  tips?: string[]
 }
 
 export interface QuestView {
@@ -64,6 +110,18 @@ export interface QuestView {
   all_completed: boolean
   rewards: QuestRewards
   next_quests: string[]
+  guide_sections?: Array<{
+    title: string
+    body?: string
+    bullets?: string[]
+    nav_hint?: string
+  }>
+  guide_steps?: QuestGuideStep[]
+  dialogue?: Array<{
+    speaker: string
+    text: string
+    mood?: string
+  }>
   revealed_from_hidden: boolean
   linked_dungeon_ids: string[]
   sort: number

@@ -192,13 +192,13 @@ export function TacticsPanel(props: {
   }
 
   return (
-    <div className="tacticsPage">
-      <section className="panel tacticsHero">
+    <div className="tacticsPage" data-guide-id="tactics-panel">
+      <section className="panel tacticsHero" data-guide-id="tactics-hero">
         <div className="panel__head">
           <h2>🎯 战术计划</h2>
           <span className="muted">按“总方案库 → 每层 → 每个角色”配置开场、常规出手与受击响应。</span>
         </div>
-        <div className="schemeBox">
+        <div className="schemeBox" data-guide-id="tactics-scheme-box">
           <div className="schemeBox__head">
             <b>📚 总方案库</b>
             <span className={schemes.length >= maxSchemes ? 'schemeBox__count is-full' : 'schemeBox__count'}>{schemes.length}/{maxSchemes}</span>
@@ -232,14 +232,14 @@ export function TacticsPanel(props: {
               {Object.entries(party.retreat_options).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
           </label>
-          <label className="fieldRow tacticsToolbar__layer">
+          <label className="fieldRow tacticsToolbar__layer" data-guide-id="tactics-layer-select">
             <span className="fieldRow__label">每层</span>
             <select value={selectedLayer} onChange={e => setSelectedLayer(Number(e.target.value))}>
               <option value={0}>默认战术</option>
               {layerOptions.map(l => <option key={l.index} value={l.index}>{l.label}</option>)}
             </select>
           </label>
-          <button className="btn btn--primary" onClick={saveTactics} disabled={props.busy}>
+          <button className="btn btn--primary" data-guide-id="tactics-save-all" onClick={saveTactics} disabled={props.busy}>
             💾 保存{isLayerScope ? `第 ${selectedLayer} 层` : '默认'}全部战术
           </button>
         </div>
@@ -260,7 +260,7 @@ export function TacticsPanel(props: {
         </div>
       </section>
 
-      <div className="tacticsGrid">
+      <div className="tacticsGrid" data-guide-id="tactics-grid">
         {party.members.map(m => (
           <TacticsCard
             key={m.id}
@@ -430,7 +430,7 @@ function TacticsCard(props: {
   const selectedInitiativeSkill = initiativeSkills.find(s => s.id === selectedInitiative)
   const dirty = !sameTacticDraft(props.draft, props.savedDraft)
   return (
-    <div className="tacticCard" style={{ '--accent': cm.accent } as CSSProperties}>
+    <div className="tacticCard" style={{ '--accent': cm.accent } as CSSProperties} data-guide-id={`tactic-card-${m.id}`}>
       <div className="tacticCard__head">
         <span className="tacticCard__identity">
           <CharacterAvatar ch={m} size={32} />

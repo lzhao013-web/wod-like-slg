@@ -2,7 +2,15 @@ from __future__ import annotations
 
 from typing import Any
 
-from backend.app.services.save_service import delete_save, load_state, save_state
+from backend.app.services.save_service import (
+    delete_save,
+    delete_save_slot,
+    list_save_slots,
+    load_state,
+    load_state_from_slot,
+    save_state,
+    save_state_to_slot,
+)
 from backend.game_core import engine
 
 
@@ -20,6 +28,31 @@ class GameService:
     def save(self) -> dict[str, Any]:
         save_state(self.state)
         return {"ok": True}
+
+    def save_slots(self) -> dict[str, Any]:
+        return {"active_slot_id": "auto", "slots": list_save_slots()}
+
+    def save_to_slot(self, slot_id: str) -> dict[str, Any]:
+        engine.migrate_state(self.state)
+        slot = save_state_to_slot(self.state, slot_id)
+        return {"ok": True, "slot": slot, "saves": self.save_slots()}
+
+    def load_from_slot(self, slot_id: str) -> dict[str, Any]:
+        loaded = load_state_from_slot(slot_id)
+        if loaded is None:
+            raise ValueError("该存档槽为空")
+        self.state = loaded
+        engine.migrate_state(self.state)
+        # Loading any slot makes it the active auto-save, so subsequent gameplay
+        # continues from that snapshot without mutating the source slot.
+        save_state(self.state)
+        return {"ok": True, "state": engine.public_state_view(self.state), "saves": self.save_slots()}
+
+    def delete_slot(self, slot_id: str) -> dict[str, Any]:
+        if slot_id == "auto":
+            raise ValueError("自动存档不能在存档管理中删除，请使用重置或新游戏")
+        delete_save_slot(slot_id)
+        return {"ok": True, "saves": self.save_slots()}
 
     def load(self) -> dict[str, Any]:
         loaded = load_state()
@@ -251,6 +284,11 @@ class GameService:
         engine.accept_quest(self.state, quest_id)
         save_state(self.state)
         return {"ok": True, "quests": engine.quest_list_view(self.state), "state": self.get_state()}
+
+    def complete_quest_objective(self, quest_id: str, objective_id: str) -> dict[str, Any]:
+        quest = engine.complete_manual_quest_objective(self.state, quest_id, objective_id)
+        save_state(self.state)
+        return {"ok": True, "quest": quest, "quests": engine.quest_list_view(self.state), "state": self.get_state()}
 
     def claim_quest(self, quest_id: str) -> dict[str, Any]:
         quest = engine.claim_quest(self.state, quest_id)

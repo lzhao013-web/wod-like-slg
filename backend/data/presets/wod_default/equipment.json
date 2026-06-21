@@ -736,5 +736,88 @@
       "ward"
     ],
     "class_restriction": []
+  },
+  {
+    "id": "delta_cadet_badge",
+    "name": "德尔塔学员徽章",
+    "slot": "backpack",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 1,
+    "rarity": "uncommon",
+    "cost": 90,
+    "stats": {
+      "max_hp": 6,
+      "accuracy": 4
+    },
+    "resistances": {
+      "physical": 3
+    },
+    "special_effects": [],
+    "durability": 32,
+    "affix_tags": [
+      "trinket",
+      "ward",
+      "tactics"
+    ],
+    "class_restriction": [],
+    "ascendable": false
+  },
+  {
+    "id": "delta_tactics_lens",
+    "name": "分层战术透镜",
+    "slot": "necklace",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 2,
+    "rarity": "rare",
+    "cost": 140,
+    "stats": {
+      "accuracy": 8,
+      "speed": 1
+    },
+    "resistances": {
+      "magic": 6
+    },
+    "special_effects": [],
+    "durability": 34,
+    "affix_tags": [
+      "trinket",
+      "tactics",
+      "ward"
+    ],
+    "class_restriction": [],
+    "ascendable": false
+  },
+  {
+    "id": "delta_command_seal",
+    "name": "德尔塔指挥印戒",
+    "slot": "ring",
+    "item_kind": "special",
+    "fixed_rarity": true,
+    "tier": 3,
+    "rarity": "rare",
+    "cost": 180,
+    "stats": {
+      "attack": 2,
+      "defense": 2,
+      "max_hp": 8
+    },
+    "resistances": {
+      "physical": 6,
+      "curse": 6
+    },
+    "special_effects": [
+      "guard_bonus"
+    ],
+    "durability": 38,
+    "affix_tags": [
+      "trinket",
+      "tactics",
+      "ward",
+      "shield"
+    ],
+    "class_restriction": [],
+    "ascendable": false
   }
 ]

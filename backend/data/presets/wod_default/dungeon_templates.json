@@ -1,5 +1,271 @@
 [
   {
+    "id": "delta_basic_drill",
+    "name": "德尔塔战术学院·基础演训场",
+    "theme": "教程：普通战斗、侦察与战报",
+    "recommended_level": [
+      1,
+      2
+    ],
+    "base_danger": 1,
+    "life_days": 99,
+    "layer_count": 2,
+    "main_rewards": [
+      "学院徽章",
+      "基础经验",
+      "战报复盘"
+    ],
+    "public_threats": [
+      "标准训练靶，适合第一次挑战",
+      "会出现一个后排点射无人机",
+      "胜利后查看战报可理解回合、伤害与掉落"
+    ],
+    "scout_lines": [
+      "第 1 层只有训练靶，默认战术即可通过。",
+      "第 2 层会有机动无人机点射后排，观察战报里的后排承伤。",
+      "普通战斗按速度排序行动，技能优先级无法使用时会回落到职业默认 AI。"
+    ],
+    "post_battle_lines": [
+      "战报中可以查看每层回合、技能使用、伤害来源与失败原因。",
+      "装备掉落会进入背包；悬停装备卡可查看完整属性。"
+    ],
+    "possible_affixes": [],
+    "rewards": {
+      "gold": 25,
+      "exp": 25,
+      "materials": {
+        "skill_essence": 2
+      },
+      "guaranteed_equipment": [
+        "delta_cadet_badge"
+      ],
+      "equipment_pool": []
+    },
+    "layers": [
+      {
+        "name": "靶场热身",
+        "type": "battle",
+        "enemies": [
+          "delta_training_dummy",
+          "delta_training_dummy"
+        ]
+      },
+      {
+        "name": "机动靶加入",
+        "type": "battle",
+        "enemies": [
+          "delta_training_dummy",
+          "delta_sparring_drone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delta_layer_matrix",
+    "name": "德尔塔战术学院·分层矩阵教室",
+    "theme": "教程：每层战术设置与针对性应对",
+    "recommended_level": [
+      1,
+      3
+    ],
+    "base_danger": 2,
+    "life_days": 99,
+    "layer_count": 3,
+    "main_rewards": [
+      "分层战术透镜",
+      "技能精华",
+      "材料"
+    ],
+    "public_threats": [
+      "每一层都有明确战术检查",
+      "不保存对应层战术会被教官终止演训",
+      "需要分别处理高防御、后排威胁与远程保护"
+    ],
+    "scout_lines": [
+      "第 1 层装甲傀儡：在战术计划选择第 1 层，让盗贼把“破甲”放进技能优先级。",
+      "第 2 层后排靶机：在第 2 层让游侠目标后排，并把“瞄准射击”放进技能优先级。",
+      "第 3 层火力走廊：在第 3 层让战士/守卫保存远程攻击的防御响应（保护/盾墙）。"
+    ],
+    "post_battle_lines": [
+      "分层战术会在进入对应层时覆盖默认战术。",
+      "总方案库可以保存整套默认战术与分层覆盖，出征时绑定。"
+    ],
+    "possible_affixes": [],
+    "rewards": {
+      "gold": 40,
+      "exp": 40,
+      "materials": {
+        "skill_essence": 3,
+        "arcane_dust": 1
+      },
+      "guaranteed_equipment": [],
+      "equipment_pool": []
+    },
+    "layers": [
+      {
+        "name": "第 1 题：厚甲目标",
+        "type": "battle",
+        "enemies": [
+          "delta_armor_dummy",
+          "delta_training_dummy"
+        ],
+        "tactic_requirements": [
+          {
+            "label": "第 1 层需要盗贼分层破甲",
+            "failure": "第 1 层需要保存盗贼分层战术，并将“破甲”放入技能优先级。",
+            "checks": [
+              {
+                "class_id": "rogue",
+                "field": "skill_priority",
+                "contains": "armor_break",
+                "layer_override": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "第 2 题：后排威胁",
+        "type": "battle",
+        "enemies": [
+          "delta_training_dummy",
+          "delta_backline_drone",
+          "delta_sparring_drone"
+        ],
+        "tactic_requirements": [
+          {
+            "label": "第 2 层需要游侠点杀后排",
+            "failure": "第 2 层需要保存游侠分层战术：目标选择后排，并将“瞄准射击”放入技能优先级。",
+            "checks": [
+              {
+                "class_id": "ranger",
+                "field": "target_priority",
+                "equals": "rear",
+                "layer_override": true
+              },
+              {
+                "class_id": "ranger",
+                "field": "skill_priority",
+                "contains": "aimed_shot",
+                "layer_override": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "第 3 题：保护火力走廊",
+        "type": "battle",
+        "enemies": [
+          "delta_backline_drone",
+          "delta_backline_drone"
+        ],
+        "tactic_requirements": [
+          {
+            "label": "第 3 层需要前排远程防御响应",
+            "failure": "第 3 层需要保存战士或守卫分层战术，并为远程攻击设置防御响应（保护或盾墙）。",
+            "checks": [
+              {
+                "class_ids": [
+                  "warrior",
+                  "guardian"
+                ],
+                "field": "defense_skill_by_type",
+                "trigger": "ranged",
+                "layer_override": true,
+                "one_of": [
+                  "guard",
+                  "shield_wall"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delta_graduation_sim",
+    "name": "德尔塔战术学院·毕业模拟战",
+    "theme": "教程：综合 Boss 战",
+    "recommended_level": [
+      2,
+      4
+    ],
+    "base_danger": 3,
+    "life_days": 99,
+    "layer_count": 4,
+    "main_rewards": [
+      "德尔塔指挥印戒",
+      "胜利徽记",
+      "毕业资格"
+    ],
+    "public_threats": [
+      "包含小怪、装甲、后排火力与 Boss",
+      "考验站位、装备、战术优先级和战报复盘",
+      "Boss 会交替压制前排、后排与全队"
+    ],
+    "scout_lines": [
+      "第 1 层清理多目标，群攻/默认 AI 均可。",
+      "第 2 层装甲训练体适合破甲、穿甲或魔法。",
+      "第 3 层后排靶机需要保护后排或优先击杀。",
+      "Boss 战建议保留治疗、保护与高命中输出。"
+    ],
+    "post_battle_lines": [
+      "毕业模拟把普通战斗、分层战术、装备与战报复盘合在一起。",
+      "若失败，先看战报的失败原因，再回到战术计划调整对应层。"
+    ],
+    "possible_affixes": [],
+    "rewards": {
+      "gold": 80,
+      "exp": 80,
+      "materials": {
+        "skill_essence": 4,
+        "glory": 1
+      },
+      "guaranteed_equipment": [
+        "delta_command_seal"
+      ],
+      "equipment_pool": []
+    },
+    "layers": [
+      {
+        "name": "综合热身",
+        "type": "battle",
+        "enemies": [
+          "delta_training_dummy",
+          "delta_sparring_drone",
+          "delta_training_dummy"
+        ]
+      },
+      {
+        "name": "装甲复核",
+        "type": "battle",
+        "enemies": [
+          "delta_armor_dummy",
+          "delta_mixed_drone"
+        ]
+      },
+      {
+        "name": "火力夹击",
+        "type": "battle",
+        "enemies": [
+          "delta_backline_drone",
+          "delta_sparring_drone",
+          "delta_mixed_drone"
+        ]
+      },
+      {
+        "name": "毕业考官 Σ",
+        "type": "battle",
+        "enemies": [
+          "delta_sigma_boss",
+          "delta_backline_drone"
+        ]
+      }
+    ]
+  },
+  {
     "id": "spider_nest",
     "name": "蜘蛛巢穴",
     "theme": "毒、小怪、持续消耗",

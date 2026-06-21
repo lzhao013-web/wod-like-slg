@@ -47,6 +47,7 @@ export interface GameApi {
   act: <T,>(fn: () => Promise<T>, opts?: ActOpts<T>) => Promise<T | undefined>
   endDay: () => Promise<void>
   newGame: (seed?: number) => Promise<void>
+  loadSaveSlot: (slotId: string) => Promise<void>
   resetGame: () => Promise<void>
   returnToPlay: () => void
   gotoStart: () => void
@@ -219,6 +220,27 @@ export function useGame(): GameApi {
     setPhase('playing')
   }, [act, loadAll])
 
+  const loadSaveSlot = useCallback(async (slotId: string) => {
+    setBusy(true)
+    setError(null)
+    try {
+      await api.loadFromSlot(slotId)
+      setSelectedDungeon('')
+      setSelectedReport('')
+      setLastDayResult(null)
+      const loaded = await loadAll(false)
+      const s = loaded?.state
+      setPhase(s && (s.victory || s.defeat) ? 'ended' : 'playing')
+      pushToast('success', '存档已读取。')
+    } catch (err: any) {
+      const msg = err?.message || String(err)
+      setError(msg)
+      pushToast('error', msg)
+    } finally {
+      setBusy(false)
+    }
+  }, [loadAll, pushToast])
+
   const resetGame = useCallback(async () => {
     await act(() => api.reset(), {
       reload: false,
@@ -244,7 +266,7 @@ export function useGame(): GameApi {
     lastDayResult, selectedDungeon, selectedReport, dungeonDetail, reportDetail,
     loading, toasts, busy, error,
     setSelectedDungeon, setSelectedReport, pushToast, dismissToast,
-    act, endDay, newGame, resetGame, returnToPlay, gotoStart,
+    act, endDay, newGame, loadSaveSlot, resetGame, returnToPlay, gotoStart,
   } as GameApi
 }
 

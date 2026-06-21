@@ -65,8 +65,8 @@ export function ShopPanel(props: {
   }
 
   return (
-    <div className="shopLayout">
-      <section className="panel shopCol">
+    <div className="shopLayout" data-guide-id="shop-panel">
+      <section className="panel shopCol" data-guide-id="shop-buy">
         <div className="panel__head">
           <h2>🪙 集市 · 商店</h2>
           <span className="goldPill">🪙 {num(props.gold)}</span>
@@ -177,7 +177,7 @@ export function ShopPanel(props: {
         </div>
       </section>
 
-      <section className="panel shopCol">
+      <section className="panel shopCol" data-guide-id="shop-inventory">
         <div className="panel__head">
           <h2>🎒 我的背包</h2>
           <Chip icon="📦" tone="muted">{props.inventory.length} 件</Chip>

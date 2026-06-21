@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { GameStateView, QuestListView, QuestView, QuestStatus, QuestType } from '../../types/game'
 import { Chip } from '../Chips'
+import { EquipmentHover } from '../EquipmentTooltip'
 import { materialIcon, materialName } from '../../theme'
 import { cx, num } from '../../lib/format'
 
@@ -20,6 +21,8 @@ export function QuestsPanel(props: {
   state: GameStateView
   quests: QuestListView
   onAccept: (id: string) => void
+  onCompleteObjective: (questId: string, objectiveId: string) => void
+  onStartGuide?: (quest: QuestView) => void
   onClaim: (id: string) => void
   onAbandon: (id: string) => void
   busy: boolean
@@ -54,7 +57,7 @@ export function QuestsPanel(props: {
   const isHistoryTab = tab === 'completed' || tab === 'expired'
 
   return (
-    <div className="questsLayout">
+    <div className="questsLayout" data-guide-id="quests-panel">
       <section className="panel">
         <div className="panel__head">
           <h2>📜 委托任务</h2>
@@ -68,7 +71,7 @@ export function QuestsPanel(props: {
           主线与支线构成固定剧情链；日常委托每日刷新、需手动接受；隐藏任务满足条件后才会显现。点击任务卡片可查看详情。
         </p>
 
-        <div className="questTabs" role="tablist">
+        <div className="questTabs" role="tablist" data-guide-id="quest-tabs">
           {TABS.map(t => (
             <button key={t.id} role="tab" aria-selected={tab === t.id}
               className={cx('questTab', tab === t.id && 'is-active')}
@@ -110,7 +113,7 @@ export function QuestsPanel(props: {
             ))}
           </div>
         ) : (
-          <div className="questList">
+          <div className="questList" data-guide-id="quest-list">
             {visible.map(q => (
               <QuestCard key={q.id} q={q} day={state.day} busy={props.busy}
                 onOpen={setDetailId} onAccept={props.onAccept} onClaim={props.onClaim} onAbandon={props.onAbandon} />
@@ -126,6 +129,11 @@ export function QuestsPanel(props: {
           busy={props.busy}
           onClose={() => setDetailId(null)}
           onAccept={props.onAccept}
+          onCompleteObjective={props.onCompleteObjective}
+          onStartGuide={q => {
+            setDetailId(null)
+            props.onStartGuide?.(q)
+          }}
           onClaim={props.onClaim}
           onAbandon={props.onAbandon}
         />
@@ -148,7 +156,7 @@ function QuestCard(props: {
   const expiring = q.type === 'daily' && q.status !== 'claimed' && q.expires_day != null && q.expires_day <= day
 
   return (
-    <article className="questCard" style={{ '--accent': accent } as CSSProperties}>
+    <article className="questCard" style={{ '--accent': accent } as CSSProperties} data-guide-id={`quest-card-${q.template_id}`}>
       <button type="button" className="questCard__main" onClick={() => props.onOpen(q.id)}>
         <header className="questCard__head">
           <b>{q.title}</b>
@@ -173,10 +181,10 @@ function QuestCard(props: {
       </button>
       <div className="questCard__actions">
         {q.status === 'available' && props.onAccept && (
-          <button className="btn btn--accent btn--sm" disabled={props.busy} onClick={() => props.onAccept?.(q.id)}>接受任务</button>
+          <button className="btn btn--accent btn--sm" data-guide-id={`quest-accept-${q.template_id}`} disabled={props.busy} onClick={() => props.onAccept?.(q.id)}>接受任务</button>
         )}
         {q.status === 'completed' && props.onClaim && (
-          <button className="btn btn--accent btn--sm" disabled={props.busy} onClick={() => props.onClaim?.(q.id)}>🎁 领取奖励</button>
+          <button className="btn btn--accent btn--sm" data-guide-id={`quest-claim-${q.template_id}`} disabled={props.busy} onClick={() => props.onClaim?.(q.id)}>🎁 领取奖励</button>
         )}
         {q.status === 'active' && props.onAbandon && (
           <button className="btn btn--ghost btn--sm" disabled={props.busy} onClick={() => props.onAbandon?.(q.id)}>
@@ -196,6 +204,8 @@ function QuestDetail(props: {
   busy: boolean
   onClose: () => void
   onAccept?: (id: string) => void
+  onCompleteObjective?: (questId: string, objectiveId: string) => void
+  onStartGuide?: (quest: QuestView) => void
   onClaim?: (id: string) => void
   onAbandon?: (id: string) => void
 }) {
@@ -227,6 +237,53 @@ function QuestDetail(props: {
         <div className="questSheet__body">
           {q.description && <p className="questSheet__desc">{q.description}</p>}
 
+          {(q.dialogue?.length ?? 0) > 0 && (
+            <>
+              <h4>剧情对话</h4>
+              <div className="questDialogue">
+                {q.dialogue!.map((line, i) => (
+                  <div className="questDialogue__line" key={i}>
+                    <b>{line.speaker}</b>
+                    <span>{line.text}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {(q.guide_sections?.length ?? 0) > 0 && (
+            <>
+              <div className="questGuideTitleRow">
+                <h4>学院导览</h4>
+                {(q.guide_steps?.length ?? 0) > 0 && props.onStartGuide && (
+                  <button
+                    className="btn btn--accent btn--sm"
+                    data-guide-id={`quest-start-guide-${q.template_id}`}
+                    disabled={props.busy}
+                    title={q.status === 'active' ? '启动聚焦高亮与引导点击；完成后会标记教学目标' : '启动聚焦高亮与引导点击；仅进行中的手动目标会自动完成'}
+                    onClick={() => props.onStartGuide?.(q)}
+                  >
+                    🎓 开始交互导览
+                  </button>
+                )}
+              </div>
+              <div className="questGuideGrid">
+                {q.guide_sections!.map((g, i) => (
+                  <section className="questGuide" key={i}>
+                    <div className="questGuide__head">
+                      <b>{g.title}</b>
+                      {g.nav_hint && <span>{g.nav_hint}</span>}
+                    </div>
+                    {g.body && <p>{g.body}</p>}
+                    {(g.bullets?.length ?? 0) > 0 && (
+                      <ul>{g.bullets!.map((b, bi) => <li key={bi}>{b}</li>)}</ul>
+                    )}
+                  </section>
+                ))}
+              </div>
+            </>
+          )}
+
           <div className="questSheet__meta">
             <MetaRow label="创建" value={dayLabel(q.created_day)} />
             <MetaRow label="接受" value={dayLabel(q.accepted_day)} />
@@ -242,6 +299,11 @@ function QuestDetail(props: {
                 <span className="questObj__check">{o.completed ? '✔' : '○'}</span>
                 <span className="questObj__label">{o.label}</span>
                 <span className="questObj__count">{Math.min(o.current, o.required)}/{o.required}</span>
+                {q.status === 'active' && o.kind === 'manual_ack' && !o.completed && props.onCompleteObjective && (
+                  <button className="btn btn--accent btn--sm questObj__action" data-guide-id={`quest-manual-ack-${o.id}`} disabled={props.busy} onClick={() => props.onCompleteObjective?.(q.id, o.id)}>
+                    标记已读
+                  </button>
+                )}
               </li>
             ))}
           </ul>
@@ -304,7 +366,8 @@ function FilterBtn(props: { active: boolean; onClick: () => void; children: Reac
 
 function RewardLine({ q, compact }: { q: QuestView; compact?: boolean }) {
   const r = q.rewards
-  if (!r.gold && !r.exp && Object.keys(r.materials || {}).length === 0) {
+  const equipment = r.equipment ?? []
+  if (!r.gold && !r.exp && Object.keys(r.materials || {}).length === 0 && equipment.length === 0) {
     return <p className="muted questCard__rewards">奖励：无</p>
   }
   return (
@@ -315,6 +378,10 @@ function RewardLine({ q, compact }: { q: QuestView; compact?: boolean }) {
       {Object.entries(r.materials || {}).map(([k, v]) => v > 0 && (
         <span className="rewardPill" key={k}>{materialIcon(k)} {materialName(k)} ×{v}</span>
       ))}
+      {equipment.map((e, i) => {
+        const pill = <span className="rewardPill" key={`${e.id}-${i}`}>🎖️ {e.name}</span>
+        return e.preview ? <EquipmentHover key={`${e.id}-${i}`} item={e.preview}>{pill}</EquipmentHover> : pill
+      })}
     </div>
   )
 }
@@ -384,6 +451,7 @@ function dayLabel(day: number | null): string {
 }
 
 function chainLabel(chainId: string): string {
+  if (chainId === 'delta_tactical_academy') return '德尔塔战术学院'
   if (chainId === 'main_campaign') return '主线战役'
   if (chainId === 'local_contracts') return '本地委托'
   return chainId

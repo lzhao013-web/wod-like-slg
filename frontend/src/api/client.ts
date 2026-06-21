@@ -1,4 +1,4 @@
-import type { DungeonCardView, DungeonDetailView, GamePresetView, GameStateView, PartyView, PlanAction, QuestListView, RecruitsView, ReportView, ShopView } from '../types/game'
+import type { DungeonCardView, DungeonDetailView, GamePresetView, GameStateView, PartyView, PlanAction, QuestListView, RecruitsView, ReportView, SaveSlotListView, SaveSlotView, ShopView } from '../types/game'
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(url, {
@@ -21,6 +21,10 @@ export const api = {
   preset: () => request<GamePresetView>('/game/preset'),
   presets: () => request<{ active_preset_id: string; presets: Array<{ id: string; name: string; description?: string; path?: string; active?: boolean }> }>('/game/presets'),
   newGame: (seed?: number) => request<GameStateView>('/game/new', { method: 'POST', body: JSON.stringify({ seed }) }),
+  saveSlots: () => request<SaveSlotListView>('/game/saves'),
+  saveToSlot: (slot_id: string) => request<{ ok: boolean; slot: SaveSlotView; saves: SaveSlotListView }>(`/game/saves/${slot_id}/save`, { method: 'POST' }),
+  loadFromSlot: (slot_id: string) => request<{ ok: boolean; state: GameStateView; saves: SaveSlotListView }>(`/game/saves/${slot_id}/load`, { method: 'POST' }),
+  deleteSaveSlot: (slot_id: string) => request<{ ok: boolean; saves: SaveSlotListView }>(`/game/saves/${slot_id}`, { method: 'DELETE' }),
   endDay: () => request<{ reports: ReportView[]; state: GameStateView }>('/game/end-day', { method: 'POST' }),
   dungeons: () => request<DungeonCardView[]>('/dungeons'),
   dungeon: (id: string) => request<DungeonDetailView>(`/dungeons/${id}`),
@@ -57,6 +61,7 @@ export const api = {
   dismiss: (character_id: string) => request<{ ok: boolean; result: any; state: GameStateView; party: PartyView }>('/recruits/dismiss', { method: 'POST', body: JSON.stringify({ character_id }) }),
   quests: () => request<QuestListView>('/quests'),
   acceptQuest: (quest_id: string) => request<{ ok: boolean; quests: QuestListView; state: GameStateView }>(`/quests/${quest_id}/accept`, { method: 'POST' }),
+  completeQuestObjective: (quest_id: string, objective_id: string) => request<{ ok: boolean; quest: any; quests: QuestListView; state: GameStateView }>(`/quests/${quest_id}/objectives/${objective_id}/complete`, { method: 'POST' }),
   claimQuest: (quest_id: string) => request<{ ok: boolean; quest: any; quests: QuestListView; state: GameStateView }>(`/quests/${quest_id}/claim`, { method: 'POST' }),
   abandonQuest: (quest_id: string) => request<{ ok: boolean; quests: QuestListView; state: GameStateView }>(`/quests/${quest_id}/abandon`, { method: 'POST' }),
   debugState: () => request<any>('/debug/state'),

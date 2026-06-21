@@ -894,5 +894,298 @@
         "attack_type": "special"
       }
     ]
+  },
+  {
+    "id": "delta_training_dummy",
+    "name": "学院训练靶",
+    "tags": [
+      "construct",
+      "training"
+    ],
+    "stats": {
+      "max_hp": 36,
+      "attack": 6,
+      "defense": 2,
+      "speed": 4,
+      "accuracy": 72,
+      "evasion": 0
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 100,
+      "magic": 0,
+      "curse": 40,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "木臂挥击",
+        "power": 2,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "delta_sparring_drone",
+    "name": "机动训练无人机",
+    "tags": [
+      "construct",
+      "ranged",
+      "training"
+    ],
+    "stats": {
+      "max_hp": 34,
+      "attack": 7,
+      "defense": 1,
+      "speed": 10,
+      "accuracy": 82,
+      "evasion": 12
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 100,
+      "magic": 0,
+      "curse": 30,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "低功率点射",
+        "power": 3,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 4,
+        "target_rule": "rear",
+        "status_effects": [],
+        "attack_type": "ranged"
+      }
+    ]
+  },
+  {
+    "id": "delta_armor_dummy",
+    "name": "装甲训练傀儡",
+    "tags": [
+      "construct",
+      "armored",
+      "training"
+    ],
+    "stats": {
+      "max_hp": 74,
+      "attack": 7,
+      "defense": 14,
+      "speed": 3,
+      "accuracy": 74,
+      "evasion": 0
+    },
+    "resistances": {
+      "physical": 20,
+      "poison": 100,
+      "magic": -10,
+      "curse": 20,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "沉重推击",
+        "power": 4,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 0,
+        "target_rule": "front",
+        "status_effects": [
+          {
+            "type": "armor_break",
+            "duration": 2,
+            "potency": 3,
+            "chance": 0.25
+          }
+        ],
+        "attack_type": "melee"
+      }
+    ]
+  },
+  {
+    "id": "delta_backline_drone",
+    "name": "后排威胁靶机",
+    "tags": [
+      "construct",
+      "ranged",
+      "training"
+    ],
+    "stats": {
+      "max_hp": 46,
+      "attack": 11,
+      "defense": 2,
+      "speed": 12,
+      "accuracy": 88,
+      "evasion": 16
+    },
+    "resistances": {
+      "physical": 0,
+      "poison": 100,
+      "magic": 0,
+      "curse": 20,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "后排锁定",
+        "power": 6,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 8,
+        "target_rule": "rear",
+        "status_effects": [
+          {
+            "type": "marked",
+            "duration": 2,
+            "potency": 8,
+            "chance": 0.45
+          }
+        ],
+        "attack_type": "ranged"
+      }
+    ]
+  },
+  {
+    "id": "delta_mixed_drone",
+    "name": "混合威胁训练体",
+    "tags": [
+      "construct",
+      "caster",
+      "training"
+    ],
+    "stats": {
+      "max_hp": 58,
+      "attack": 10,
+      "defense": 4,
+      "speed": 8,
+      "accuracy": 82,
+      "evasion": 6
+    },
+    "resistances": {
+      "physical": 5,
+      "poison": 100,
+      "magic": 5,
+      "curse": 20,
+      "fire": -8,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "模拟元素波",
+        "power": 6,
+        "damage_types": [
+          "magic",
+          "fire"
+        ],
+        "accuracy_modifier": 4,
+        "target_rule": "all_front",
+        "status_effects": [
+          {
+            "type": "burn",
+            "duration": 2,
+            "potency": 4,
+            "chance": 0.35
+          }
+        ],
+        "attack_type": "magic"
+      }
+    ]
+  },
+  {
+    "id": "delta_sigma_boss",
+    "name": "战术傀儡·Σ",
+    "tags": [
+      "construct",
+      "boss",
+      "training",
+      "armored"
+    ],
+    "stats": {
+      "max_hp": 150,
+      "attack": 15,
+      "defense": 8,
+      "speed": 8,
+      "accuracy": 86,
+      "evasion": 8
+    },
+    "resistances": {
+      "physical": 8,
+      "poison": 100,
+      "magic": 8,
+      "curse": 25,
+      "fire": 0,
+      "bleed": 100
+    },
+    "skills": [
+      {
+        "name": "战术压制",
+        "power": 8,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 4,
+        "target_rule": "highest_attack",
+        "status_effects": [
+          {
+            "type": "slow",
+            "duration": 2,
+            "potency": 4,
+            "chance": 0.45
+          }
+        ],
+        "attack_type": "melee"
+      },
+      {
+        "name": "后排校准射击",
+        "power": 8,
+        "damage_types": [
+          "physical"
+        ],
+        "accuracy_modifier": 8,
+        "target_rule": "rear",
+        "status_effects": [
+          {
+            "type": "marked",
+            "duration": 2,
+            "potency": 8,
+            "chance": 0.5
+          }
+        ],
+        "attack_type": "ranged"
+      },
+      {
+        "name": "矩阵震荡",
+        "power": 7,
+        "damage_types": [
+          "magic"
+        ],
+        "accuracy_modifier": 5,
+        "target_rule": "all",
+        "status_effects": [
+          {
+            "type": "vulnerable",
+            "duration": 2,
+            "potency": 8,
+            "chance": 0.35
+          }
+        ],
+        "attack_type": "magic"
+      }
+    ]
   }
 ]

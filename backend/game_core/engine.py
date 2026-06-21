@@ -90,12 +90,14 @@ QUEST_OBJ_CLEAR_UNSCOUTED = "clear_unscouted_dungeon"
 QUEST_OBJ_SCOUT_DUNGEON = "scout_dungeon"
 QUEST_OBJ_SCOUT_ANY = "scout_any_dungeon"
 QUEST_OBJ_CLEAR_TWO_ONE_DAY = "clear_two_dungeons_one_day"
+QUEST_OBJ_MANUAL_ACK = "manual_ack"
 QUEST_OBJECTIVE_KINDS = [
     QUEST_OBJ_CLEAR_DUNGEON,
     QUEST_OBJ_CLEAR_UNSCOUTED,
     QUEST_OBJ_SCOUT_DUNGEON,
     QUEST_OBJ_SCOUT_ANY,
     QUEST_OBJ_CLEAR_TWO_ONE_DAY,
+    QUEST_OBJ_MANUAL_ACK,
 ]
 # Reveal-condition evaluators supported in quest template `reveal_conditions`.
 QUEST_COND_ALWAYS_TRUE = "always_true"
@@ -2004,11 +2006,79 @@ def _resolve_rewards(rewards_tpl: dict[str, Any], rng: random.Random | None = No
     """Resolve a reward template into concrete values (daily gold is randomized)."""
     rewards = copy.deepcopy(rewards_tpl or {})
     rewards.setdefault("gold", 0)
+    rewards.setdefault("exp", 0)
     rewards.setdefault("materials", {})
     rewards.setdefault("flags", {})
+    rewards.setdefault("equipment", [])
     if rng is not None and isinstance(rewards.get("gold"), dict):
         rewards["gold"] = _resolve_daily_gold(rng, rewards)
     return rewards
+
+
+def _equipment_reward_id(spec: Any) -> str:
+    if isinstance(spec, str):
+        return spec
+    if isinstance(spec, dict):
+        return str(spec.get("id") or spec.get("equipment_id") or spec.get("template_id") or "")
+    return ""
+
+
+def _instantiate_equipment_reward(
+    spec: Any,
+    *,
+    rng: random.Random | None = None,
+    level: int = 1,
+    instance_id: str | None = None,
+) -> dict[str, Any] | None:
+    """Instantiate one data-driven equipment reward/drop spec.
+
+    Reusable spec forms:
+      - "equipment_id"
+      - {"id": "equipment_id", "rarity": "rare", "level": 3}
+    Unknown ids are ignored by callers, letting custom presets omit optional
+    drops without crashing a run.
+    """
+    equipment_id = _equipment_reward_id(spec)
+    if not equipment_id or equipment_id not in load_data().get("equipment_by_id", {}):
+        return None
+    rarity = str(spec.get("rarity")) if isinstance(spec, dict) and spec.get("rarity") else None
+    reward_level = int(spec.get("level", level)) if isinstance(spec, dict) else level
+    return instance_equipment(equipment_id, instance_id=instance_id, rng=rng, level=reward_level, rarity=rarity)
+
+
+def _equipment_reward_public_view(spec: Any, index: int = 0) -> dict[str, Any] | None:
+    equipment_id = _equipment_reward_id(spec)
+    tpl = load_data().get("equipment_by_id", {}).get(equipment_id)
+    if not tpl:
+        return None
+    rarity = str(spec.get("rarity")) if isinstance(spec, dict) and spec.get("rarity") else None
+    level = int(spec.get("level", tpl.get("tier", 1))) if isinstance(spec, dict) else int(tpl.get("tier", 1))
+    rng = random.Random(stable_seed("equipment_reward_preview", equipment_id, str(rarity or ""), str(level), str(index)))
+    preview = _instantiate_equipment_reward(spec, rng=rng, level=level, instance_id=f"preview_{equipment_id}_{index}")
+    return {
+        "id": equipment_id,
+        "name": tpl.get("name", equipment_id),
+        "rarity": rarity or tpl.get("rarity", "common"),
+        "preview": preview,
+    }
+
+
+def grant_equipment_rewards(
+    state: dict[str, Any],
+    specs: list[Any],
+    *,
+    rng: random.Random | None = None,
+    level: int = 1,
+) -> list[dict[str, Any]]:
+    """Grant a list of fixed equipment rewards/drops and return public snapshots."""
+    granted: list[dict[str, Any]] = []
+    for spec in specs or []:
+        eq = _instantiate_equipment_reward(spec, rng=rng, level=level)
+        if not eq:
+            continue
+        state.setdefault("inventory", []).append(eq)
+        granted.append({"name": eq["name"], "item": copy.deepcopy(eq)})
+    return granted
 
 
 def _quest_status_label(status: str) -> str:
@@ -2033,6 +2103,9 @@ def instantiate_story_quest(state: dict[str, Any], template: dict[str, Any]) -> 
         "objectives": objectives,
         "rewards": _resolve_rewards(template.get("rewards")),
         "next_quests": list(template.get("next_quests", [])),
+        "guide_sections": copy.deepcopy(template.get("guide_sections", [])),
+        "guide_steps": copy.deepcopy(template.get("guide_steps", [])),
+        "dialogue": copy.deepcopy(template.get("dialogue", [])),
         "auto_reveal_on_complete": bool(template.get("auto_reveal_on_complete", False)),
         "revealed_from_hidden": False,
         "sort": int(template.get("sort", 0)),
@@ -2059,6 +2132,9 @@ def instantiate_daily_quest(state: dict[str, Any], template: dict[str, Any], rng
         "objectives": objectives,
         "rewards": _resolve_rewards(template.get("rewards"), rng=rng),
         "next_quests": [],
+        "guide_sections": copy.deepcopy(template.get("guide_sections", [])),
+        "guide_steps": copy.deepcopy(template.get("guide_steps", [])),
+        "dialogue": copy.deepcopy(template.get("dialogue", [])),
         "auto_reveal_on_complete": False,
         "revealed_from_hidden": False,
         "sort": 0,
@@ -2112,6 +2188,7 @@ def normalize_quest_instances(state: dict[str, Any]) -> None:
         if not isinstance(q, dict):
             continue
         q.setdefault("template_id", q.get("id", ""))
+        template = quest_template_by_id(q.get("template_id", "")) or {}
         q.setdefault("type", QUEST_TYPE_STORY)
         q.setdefault("story_kind", "")
         q.setdefault("chain_id", "")
@@ -2119,6 +2196,15 @@ def normalize_quest_instances(state: dict[str, Any]) -> None:
         q.setdefault("accepted_day", None)
         q.setdefault("expires_day", None)
         q.setdefault("next_quests", [])
+        q.setdefault("guide_sections", [])
+        q.setdefault("guide_steps", [])
+        q.setdefault("dialogue", [])
+        if not q.get("guide_sections") and template.get("guide_sections"):
+            q["guide_sections"] = copy.deepcopy(template.get("guide_sections", []))
+        if not q.get("guide_steps") and template.get("guide_steps"):
+            q["guide_steps"] = copy.deepcopy(template.get("guide_steps", []))
+        if not q.get("dialogue") and template.get("dialogue"):
+            q["dialogue"] = copy.deepcopy(template.get("dialogue", []))
         q.setdefault("auto_reveal_on_complete", False)
         q.setdefault("revealed_from_hidden", False)
         q.setdefault("sort", 0)
@@ -2237,6 +2323,29 @@ def accept_quest(state: dict[str, Any], quest_id: str) -> dict[str, Any]:
         spawn_quest_dungeon(state, quest, spawn_tpl)
     # Reveal the next batch of hidden quests that may have become eligible.
     check_hidden_reveals(state)
+    return quest
+
+
+def complete_manual_quest_objective(state: dict[str, Any], quest_id: str, objective_id: str) -> dict[str, Any]:
+    """Mark a reusable manual acknowledgement objective as complete.
+
+    This powers tutorial/read-only story steps without hard-coding a specific
+    UI flow. Presets can use objective kind `manual_ack` for any quest that
+    should complete after the player confirms they read a guide or dialogue.
+    """
+    quest = _get_quest(state, quest_id)
+    if not quest:
+        raise ValueError("任务不存在")
+    if quest.get("status") != "active":
+        raise ValueError("任务尚未进行，无法完成教学目标")
+    obj = next((o for o in quest.get("objectives", []) if o.get("id") == objective_id), None)
+    if not obj:
+        raise ValueError("任务目标不存在")
+    if obj.get("kind") != QUEST_OBJ_MANUAL_ACK:
+        raise ValueError("此目标不能手动标记完成")
+    obj["current"] = int(obj.get("required", 1))
+    obj["completed"] = True
+    _finalize_quest_status(state, quest)
     return quest
 
 
@@ -2406,6 +2515,14 @@ def claim_quest(state: dict[str, Any], quest_id: str) -> dict[str, Any]:
             gain_exp(ch, exp_reward)
     for flag, value in (rewards.get("flags", {}) or {}).items():
         state.setdefault("quest_flags", {})[flag] = value
+    granted_equipment = grant_equipment_rewards(
+        state,
+        list(rewards.get("equipment", []) or []),
+        rng=random.Random(stable_seed(state.get("run_seed", 0), "quest_equipment", quest_id)),
+        level=int(state.get("day", 1)),
+    )
+    if granted_equipment:
+        rewards["granted_equipment"] = granted_equipment
     quest["status"] = "claimed"
     quest["claimed_day"] = state.get("day", 1)
     stats = state.setdefault("quest_stats", default_quest_stats())
@@ -2449,6 +2566,10 @@ def _quest_public_view(quest: dict[str, Any]) -> dict[str, Any]:
             "completed": bool(obj.get("completed", False)),
         })
     rewards = quest.get("rewards", {}) or {}
+    equipment_rewards = [
+        row for row in (_equipment_reward_public_view(spec, idx) for idx, spec in enumerate(rewards.get("equipment", []) or []))
+        if row
+    ]
     return {
         "id": quest.get("id"),
         "template_id": quest.get("template_id"),
@@ -2471,8 +2592,12 @@ def _quest_public_view(quest: dict[str, Any]) -> dict[str, Any]:
             "exp": int(rewards.get("exp", 0)),
             "materials": rewards.get("materials", {}),
             "flags": rewards.get("flags", {}),
+            "equipment": equipment_rewards,
         },
         "next_quests": list(quest.get("next_quests", [])),
+        "guide_sections": copy.deepcopy(quest.get("guide_sections", [])),
+        "guide_steps": copy.deepcopy(quest.get("guide_steps", [])),
+        "dialogue": copy.deepcopy(quest.get("dialogue", [])),
         "revealed_from_hidden": bool(quest.get("revealed_from_hidden", False)),
         "linked_dungeon_ids": list(quest.get("linked_dungeon_ids", [])),
         "sort": int(quest.get("sort", 0)),
@@ -3404,6 +3529,10 @@ def apply_layer_tactics_to_party(state: dict[str, Any], party: list[Combatant], 
         tactics = effective_tactics_for_layer(state, ch, layer_index)
         if ch["id"] in saved_rows:
             applied.append(unit.get("name", unit.get("id", "")))
+            unit["_layer_tactic_applied"] = True
+        else:
+            unit["_layer_tactic_applied"] = False
+        unit["_layer_index"] = int(layer_key)
         stats = effective_stats_with_tactics(state, ch, tactics)
         unit["tactics"] = copy.deepcopy(tactics)
         unit["speed"] = int(stats.get("speed", unit.get("speed", 0)))
@@ -5586,6 +5715,80 @@ def should_retreat(state: dict[str, Any], party: list[Combatant], report: dict[s
     return None
 
 
+def _unit_matches_tactic_check(unit: Combatant, check: dict[str, Any]) -> bool:
+    if unit.get("side") != "party":
+        return False
+    class_filter = check.get("class_id") or check.get("class_ids")
+    if class_filter:
+        allowed = [class_filter] if isinstance(class_filter, str) else list(class_filter)
+        if not class_matches_restriction(unit.get("class_id"), allowed):
+            return False
+    character_id = check.get("character_id")
+    if character_id and unit.get("id") != character_id:
+        return False
+    if check.get("layer_override") and not unit.get("_layer_tactic_applied"):
+        return False
+
+    tactics = unit.get("tactics", {}) if isinstance(unit.get("tactics"), dict) else {}
+    field = str(check.get("field", ""))
+    expected = check.get("equals", check.get("value"))
+    one_of = check.get("one_of")
+    contains = check.get("contains")
+
+    if field == "target_priority":
+        if isinstance(one_of, list):
+            return str(tactics.get("target_priority", "")) in {str(x) for x in one_of}
+        return str(tactics.get("target_priority", "")) == str(expected)
+    if field == "initiative_skill":
+        if isinstance(one_of, list):
+            return str(tactics.get("initiative_skill", "")) in {str(x) for x in one_of}
+        return str(tactics.get("initiative_skill", "")) == str(expected)
+    if field in {"skill_priority", "opening_skill_priority"}:
+        values = [str(x) for x in tactics.get(field, []) if x]
+        if contains is not None:
+            return str(contains) in values
+        if expected is not None:
+            return bool(values) and values[0] == str(expected)
+        return bool(values)
+    if field == "defense_skill_by_type":
+        trigger = str(check.get("trigger") or "")
+        defense = tactics.get("defense_skill_by_type", {}) if isinstance(tactics.get("defense_skill_by_type"), dict) else {}
+        if isinstance(one_of, list):
+            return bool(trigger) and str(defense.get(trigger, "")) in {str(x) for x in one_of}
+        return bool(trigger) and str(defense.get(trigger, "")) == str(expected)
+    if field == "consumable_priority":
+        values = tactics.get("consumable_priority", []) if isinstance(tactics.get("consumable_priority"), list) else []
+        if contains is None and expected is not None:
+            contains = expected
+        return any(str(row.get("consumable_id", "")) == str(contains) for row in values if isinstance(row, dict))
+    return False
+
+
+def evaluate_layer_tactic_requirements(layer: dict[str, Any], party: list[Combatant]) -> list[str]:
+    """Return unmet data-driven tactic requirements for a dungeon layer.
+
+    A layer can declare `tactic_requirements` with reusable checks against the
+    effective tactics active on that layer. Each requirement passes when all of
+    its `checks` are satisfied by at least one matching party member.
+    """
+    failures: list[str] = []
+    for req in layer.get("tactic_requirements", []) or []:
+        if not isinstance(req, dict):
+            continue
+        checks = req.get("checks") if isinstance(req.get("checks"), list) else [req]
+        ok = True
+        for check in checks:
+            if not isinstance(check, dict):
+                ok = False
+                break
+            if not any(_unit_matches_tactic_check(unit, check) for unit in party):
+                ok = False
+                break
+        if not ok:
+            failures.append(str(req.get("failure") or req.get("label") or "未满足本层战术要求"))
+    return failures
+
+
 def resolve_layer(state: dict[str, Any], dungeon: dict[str, Any], layer: dict[str, Any], layer_index: int, party: list[Combatant], rng: random.Random, report: dict[str, Any]) -> dict[str, Any]:
     logs: list[str] = []
     pre_events: list[dict[str, Any]] = []
@@ -5654,6 +5857,50 @@ def resolve_layer(state: dict[str, Any], dungeon: dict[str, Any], layer: dict[st
     enemies = make_enemy_combatants(enemy_ids, affix_mechanics, layer_index)
     register_unit_names(report, party)
     register_unit_names(report, enemies)
+    tactic_failures = evaluate_layer_tactic_requirements(layer, party)
+    if tactic_failures:
+        text = f"教官终止第 {layer_index} 层演训：{tactic_failures[0]}"
+        logs.append(text)
+        for failure in tactic_failures:
+            if failure not in report.setdefault("failure_reasons", []):
+                report["failure_reasons"].append(failure)
+            mechanic = f"第 {layer_index} 层战术要求：{failure}"
+            if mechanic not in report.setdefault("revealed_mechanics", []):
+                report["revealed_mechanics"].append(mechanic)
+        add_critical_event(report, text)
+        pre_events.append({
+            "type": "tactic_requirement_failed",
+            "text": text,
+            "layer": layer_index,
+            "failures": tactic_failures,
+            "party": lineup_snapshot(party),
+            "enemies": lineup_snapshot(enemies),
+        })
+        zero_stats: dict[str, int] = {}
+        return {
+            "index": layer_index,
+            "name": layer.get("name", f"第 {layer_index} 层"),
+            "type": layer.get("type", "battle"),
+            "result": "retreated",
+            "rounds": 0,
+            "entry_party": entry_party,
+            "party_start": lineup_snapshot(party),
+            "enemy_start": lineup_snapshot(enemies),
+            "party_end": lineup_snapshot(party),
+            "enemy_end": lineup_snapshot(enemies),
+            "pre_events": pre_events,
+            "round_details": [],
+            "party_hp": {u["name"]: hp_text(u) for u in party},
+            "enemy_hp": {u["name"]: hp_text(u) for u in enemies},
+            "enemy_remaining": [u["name"] for u in alive(enemies)],
+            "damage_done": zero_stats,
+            "damage_taken": zero_stats,
+            "healing_done": zero_stats,
+            "damage_by_type": zero_stats,
+            "status_stats": zero_stats,
+            "misses": zero_stats,
+            "key_logs": logs[:80],
+        }
     report["current_party"] = party
     report["_event_sink"] = pre_events
     record_initiative_skill_events(party, logs, report)
@@ -5903,6 +6150,13 @@ def apply_rewards_for_report(state: dict[str, Any], dungeon: dict[str, Any], tem
         ch = get_character(state, unit["id"])
         if ch:
             gain_exp(ch, exp)
+    if success and base.get("guaranteed_equipment") and dungeon.get("reward_charges", 0) > 0:
+        report["rewards"]["equipment"].extend(grant_equipment_rewards(
+            state,
+            list(base.get("guaranteed_equipment", []) or []),
+            rng=rng,
+            level=equipment_drop_level(state, dungeon),
+        ))
     if success and base.get("equipment_pool") and dungeon.get("reward_charges", 0) > 0 and rng.random() < 0.75:
         eq_id = rng.choice(base["equipment_pool"])
         eq = instance_equipment(eq_id, rng=rng, level=equipment_drop_level(state, dungeon))

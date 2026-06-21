@@ -16,8 +16,8 @@ export function OverviewPanel(props: {
   const { state } = props
   const activeFinal = props.dungeons.find(d => d.is_final)
   return (
-    <div className="panelGrid">
-      <section className="panel panel--vibe">
+    <div className="panelGrid" data-guide-id="overview-panel">
+      <section className="panel panel--vibe" data-guide-id="overview-situation">
         <div className="panel__head"><h2>🗺️ 今日局势</h2><span className="muted">第 {state.day} 天</span></div>
         <div className="overviewMetrics">
           <Metric icon="🪙" label="金币" value={num(state.gold)} />
@@ -64,7 +64,7 @@ export function OverviewPanel(props: {
         )}
       </section>
 
-      <section className="panel">
+      <section className="panel" data-guide-id="overview-targets">
         <div className="panel__head"><h2>⚔️ 可选目标</h2><span className="muted">{props.dungeons.length} 个</span></div>
         <div className="dungeonRail">
           {props.dungeons.slice(0, 4).map(d => (

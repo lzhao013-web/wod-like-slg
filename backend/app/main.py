@@ -63,6 +63,26 @@ def load_game():
     return game_service.load()
 
 
+@app.get("/game/saves")
+def save_slots():
+    return game_service.save_slots()
+
+
+@app.post("/game/saves/{slot_id}/save")
+def save_to_slot(slot_id: str):
+    return call(game_service.save_to_slot, slot_id)
+
+
+@app.post("/game/saves/{slot_id}/load")
+def load_from_slot(slot_id: str):
+    return call(game_service.load_from_slot, slot_id)
+
+
+@app.delete("/game/saves/{slot_id}")
+def delete_save_slot_api(slot_id: str):
+    return call(game_service.delete_slot, slot_id)
+
+
 @app.post("/game/end-day")
 def end_day():
     return call(game_service.end_day)
@@ -208,6 +228,11 @@ def quests():
 @app.post("/quests/{quest_id}/accept")
 def accept_quest(quest_id: str):
     return call(game_service.accept_quest, quest_id)
+
+
+@app.post("/quests/{quest_id}/objectives/{objective_id}/complete")
+def complete_quest_objective(quest_id: str, objective_id: str):
+    return call(game_service.complete_quest_objective, quest_id, objective_id)
 
 
 @app.post("/quests/{quest_id}/claim")

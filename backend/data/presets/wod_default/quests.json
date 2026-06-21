@@ -2,6 +2,764 @@
   "note": "任务模板表。三类任务：主线/支线 story（固定剧情链，story_kind=main/side）、日常 daily（模板池随机抽取）、隐藏 hidden（条件揭示）。所有任务均需玩家手动接受。",
   "story_quests": [
     {
+      "id": "main_delta_001_orientation",
+      "type": "story",
+      "story_kind": "main",
+      "chain_id": "delta_tactical_academy",
+      "title": "德尔塔战术学院：入学报到",
+      "description": "一封署名为德尔塔战术学院的调令送到营地。学院将用三场演训补齐你作为指挥官的界面、战斗与战术基础。",
+      "start_conditions": [
+        {
+          "type": "always_true"
+        }
+      ],
+      "objectives": [
+        {
+          "id": "read_orientation",
+          "kind": "manual_ack",
+          "required": 1,
+          "label": "阅读学院入学说明与界面导览"
+        }
+      ],
+      "rewards": {
+        "gold": 30,
+        "exp": 10,
+        "materials": {
+          "skill_essence": 1
+        },
+        "equipment": [
+          "delta_cadet_badge"
+        ],
+        "flags": {
+          "delta_orientation_complete": true
+        }
+      },
+      "next_quests": [
+        "main_delta_002_basic_drill"
+      ],
+      "dialogue": [
+        {
+          "speaker": "教官岚",
+          "text": "欢迎来到德尔塔战术学院。这里不教英雄主义，只教可复盘、可复制、可胜利的流程。"
+        },
+        {
+          "speaker": "莉亚",
+          "text": "也就是说……先别急着冲进副本？"
+        },
+        {
+          "speaker": "教官岚",
+          "text": "正确。先看界面，知道情报、队伍、战术、战报和任务分别解决什么问题。"
+        }
+      ],
+      "guide_sections": [
+        {
+          "title": "指挥台",
+          "body": "总览当前天数、资源、警告与快捷入口；当你不知道下一步做什么，先看这里。",
+          "bullets": [
+            "未侦察副本、可领取任务、队伍状态都会在这里聚合。",
+            "结束当天会结算今日出征计划。"
+          ],
+          "nav_hint": "指挥台"
+        },
+        {
+          "title": "副本情报",
+          "body": "选择副本后可查看公开威胁、侦察情报、层结构、出征队伍和总方案。",
+          "bullets": [
+            "侦察能揭示层结构与建议应对。",
+            "挑战会加入今日出征计划，结算时按计划顺序执行。"
+          ],
+          "nav_hint": "副本情报"
+        },
+        {
+          "title": "队伍编成",
+          "body": "管理两支队伍、站位与装备。前排承伤，中后排输出/治疗；装备会影响有效属性。",
+          "bullets": [
+            "点击角色进入上阵格。",
+            "配装区先选角色和部位，再从右侧背包换装。"
+          ],
+          "nav_hint": "队伍编成"
+        },
+        {
+          "title": "战术计划",
+          "body": "配置默认战术、分层战术和总方案库，是通过特殊战斗的核心界面。",
+          "bullets": [
+            "目标优先级决定普通 AI 的集火方向。",
+            "技能优先级、开场技能和防御响应都可按层覆盖。"
+          ],
+          "nav_hint": "战术计划"
+        },
+        {
+          "title": "战报复盘",
+          "body": "每次侦察、挑战和休整都会留下战报。失败时先看失败原因与关键事件。",
+          "bullets": [
+            "层结果显示每层入场/离场状态。",
+            "回合详情可追踪技能、命中、伤害和异常。"
+          ],
+          "nav_hint": "战报复盘"
+        },
+        {
+          "title": "商店、附魔、酒馆、任务",
+          "body": "商店处理消耗与装备，附魔/升华改造装备，酒馆扩充队伍，任务推进剧情和奖励。",
+          "bullets": [
+            "任务链会生成专属持久副本。",
+            "特殊装备可能来自任务奖励或副本固定掉落。"
+          ],
+          "nav_hint": "委托任务"
+        }
+      ],
+      "sort": -100,
+      "guide_steps": [
+        {
+          "id": "quest_entry",
+          "title": "任务入口与任务卡",
+          "body": "这里是委托任务入口。主线、日常和隐藏任务都会在这里接取、查看目标并领取奖励。",
+          "target": "[data-guide-id=\"nav-quests\"]",
+          "placement": "right",
+          "tips": [
+            "当前任务详情里可以随时重新启动这套交互导览。"
+          ]
+        },
+        {
+          "id": "quest_tabs",
+          "title": "任务页签",
+          "body": "进行中、可接受、日常、已完成和已过期会分开归档。可领取奖励的任务会留在“进行中”页签顶部。",
+          "target": "[data-guide-id=\"quest-tabs\"]",
+          "placement": "bottom"
+        },
+        {
+          "id": "open_overview",
+          "title": "指挥台",
+          "body": "先打开指挥台。它用于查看今天的资源、风险、可选目标和最近战报。",
+          "target": "[data-guide-id=\"nav-overview\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "overview",
+            "label": "打开指挥台",
+            "advance": true
+          }
+        },
+        {
+          "id": "overview_panel",
+          "title": "今日局势总览",
+          "body": "当你不知道下一步该做什么，先看这里：金币、远征次数、可用副本和今日关注都会汇总在这个面板。",
+          "target": "[data-guide-id=\"overview-panel\"]",
+          "placement": "right"
+        },
+        {
+          "id": "hud_resources",
+          "title": "顶部资源栏",
+          "body": "顶部会固定显示天数、金币、技能精华、材料和远征次数。远征次数决定今天还能安排几次侦察或挑战。",
+          "target": "[data-guide-id=\"hud-resources\"]",
+          "placement": "bottom"
+        },
+        {
+          "id": "hud_end_day",
+          "title": "结算远征 / 结束当天",
+          "body": "安排好侦察或挑战后，用这里结算当天。没有计划时，它会作为休整按钮推进到下一天。",
+          "target": "[data-guide-id=\"hud-end-day\"]",
+          "placement": "left"
+        },
+        {
+          "id": "open_dungeons",
+          "title": "副本情报",
+          "body": "打开副本情报。普通战斗、特殊层机制和 Boss 战都从这里侦察、选择队伍并安排挑战。",
+          "target": "[data-guide-id=\"nav-dungeons\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "dungeons",
+            "label": "打开副本情报",
+            "advance": true
+          }
+        },
+        {
+          "id": "dungeon_detail",
+          "title": "副本详情与行动区",
+          "body": "左侧选择副本，右侧查看公开情报、侦察结果、风险提示，并选择出征队伍和总方案。",
+          "target": "[data-guide-id=\"dungeon-detail\"]",
+          "placement": "left",
+          "tips": [
+            "带“帮我点击”的步骤会直接触发高亮目标，适合快速走教程。"
+          ]
+        },
+        {
+          "id": "open_party",
+          "title": "队伍编成",
+          "body": "打开队伍编成。这里负责上阵、站位、配装，是战斗前的基础准备。",
+          "target": "[data-guide-id=\"nav-party\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "party",
+            "label": "打开队伍编成",
+            "advance": true
+          }
+        },
+        {
+          "id": "party_equipment",
+          "title": "站位与装备",
+          "body": "前排负责承伤，中后排负责输出、治疗和控制；装备会直接改变角色的有效属性。",
+          "target": "[data-guide-id=\"party-panel\"]",
+          "placement": "right"
+        },
+        {
+          "id": "open_tactics",
+          "title": "战术计划",
+          "body": "打开战术计划。这里配置目标优先级、开场技能、技能优先级、防御响应和分层战术。",
+          "target": "[data-guide-id=\"nav-tactics\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "tactics",
+            "label": "打开战术计划",
+            "advance": true
+          }
+        },
+        {
+          "id": "tactics_layers",
+          "title": "默认战术与分层战术",
+          "body": "默认战术作为基础；切到第 N 层后保存的覆盖，只会在对应层生效。后续特殊战斗会用它检查你是否理解战术配置。",
+          "target": "[data-guide-id=\"tactics-layer-select\"]",
+          "placement": "bottom"
+        },
+        {
+          "id": "open_reports",
+          "title": "战报复盘",
+          "body": "打开战报复盘。每次侦察、挑战和休整都会留下记录，失败时先从这里找原因。",
+          "target": "[data-guide-id=\"nav-reports\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "reports",
+            "label": "打开战报复盘",
+            "advance": true
+          }
+        },
+        {
+          "id": "reports_detail",
+          "title": "失败原因与关键事件",
+          "body": "战报会展示逐层结果、伤害/治疗统计、技能使用、机制发现和失败原因；调整战术前先看复盘。",
+          "target": "[data-guide-id=\"reports-panel\"]",
+          "placement": "right"
+        },
+        {
+          "id": "open_shop",
+          "title": "集市·商店",
+          "body": "打开商店。你可以购买装备和消耗品，也能出售或分解背包装备。",
+          "target": "[data-guide-id=\"nav-shop\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "shop",
+            "label": "打开集市·商店",
+            "advance": true
+          }
+        },
+        {
+          "id": "shop_inventory",
+          "title": "补给与背包",
+          "body": "商店、附魔、酒馆是长期养成入口；本教程会给你特殊装备，之后可在队伍编成中穿戴。",
+          "target": "[data-guide-id=\"shop-panel\"]",
+          "placement": "left"
+        },
+        {
+          "id": "return_quests",
+          "title": "委托·任务",
+          "body": "回到任务界面。完成本导览后，系统会把“阅读学院入学说明”目标标记为完成。",
+          "target": "[data-guide-id=\"nav-quests\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "quests",
+            "label": "打开委托·任务",
+            "advance": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "main_delta_002_basic_drill",
+      "type": "story",
+      "story_kind": "main",
+      "chain_id": "delta_tactical_academy",
+      "title": "德尔塔战术学院：基础演训",
+      "description": "第一场新手关卡是普通战斗。学院要求你完成一次侦察，再挑战基础演训场，并在战报中观察行动顺序、技能与掉落。",
+      "start_conditions": [
+        {
+          "type": "flag",
+          "flag": "delta_orientation_complete"
+        }
+      ],
+      "objectives": [
+        {
+          "id": "scout_basic",
+          "kind": "scout_dungeon",
+          "dungeon_template_id": "delta_basic_drill",
+          "required": 1,
+          "label": "侦察基础演训场"
+        },
+        {
+          "id": "clear_basic",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "delta_basic_drill",
+          "required": 1,
+          "label": "通关基础演训场"
+        }
+      ],
+      "rewards": {
+        "gold": 60,
+        "exp": 20,
+        "materials": {
+          "skill_essence": 2
+        },
+        "equipment": [],
+        "flags": {
+          "delta_basic_drill_complete": true
+        }
+      },
+      "next_quests": [
+        "main_delta_003_layer_matrix"
+      ],
+      "spawn_dungeon": {
+        "template_id": "delta_basic_drill",
+        "persistent": true
+      },
+      "dialogue": [
+        {
+          "speaker": "教官岚",
+          "text": "普通战斗的核心很简单：速度决定先后手，技能按战术优先级尝试，目标规则决定打谁。"
+        },
+        {
+          "speaker": "希尔",
+          "text": "那默认战术能赢吗？"
+        },
+        {
+          "speaker": "教官岚",
+          "text": "这一关可以。你要学的是侦察、挑战、结算、看战报。"
+        }
+      ],
+      "guide_sections": [
+        {
+          "title": "基本战斗逻辑",
+          "body": "进入每一层后，角色先按速度排序；开场技能先尝试释放，然后每回合按技能优先级、职业 AI 和普通攻击行动。",
+          "bullets": [
+            "命中会受到 accuracy/evasion 和状态影响。",
+            "防御会削减物理伤害，抗性会削减对应伤害类型。",
+            "治疗、净化和保护是多层副本的续航核心。"
+          ]
+        },
+        {
+          "title": "侦察与挑战",
+          "body": "先在副本页选择学院演训场并安排侦察；结算后再安排挑战。",
+          "bullets": [
+            "侦察本身消耗一次远征机会，但会提供已知层结构与建议应对。",
+            "任务专属副本不会自然过期，直到任务领取后清理。"
+          ]
+        },
+        {
+          "title": "战报复盘",
+          "body": "挑战后打开战报，查看每层结果、伤害统计、技能使用和失败原因。",
+          "bullets": [
+            "如果战斗撤退或失败，战报会给出下一次调整方向。",
+            "奖励里的特殊装备会进入背包。"
+          ]
+        }
+      ],
+      "sort": -99,
+      "guide_steps": [
+        {
+          "id": "open_dungeons",
+          "title": "副本情报",
+          "body": "基础演训的目标是走完整个侦察 → 挑战 → 战报流程。先打开副本情报。",
+          "target": "[data-guide-id=\"nav-dungeons\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "dungeons",
+            "label": "打开副本情报",
+            "advance": true
+          }
+        },
+        {
+          "id": "select_basic_drill",
+          "title": "选择任务专属副本",
+          "body": "接受任务后，学院会生成一个不会自然过期的专属副本。点击它查看详情。",
+          "target": "[data-guide-id=\"quest-dungeon-main_delta_002_basic_drill\"]",
+          "placement": "right",
+          "action": {
+            "type": "click_target",
+            "label": "选择基础演训场",
+            "advance": true
+          }
+        },
+        {
+          "id": "scout_basic_drill",
+          "title": "先安排侦察",
+          "body": "侦察会消耗一次远征机会，但能揭示层结构、敌人和建议应对。",
+          "target": "[data-guide-id=\"dungeon-scout-button\"]",
+          "placement": "top",
+          "action": {
+            "type": "click_target",
+            "label": "安排侦察",
+            "advance": true
+          },
+          "tips": [
+            "点击后记得用顶部“结算远征”执行侦察计划。"
+          ]
+        },
+        {
+          "id": "settle_scout",
+          "title": "结算当天计划",
+          "body": "侦察已经进入今日出征计划后，点击顶部按钮结算。看完侦察战报后，再回到这个副本安排挑战。",
+          "target": "[data-guide-id=\"hud-end-day\"]",
+          "placement": "left"
+        },
+        {
+          "id": "challenge_basic_drill",
+          "title": "再安排挑战",
+          "body": "侦察完成后，回到副本详情，选择队伍和总方案，然后安排挑战。基础演训默认战术即可通过。",
+          "target": "[data-guide-id=\"dungeon-challenge-button\"]",
+          "placement": "top",
+          "tips": [
+            "挑战同样会进入今日计划，需要再次结算远征。"
+          ]
+        },
+        {
+          "id": "open_reports",
+          "title": "战报复盘",
+          "body": "挑战后打开战报，观察行动顺序、技能使用、掉落和每层结果。",
+          "target": "[data-guide-id=\"nav-reports\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "reports",
+            "label": "打开战报复盘",
+            "advance": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "main_delta_003_layer_matrix",
+      "type": "story",
+      "story_kind": "main",
+      "chain_id": "delta_tactical_academy",
+      "title": "德尔塔战术学院：分层矩阵",
+      "description": "第二场新手关卡要求针对每层保存特定战术：破甲厚甲目标、点杀后排威胁，并用前排保护远程火力。",
+      "start_conditions": [
+        {
+          "type": "flag",
+          "flag": "delta_basic_drill_complete"
+        }
+      ],
+      "objectives": [
+        {
+          "id": "clear_matrix",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "delta_layer_matrix",
+          "required": 1,
+          "label": "通关分层矩阵教室"
+        }
+      ],
+      "rewards": {
+        "gold": 90,
+        "exp": 30,
+        "materials": {
+          "skill_essence": 3,
+          "arcane_dust": 2
+        },
+        "equipment": [
+          "delta_tactics_lens"
+        ],
+        "flags": {
+          "delta_layer_matrix_complete": true
+        }
+      },
+      "next_quests": [
+        "main_delta_004_graduation"
+      ],
+      "spawn_dungeon": {
+        "template_id": "delta_layer_matrix",
+        "persistent": true
+      },
+      "dialogue": [
+        {
+          "speaker": "诺克",
+          "text": "装甲傀儡的护甲太厚，普通攻击像是在敲门。"
+        },
+        {
+          "speaker": "教官岚",
+          "text": "所以第 1 层要写入‘破甲’。战术不是装饰，它是让正确的人在正确的层做正确的事。"
+        },
+        {
+          "speaker": "艾丹",
+          "text": "如果每层敌人不同，就每层换战术。明白。"
+        }
+      ],
+      "guide_sections": [
+        {
+          "title": "分层战术操作",
+          "body": "进入战术计划，右上选择‘每层’。第 1 层给诺克保存技能优先级：破甲；第 2 层给希尔保存目标：后排，技能优先级：瞄准射击；第 3 层给艾丹或布朗保存远程攻击防御响应。",
+          "bullets": [
+            "保存默认战术只影响基础配置。",
+            "保存第 N 层战术只在进入第 N 层时覆盖。",
+            "战斗日志会记录“第 N 层套用分层战术”。"
+          ],
+          "nav_hint": "战术计划"
+        },
+        {
+          "title": "总方案库",
+          "body": "当一套默认 + 分层配置稳定后，可以另存为总方案；出征挑战时在副本页绑定该方案。",
+          "bullets": [
+            "总方案能复用到未来类似副本。",
+            "这次实现的分层检查是数据驱动能力，其他副本也可声明。"
+          ]
+        },
+        {
+          "title": "特殊战斗检查",
+          "body": "本关每层都配置了可复用的 tactic_requirements。未满足时，教官会终止演训并在战报中写出失败原因。",
+          "bullets": [
+            "这不是写死的新手逻辑，而是任意副本层都能使用的基础能力。"
+          ]
+        }
+      ],
+      "sort": -98,
+      "guide_steps": [
+        {
+          "id": "open_tactics",
+          "title": "战术计划",
+          "body": "这一关不是单纯数值检查，而是数据驱动的分层战术检查。先打开战术计划。",
+          "target": "[data-guide-id=\"nav-tactics\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "tactics",
+            "label": "打开战术计划",
+            "advance": true
+          }
+        },
+        {
+          "id": "choose_layer_scope",
+          "title": "选择要配置的层",
+          "body": "用“每层”下拉框切到第 1、2、3 层分别保存覆盖战术；未覆盖的角色会继承默认战术。",
+          "target": "[data-guide-id=\"tactics-layer-select\"]",
+          "placement": "bottom",
+          "tips": [
+            "第 1 层需要破甲，第 2 层需要后排点杀，第 3 层需要远程防御响应。"
+          ]
+        },
+        {
+          "id": "configure_rogue",
+          "title": "角色战术卡",
+          "body": "每张角色卡都能单独保存目标、开场、技能优先级和防御响应。比如诺克适合在第 1 层优先破甲。",
+          "target": "[data-guide-id=\"tactic-card-ch_4\"]",
+          "placement": "right"
+        },
+        {
+          "id": "save_layer_tactics",
+          "title": "保存当前层战术",
+          "body": "调整后必须保存。保存第 N 层不会污染默认战术，只在战斗进入对应层时套用。",
+          "target": "[data-guide-id=\"tactics-save-all\"]",
+          "placement": "bottom"
+        },
+        {
+          "id": "save_scheme",
+          "title": "另存总方案",
+          "body": "当默认 + 分层覆盖都配置好后，另存为总方案。挑战副本时可以绑定这套方案重复使用。",
+          "target": "[data-guide-id=\"tactics-scheme-box\"]",
+          "placement": "bottom"
+        },
+        {
+          "id": "open_dungeons",
+          "title": "副本情报",
+          "body": "配置完成后回到副本情报，选择分层矩阵教室并绑定刚保存的总方案。",
+          "target": "[data-guide-id=\"nav-dungeons\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "dungeons",
+            "label": "打开副本情报",
+            "advance": true
+          }
+        },
+        {
+          "id": "bind_scheme",
+          "title": "出征绑定总方案",
+          "body": "挑战按钮旁的总方案下拉框会决定本次挑战使用哪套默认/分层战术。特殊战斗通过与否取决于这里的最终配置。",
+          "target": "[data-guide-id=\"dungeon-scheme-picker\"]",
+          "placement": "top"
+        }
+      ]
+    },
+    {
+      "id": "main_delta_004_graduation",
+      "type": "story",
+      "story_kind": "main",
+      "chain_id": "delta_tactical_academy",
+      "title": "德尔塔战术学院：毕业模拟战",
+      "description": "最终新手关卡是一场包含 Boss 的综合战。你需要把界面、侦察、站位、装备、战术和战报复盘融会贯通。",
+      "start_conditions": [
+        {
+          "type": "flag",
+          "flag": "delta_layer_matrix_complete"
+        }
+      ],
+      "objectives": [
+        {
+          "id": "clear_graduation",
+          "kind": "clear_dungeon",
+          "dungeon_template_id": "delta_graduation_sim",
+          "required": 1,
+          "label": "通关毕业模拟战并击败战术傀儡·Σ"
+        }
+      ],
+      "rewards": {
+        "gold": 150,
+        "exp": 50,
+        "materials": {
+          "skill_essence": 4,
+          "glory": 1
+        },
+        "equipment": [],
+        "flags": {
+          "delta_academy_graduated": true
+        }
+      },
+      "next_quests": [
+        "main_001_spider_nest"
+      ],
+      "spawn_dungeon": {
+        "template_id": "delta_graduation_sim",
+        "persistent": true
+      },
+      "dialogue": [
+        {
+          "speaker": "教官岚",
+          "text": "毕业模拟不会只考一件事。它会先消耗你的资源，再让 Boss 检查你的短板。"
+        },
+        {
+          "speaker": "玛琳",
+          "text": "如果失败？"
+        },
+        {
+          "speaker": "教官岚",
+          "text": "打开战报，找到失败层，回到战术计划和队伍编成修正。能复盘，就是合格指挥官。"
+        },
+        {
+          "speaker": "教官岚",
+          "text": "通过后，你们就离开学院，去处理真正的蛛巢。"
+        }
+      ],
+      "guide_sections": [
+        {
+          "title": "Boss 战准备清单",
+          "body": "毕业模拟混合了多目标、装甲、后排威胁和 Boss 压制。",
+          "bullets": [
+            "确认一队四人上阵且血量健康。",
+            "为前排装备徽章/护盾，为输出保留命中。",
+            "必要时把分层战术另存为总方案并在挑战时绑定。"
+          ]
+        },
+        {
+          "title": "融会贯通",
+          "body": "先侦察，再挑战；失败看战报；调整站位、装备、技能优先级和分层覆盖；再挑战。",
+          "bullets": [
+            "这条流程会复用于后续主线所有副本。",
+            "毕业后将解锁原主线「蛛巢初探」。"
+          ]
+        }
+      ],
+      "sort": -97,
+      "guide_steps": [
+        {
+          "id": "open_party",
+          "title": "队伍编成",
+          "body": "毕业模拟战会检查综合准备。先确认一队上阵、血量健康、装备合适。",
+          "target": "[data-guide-id=\"nav-party\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "party",
+            "label": "打开队伍编成",
+            "advance": true
+          }
+        },
+        {
+          "id": "equipment_check",
+          "title": "装备与站位检查",
+          "body": "把徽章、护盾或命中装备给合适角色；前排承伤，中后排输出与支援。",
+          "target": "[data-guide-id=\"party-equipment\"]",
+          "placement": "left"
+        },
+        {
+          "id": "open_dungeons",
+          "title": "副本情报",
+          "body": "进入副本情报，选择毕业模拟战；Boss 战前建议先侦察。",
+          "target": "[data-guide-id=\"nav-dungeons\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "dungeons",
+            "label": "打开副本情报",
+            "advance": true
+          }
+        },
+        {
+          "id": "select_graduation",
+          "title": "毕业模拟战",
+          "body": "这是包含 Boss 的综合战。先观察公开威胁，再决定是否沿用分层矩阵中的总方案。",
+          "target": "[data-guide-id=\"quest-dungeon-main_delta_004_graduation\"]",
+          "placement": "right",
+          "action": {
+            "type": "click_target",
+            "label": "选择毕业模拟战",
+            "advance": true
+          }
+        },
+        {
+          "id": "boss_scout",
+          "title": "Boss 前侦察",
+          "body": "侦察会告诉你 Boss 压制点和层结构。若第一次失败，不要硬冲，先看战报。",
+          "target": "[data-guide-id=\"dungeon-scout-button\"]",
+          "placement": "top"
+        },
+        {
+          "id": "open_reports",
+          "title": "战报复盘",
+          "body": "失败或胜利后都看战报：毕业模拟战考的是你能否根据复盘修正配置。",
+          "target": "[data-guide-id=\"nav-reports\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "reports",
+            "label": "打开战报复盘",
+            "advance": true
+          }
+        },
+        {
+          "id": "review_boss",
+          "title": "用战报反推调整",
+          "body": "重点看失败原因、关键事件、承伤最高和未命中统计；再回队伍或战术页修正。",
+          "target": "[data-guide-id=\"reports-detail\"]",
+          "placement": "left"
+        },
+        {
+          "id": "return_tactics",
+          "title": "战术计划",
+          "body": "如果战报暴露短板，回到战术计划调整目标、技能优先级、防御响应或分层覆盖。",
+          "target": "[data-guide-id=\"nav-tactics\"]",
+          "placement": "right",
+          "action": {
+            "type": "navigate",
+            "nav": "tactics",
+            "label": "打开战术计划",
+            "advance": true
+          }
+        }
+      ]
+    },
+    {
       "id": "main_001_spider_nest",
       "type": "story",
       "story_kind": "main",
@@ -9,7 +767,10 @@
       "title": "蛛巢初探",
       "description": "村道上的蛛网越来越密。先清理一处蜘蛛巢穴，确认毒蛛活动的源头。",
       "start_conditions": [
-        { "type": "always_true" }
+        {
+          "type": "flag",
+          "flag": "delta_academy_graduated"
+        }
       ],
       "objectives": [
         {
@@ -48,7 +809,10 @@
       "title": "盗匪踪迹",
       "description": "蛛巢中发现了人为投放的诱饵。侦察并击破一处盗贼营地，找出幕后线索。",
       "start_conditions": [
-        { "type": "flag", "flag": "main_spider_nest_cleared" }
+        {
+          "type": "flag",
+          "flag": "main_spider_nest_cleared"
+        }
       ],
       "objectives": [
         {
@@ -95,7 +859,10 @@
       "title": "熔炉备战",
       "description": "盗匪营地指向了更深处的熔岩裂谷。收集矿石，为最终决战做准备。",
       "start_conditions": [
-        { "type": "flag", "flag": "main_bandit_trace_cleared" }
+        {
+          "type": "flag",
+          "flag": "main_bandit_trace_cleared"
+        }
       ],
       "objectives": [
         {
@@ -133,7 +900,10 @@
       "title": "矿工的委托",
       "description": "矿工行会愿意用额外报酬换回废弃矿洞中的矿石。",
       "start_conditions": [
-        { "type": "flag", "flag": "main_spider_nest_cleared" }
+        {
+          "type": "flag",
+          "flag": "main_spider_nest_cleared"
+        }
       ],
       "objectives": [
         {
@@ -170,7 +940,10 @@
         }
       ],
       "rewards": {
-        "gold": { "min": 40, "max": 60 },
+        "gold": {
+          "min": 40,
+          "max": 60
+        },
         "materials": {
           "ore": 3
         }
@@ -190,7 +963,10 @@
         }
       ],
       "rewards": {
-        "gold": { "min": 40, "max": 60 },
+        "gold": {
+          "min": 40,
+          "max": 60
+        },
         "materials": {
           "venom_sac": 2
         }
@@ -209,7 +985,10 @@
         }
       ],
       "rewards": {
-        "gold": { "min": 40, "max": 60 },
+        "gold": {
+          "min": 40,
+          "max": 60
+        },
         "materials": {
           "skill_essence": 1
         }
@@ -229,7 +1008,10 @@
         }
       ],
       "rewards": {
-        "gold": { "min": 50, "max": 80 },
+        "gold": {
+          "min": 50,
+          "max": 80
+        },
         "materials": {
           "cloth": 2
         }
@@ -243,7 +1025,10 @@
       "title": "隐藏：盲战取胜",
       "description": "在没有侦察的情况下通关一处危险等级 3+ 的副本。",
       "reveal_conditions": [
-        { "type": "flag", "flag": "main_spider_nest_cleared" }
+        {
+          "type": "flag",
+          "flag": "main_spider_nest_cleared"
+        }
       ],
       "objectives": [
         {
@@ -273,7 +1058,10 @@
       "title": "隐藏：连战连捷",
       "description": "在一天之内连续通关两处副本，展现远征队的极限战力。",
       "reveal_conditions": [
-        { "type": "flag", "flag": "main_bandit_trace_cleared" }
+        {
+          "type": "flag",
+          "flag": "main_bandit_trace_cleared"
+        }
       ],
       "objectives": [
         {

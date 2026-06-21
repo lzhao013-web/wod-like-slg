@@ -239,7 +239,10 @@ def test_ascension_recipes_cover_all_special_sources():
     recipes = engine.ascension_recipes()
     sources = {r["source"] for r in recipes}
     data = engine.load_data()
-    specials = [e["id"] for e in data["equipment"] if e.get("item_kind") == "special" and e.get("fixed_rarity")]
+    specials = [
+        e["id"] for e in data["equipment"]
+        if e.get("item_kind") == "special" and e.get("fixed_rarity") and e.get("ascendable") is not False
+    ]
     # The 6 ascension targets are also fixed-rarity specials, but they are NOT
     # sources; only the original 6 base specials need recipes.
     targets = {r["target"] for r in recipes}

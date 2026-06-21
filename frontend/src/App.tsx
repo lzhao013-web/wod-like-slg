@@ -15,12 +15,29 @@ import { ShopPanel } from './components/panels/ShopPanel'
 import { EnchantPanel } from './components/panels/EnchantPanel'
 import { RecruitsPanel } from './components/panels/RecruitsPanel'
 import { QuestsPanel } from './components/panels/QuestsPanel'
-import type { CharacterView } from './types/game'
+import { GuidedTour, type ActiveGuide } from './components/GuidedTour'
+import { SaveManager } from './components/SaveManager'
+import type { CharacterView, QuestView } from './types/game'
 
 export default function App() {
   const game = useGame()
   const [nav, setNav] = useState<NavId>('overview')
   const [sheetChar, setSheetChar] = useState<CharacterView | null>(null)
+  const [activeGuide, setActiveGuide] = useState<ActiveGuide | null>(null)
+  const [saveManagerOpen, setSaveManagerOpen] = useState(false)
+
+  const saveManager = (
+    <SaveManager
+      open={saveManagerOpen}
+      busy={game.busy}
+      canSave={!!game.state}
+      onClose={() => setSaveManagerOpen(false)}
+      onSaveSlot={(slotId) => game.act(() => apiSaveToSlot(slotId), { reload: false, toast: () => ({ tone: 'success', text: '进度已保存。' } as any) })}
+      onLoadSlot={(slotId) => game.loadSaveSlot(slotId)}
+      onDeleteSlot={(slotId) => game.act(() => apiDeleteSaveSlot(slotId), { reload: false, toast: () => ({ tone: 'info', text: '存档槽已清空。' } as any) })}
+      onNewGame={(seed) => game.newGame(seed)}
+    />
+  )
 
   if (game.phase === 'loading') {
     return <div className="boot"><div className="boot__crest">🏰</div><p>正在集结远征队…</p></div>
@@ -34,7 +51,9 @@ export default function App() {
           busy={game.busy}
           onStart={(seed) => game.newGame(seed)}
           onContinue={() => game.returnToPlay()}
+          onOpenSaveManager={() => setSaveManagerOpen(true)}
         />
+        {saveManager}
         <Toasts toasts={game.toasts} onDismiss={game.dismissToast} />
       </>
     )
@@ -64,9 +83,33 @@ export default function App() {
   const partyMembers = game.party.members
   const sheetCharLive = sheetChar ? (partyMembers.find(m => m.id === sheetChar.id) ?? sheetChar) : null
 
+  function navigateTo(id: string) {
+    if (isNavId(id)) setNav(id)
+  }
+
+  function startQuestGuide(q: QuestView) {
+    const steps = q.guide_steps ?? []
+    if (steps.length === 0) return
+    const manualObjective = q.objectives.find(o => o.kind === 'manual_ack' && !o.completed)
+    setActiveGuide({
+      id: `${q.id}:${q.status}:${steps.length}`,
+      title: q.title,
+      subtitle: '按步骤高亮界面区域；带动作的步骤可以直接帮你切换界面或点击目标。',
+      questId: q.id,
+      completeObjectiveId: q.status === 'active' ? manualObjective?.id : undefined,
+      steps,
+    })
+  }
+
   return (
     <div className="app">
-      <TopBar state={state} planCount={game.plan.length} busy={game.busy} onEndDay={game.endDay} />
+      <TopBar
+        state={state}
+        planCount={game.plan.length}
+        busy={game.busy}
+        onEndDay={game.endDay}
+        onOpenSaveManager={() => setSaveManagerOpen(true)}
+      />
 
       {game.error && <div className="appError">{game.error}</div>}
 
@@ -177,6 +220,8 @@ export default function App() {
               quests={state.quests ?? emptyQuests}
               busy={game.busy}
               onAccept={(id) => game.act(() => apiAcceptQuest(id), { toast: () => ({ tone: 'success', text: '已接受任务。' } as any) })}
+              onCompleteObjective={(questId, objectiveId) => game.act(() => apiCompleteQuestObjective(questId, objectiveId), { toast: () => ({ tone: 'success', text: '教学目标已确认。' } as any) })}
+              onStartGuide={startQuestGuide}
               onClaim={(id) => game.act(() => apiClaimQuest(id), { toast: (v: any) => ({ tone: 'success', text: `领取奖励：🪙${v?.quest?.rewards?.gold ?? 0}。` } as any) })}
               onAbandon={(id) => game.act(() => apiAbandonQuest(id), { toast: () => ({ tone: 'info', text: '任务已放弃。' } as any) })}
             />
@@ -209,6 +254,14 @@ export default function App() {
         />
       )}
 
+      <GuidedTour
+        guide={activeGuide}
+        onClose={() => setActiveGuide(null)}
+        onNavigate={navigateTo}
+        onCompleteObjective={(questId, objectiveId) => game.act(() => apiCompleteQuestObjective(questId, objectiveId), { toast: () => ({ tone: 'success', text: '教学目标已确认。' } as any) })}
+      />
+
+      {saveManager}
       <Toasts toasts={game.toasts} onDismiss={game.dismissToast} />
     </div>
   )
@@ -240,13 +293,20 @@ const apiReroll = (id: string, idx: number) => api.rerollEnchant(id, idx)
 const apiAscend = (id: string) => api.ascendEquipment(id)
 const apiRecruit = (id: string) => api.recruit(id)
 const apiDismiss = (id: string) => api.dismiss(id)
+const apiSaveToSlot = (slotId: string) => api.saveToSlot(slotId)
+const apiDeleteSaveSlot = (slotId: string) => api.deleteSaveSlot(slotId)
 const apiAcceptQuest = (id: string) => apiJson(`/quests/${id}/accept`, { method: 'POST' })
+const apiCompleteQuestObjective = (questId: string, objectiveId: string) => apiJson(`/quests/${questId}/objectives/${objectiveId}/complete`, { method: 'POST' })
 const apiClaimQuest = (id: string) => apiJson(`/quests/${id}/claim`, { method: 'POST' })
 const apiAbandonQuest = (id: string) => apiJson(`/quests/${id}/abandon`, { method: 'POST' })
 
 const emptyQuests = {
   available: [], active: [], completed: [], claimed: [], expired: [],
   summary: { available_count: 0, active_count: 0, claimable_count: 0, daily_day: null },
+}
+
+function isNavId(value: string): value is NavId {
+  return ['overview', 'dungeons', 'party', 'tactics', 'reports', 'shop', 'enchant', 'recruits', 'quests'].includes(value)
 }
 
 async function apiJson(url: string, options: RequestInit = {}) {

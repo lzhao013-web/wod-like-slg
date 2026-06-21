@@ -13,8 +13,8 @@ export function ReportsPanel(props: {
   detail: ReportView | null
 }) {
   return (
-    <div className="reportsLayout">
-      <section className="panel reportsList">
+    <div className="reportsLayout" data-guide-id="reports-panel">
+      <section className="panel reportsList" data-guide-id="reports-list">
         <div className="panel__head"><h2>📊 战报复盘</h2><span className="muted">{props.reports.length} 份</span></div>
         {props.reports.length === 0 && <p className="muted">尚无战报。</p>}
         <div className="reportFeed">
@@ -22,7 +22,7 @@ export function ReportsPanel(props: {
         </div>
       </section>
 
-      <section className="panel reportDetail">
+      <section className="panel reportDetail" data-guide-id="reports-detail">
         <ReportDetail detail={props.detail} />
       </section>
     </div>

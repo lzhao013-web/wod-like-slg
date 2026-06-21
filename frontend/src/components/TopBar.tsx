@@ -9,6 +9,7 @@ export function TopBar(props: {
   planCount: number
   busy: boolean
   onEndDay: () => void
+  onOpenSaveManager?: () => void
 }) {
   const { state } = props
   const dayFrac = Math.min(1, (state.day - 1) / Math.max(1, state.max_day))
@@ -25,7 +26,7 @@ export function TopBar(props: {
       </div>
 
       <div className="hud__center">
-        <div className="hud__dayBlock">
+        <div className="hud__dayBlock" data-guide-id="hud-day">
           <div className="hud__dayHead">
             <span className="hud__dayLabel">第 <b>{state.day}</b> / {state.max_day} 天</span>
             <span className="hud__dayHint">{state.final_unlocked ? '最终挑战已解锁' : `${Math.max(0, state.max_day - state.day)} 天后结束`}</span>
@@ -33,7 +34,7 @@ export function TopBar(props: {
           <Bar value={state.day - 1} max={state.max_day} fraction={dayFrac} height={8} color="#ffb300" />
         </div>
 
-        <div className="hud__resources">
+        <div className="hud__resources" data-guide-id="hud-resources">
           <div className="res" title="金币">
             <span className="res__icon">🪙</span>
             <b>{num(state.gold)}</b>
@@ -55,10 +56,15 @@ export function TopBar(props: {
         </div>
       </div>
 
-      <button className={cx('hud__endBtn', props.planCount > 0 && 'is-active')} onClick={props.onEndDay} disabled={!canEnd}>
-        <span className="hud__endIcon">{props.planCount > 0 ? '⚔️' : '🏕️'}</span>
-        <span>{props.planCount > 0 ? `结算远征 ×${props.planCount}` : '结束当天·休整'}</span>
-      </button>
+      <div className="hud__actions">
+        <button className="hud__saveBtn" type="button" onClick={props.onOpenSaveManager} disabled={props.busy || !props.onOpenSaveManager}>
+          💾 存档
+        </button>
+        <button className={cx('hud__endBtn', props.planCount > 0 && 'is-active')} data-guide-id="hud-end-day" onClick={props.onEndDay} disabled={!canEnd}>
+          <span className="hud__endIcon">{props.planCount > 0 ? '⚔️' : '🏕️'}</span>
+          <span>{props.planCount > 0 ? `结算远征 ×${props.planCount}` : '结束当天·休整'}</span>
+        </button>
+      </div>
     </header>
   )
 }

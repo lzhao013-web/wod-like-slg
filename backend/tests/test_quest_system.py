@@ -22,12 +22,19 @@ def _first_dungeon_with_template(state, template_id):
     return next((d for d in state["active_dungeons"] if d["template_id"] == template_id), None)
 
 
+def _reveal_original_main(state):
+    """Skip the tutorial gate for legacy campaign lifecycle assertions."""
+    state["quest_flags"]["delta_academy_graduated"] = True
+    engine._reveal_eligible_story_quests(state)
+
+
 def test_new_game_seeds_main_quest_and_daily_commissions():
     state = engine.default_state(seed=42)
     view = engine.quest_list_view(state)
 
-    # First main story quest is available immediately.
-    assert "main_001_spider_nest" in _available_ids(state)
+    # The tutorial mainline is now the opening story quest.
+    assert "main_delta_001_orientation" in _available_ids(state)
+    assert "main_001_spider_nest" not in _available_ids(state)
     # Daily commissions rolled for day 1.
     daily_available = [q for q in view["available"] if q["type"] == "daily"]
     assert len(daily_available) == engine.load_data().get("daily_quest_count", 3)
@@ -56,6 +63,7 @@ def test_quest_state_is_backfilled_by_migrate_for_old_saves():
 
 def test_accept_quest_spawns_persistent_dungeon_and_lifecycle_validation():
     state = engine.default_state(seed=7)
+    _reveal_original_main(state)
     q = engine.accept_quest(state, "main_001_spider_nest")
     assert q["status"] == "active"
     assert q["accepted_day"] == 1
@@ -87,6 +95,7 @@ def test_accept_quest_spawns_persistent_dungeon_and_lifecycle_validation():
 
 def test_clearing_quest_dungeon_completes_objective_and_claim_grants_rewards_and_chain():
     state = engine.default_state(seed=11)
+    _reveal_original_main(state)
     engine.accept_quest(state, "main_001_spider_nest")
 
     # Find the quest's persistent dungeon and challenge it directly (not via end_day)
@@ -209,6 +218,7 @@ def test_hidden_quest_condition_reveal_path_requires_manual_accept():
 
 def test_abandon_resets_story_quest_progress_and_expires_daily():
     state = engine.default_state(seed=17)
+    _reveal_original_main(state)
     engine.accept_quest(state, "main_001_spider_nest")
     # Fake some progress then abandon.
     q = _get_quest(state, "main_001_spider_nest")
@@ -235,8 +245,72 @@ def test_public_state_view_and_preset_expose_quests():
     assert "quest_status_labels" in preset
 
 
+def test_tutorial_orientation_uses_manual_ack_and_grants_equipment_reward():
+    state = engine.default_state(seed=101)
+    q = engine.accept_quest(state, "main_delta_001_orientation")
+    assert q["status"] == "active"
+    assert q["guide_sections"] and q["dialogue"]
+
+    engine.complete_manual_quest_objective(state, "main_delta_001_orientation", "read_orientation")
+    q = _get_quest(state, "main_delta_001_orientation")
+    assert q["status"] == "completed"
+
+    before = len(state["inventory"])
+    claimed = engine.claim_quest(state, "main_delta_001_orientation")
+    assert claimed["status"] == "claimed"
+    assert len(state["inventory"]) == before + 1
+    assert state["inventory"][-1]["template_id"] == "delta_cadet_badge"
+    assert state["quest_flags"]["delta_orientation_complete"] is True
+    assert "main_delta_002_basic_drill" in _available_ids(state)
+
+
+def test_tutorial_public_view_exposes_guides_dialogue_and_equipment_preview():
+    state = engine.default_state(seed=102)
+    q = next(q for q in engine.quest_list_view(state)["available"] if q["template_id"] == "main_delta_001_orientation")
+    assert q["guide_sections"][0]["title"] == "指挥台"
+    assert q["guide_steps"][0]["target"] == '[data-guide-id="nav-quests"]'
+    assert q["guide_steps"][2]["action"]["type"] == "navigate"
+    assert q["dialogue"][0]["speaker"] == "教官岚"
+    assert q["rewards"]["equipment"][0]["id"] == "delta_cadet_badge"
+    assert q["rewards"]["equipment"][0]["preview"]["template_id"] == "delta_cadet_badge"
+
+
+def test_layer_tactic_requirements_are_data_driven_and_reusable():
+    state = engine.default_state(seed=103)
+    template = engine.load_data()["dungeon_by_id"]["delta_layer_matrix"]
+    party = engine.make_player_combatants(state, "team_1")
+    engine.apply_layer_tactics_to_party(state, party, 1)
+    assert engine.evaluate_layer_tactic_requirements(template["layers"][0], party)
+
+    # Save a layer-1 override for the rogue (ch_4 / 诺克) with armor_break in
+    # skill priority; the same generic evaluator now passes.
+    engine.update_tactics(state, {
+        "layer_index": 1,
+        "characters": [{
+            "character_id": "ch_4",
+            "target_priority": "highest_defense",
+            "skill_priority": ["armor_break"],
+            "opening_skill_priority": [],
+            "defense_skill_by_type": {},
+        }],
+    })
+    party = engine.make_player_combatants(state, "team_1")
+    engine.apply_layer_tactics_to_party(state, party, 1)
+    assert engine.evaluate_layer_tactic_requirements(template["layers"][0], party) == []
+
+
+def test_tutorial_dungeon_guaranteed_equipment_drop():
+    state = engine.default_state(seed=104)
+    dungeon = engine.spawn_dungeon_instance(state, "delta_basic_drill")
+    report = engine.resolve_challenge(state, dungeon, action_index=0, team_id="team_1")
+    assert report["result"] == "victory"
+    drops = [e["item"]["template_id"] for e in report["rewards"]["equipment"] if isinstance(e, dict)]
+    assert "delta_cadet_badge" in drops
+
+
 def test_persistent_quest_dungeon_survives_day_rollover_until_claimed():
     state = engine.default_state(seed=23)
+    _reveal_original_main(state)
     engine.accept_quest(state, "main_001_spider_nest")
     linked = next(d for d in state["active_dungeons"] if d.get("source_quest_id") == "main_001_spider_nest")
     # Mark cleared (simulating a victory) but do NOT claim yet.

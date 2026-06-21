@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export function StartScreen(props: { hasSave: boolean; onStart: (seed?: number) => void; onContinue: () => void; busy: boolean }) {
+export function StartScreen(props: { hasSave: boolean; onStart: (seed?: number) => void; onContinue: () => void; onOpenSaveManager?: () => void; busy: boolean }) {
   const [seed, setSeed] = useState('')
   const [showSeed, setShowSeed] = useState(false)
 
@@ -26,6 +26,7 @@ export function StartScreen(props: { hasSave: boolean; onStart: (seed?: number) 
           {props.hasSave && (
             <button className="btn btn--ghost" onClick={props.onContinue} disabled={props.busy}>继续上一局</button>
           )}
+          <button className="btn btn--ghost" onClick={props.onOpenSaveManager} disabled={props.busy || !props.onOpenSaveManager}>读取/管理存档</button>
           <button className="btn btn--primary" onClick={() => props.onStart(seed ? Number(seed) : undefined)} disabled={props.busy}>
             {props.busy ? '准备中…' : props.hasSave ? '开启新局' : '开始游戏'}
           </button>
